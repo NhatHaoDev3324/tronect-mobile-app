@@ -18,3 +18,8 @@ declare module "*.jpeg" {
   const src: number;
   export default src;
 }
+
+declare module "*.svg" {
+  const src: number;
+  export default src;
+}
