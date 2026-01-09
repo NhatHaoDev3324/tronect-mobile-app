@@ -36,3 +36,8 @@ export const tenantUpdate = async (username: string, email: string, phone: strin
     const request = await api.put("/api/tenant/update", { username, email, phone, gender, date_of_birth, bio, zalo });
     return request.data;
 }
+
+export const tenantLoginWithGoogle = async (accessToken: string) => {
+    const request = await api.post("/api/tenant/login/google", { token: accessToken });
+    return request.data;
+}

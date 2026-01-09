@@ -1,4 +1,4 @@
-import { tenantLoginWithEmail, tenantMyProfile } from "@/api/authTenantApi";
+import { tenantLoginWithEmail, tenantLoginWithGoogle, tenantMyProfile } from "@/api/authTenantApi";
 import LogoGoogle from "@/assets/icon/google-icon.svg";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -51,8 +51,8 @@ export default function LoginScreen() {
     () => ({
       expoClientId: "YOUR_EXPO_CLIENT_ID.apps.googleusercontent.com",
       iosClientId: "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
-      androidClientId: "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
-      webClientId: "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+      androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
+      webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
     }),
     []
   );
@@ -61,13 +61,72 @@ export default function LoginScreen() {
 
   React.useEffect(() => {
     if (response?.type === "success") {
-      Toast.show({
-        type: "success",
-        text1: "Google login",
-        text2: "Đăng nhập Google thành công.",
-      });
+      handleGoogleLoginResponse();
     }
   }, [response]);
+
+  const handleGoogleLoginResponse = async () => {
+    try {
+      setLoading(true);
+      const googleToken = response?.authentication?.accessToken;
+      
+      if (!googleToken) {
+        Toast.show({
+          type: "error",
+          text1: "Lỗi",
+          text2: "Không thể lấy token Google.",
+        });
+        return;
+      }
+
+      const result = await tenantLoginWithGoogle(googleToken);
+      
+      if (!result?.status || !result?.accessToken) {
+        Toast.show({
+          type: "error",
+          text1: "Đăng nhập thất bại",
+          text2: "Vui lòng thử lại.",
+        });
+        return;
+      }
+
+      await AsyncStorage.setItem("accessToken", result.accessToken);
+
+      const res = await tenantMyProfile();
+      setUserID(res.data.id);
+      setRole(res.data.role);
+      setUrlImg(res.data.picture);
+      setUserName(res.data.username);
+      setPhone(res.data.phone);
+      setProvider(res.data.provider);
+      setCreated(res.data.created_at);
+
+      Toast.show({
+        type: "success",
+        text1: "Đăng nhập thành công",
+        text2: "Chào mừng bạn quay lại.",
+      });
+      router.replace("/tenant/(tabs)");
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        const message = err.response?.data?.message || "Đăng nhập thất bại";
+
+        Toast.show({
+          type: "error",
+          text1: message,
+          text2: "Vui lòng kiểm tra và thử lại.",
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Có lỗi xảy ra",
+          text2: "Vui lòng thử lại sau.",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onLogin = async () => {
     if (!email.trim() || !password) {
@@ -130,13 +189,16 @@ export default function LoginScreen() {
 
   const onGoogleLogin = async () => {
     try {
+      setLoading(true);
       await promptAsync();
-    } catch {
+    } catch (error) {
+      console.error("Google login error:", error);
       Toast.show({
         type: "error",
         text1: "Lỗi",
         text2: "Không thể đăng nhập Google.",
       });
+      setLoading(false);
     }
   };
 
