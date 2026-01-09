@@ -1,5 +1,15 @@
 import api from "@/utils/axios";
 
+export const tenantSendOtp = async (contact: string) => {
+    const request = await api.post("/api/tenant/send-otp", { contact, typeContact: "email" });
+    return request.data;
+};
+
+export const tenantRegisterWithEmail = async (username: string,  email: string, password: string, otp: string) => {
+    const request = await api.post("/api/tenant/register-by-email", {username, email, password, otp});
+    return request.data;
+};
+
 export const tenantLoginWithEmail = async (email: string, password: string) => {
     const request  = await api.post("/api/tenant/login/email", {email, password});
     return request.data;
