@@ -11,8 +11,8 @@ export const TagVip = ({ postType, onPress }: TagVipProps) => {
 
   const Content = (
     <View style={styles.container}>
-      <Star size={14} color="#fbbf24" />
-      <Text style={styles.text}>Tin VIP nổi bật</Text>
+      <Star size={14} color="#fbbf24" fill="#fbbf24" />
+      <Text style={styles.text}>Tin VIP</Text>
     </View>
   );
 
@@ -32,8 +32,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#ef4444",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
     borderRadius: 999,
     alignSelf: "flex-start",
   },
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "700",
     fontSize: 12,
-    marginLeft: 6,
+    marginLeft: 4,
   },
   pressed: {
     opacity: 0.85,

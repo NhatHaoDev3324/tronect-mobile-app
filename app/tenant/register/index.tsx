@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { isAxiosError } from "axios";
 import { Image } from "expo-image";
 import { Link, router } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -24,6 +24,7 @@ import { Text } from "@/components/ui/text";
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -49,12 +50,13 @@ export default function RegisterScreen() {
   const onRegister = async () => {
     const name = fullName.trim();
     const mail = email.trim();
+    const phoneNum = phone.trim();
 
-    if (!name || !mail || !password || !confirmPassword) {
+    if (!name || !mail || !phoneNum || !password || !confirmPassword) {
       Toast.show({
         type: "error",
         text1: "Thiếu thông tin",
-        text2: "Vui lòng nhập đầy đủ họ tên, email và mật khẩu.",
+        text2: "Vui lòng nhập đầy đủ họ tên, email, số điện thoại và mật khẩu.",
       });
       return;
     }
@@ -64,6 +66,15 @@ export default function RegisterScreen() {
         type: "error",
         text1: "Email không hợp lệ",
         text2: "Vui lòng kiểm tra lại địa chỉ email.",
+      });
+      return;
+    }
+
+    if (phoneNum.length < 9 || phoneNum.length > 11) {
+      Toast.show({
+        type: "error",
+        text1: "Số điện thoại không hợp lệ",
+        text2: "Số điện thoại phải có ít nhất 9 ký tự và không quá 11 ký tự.",
       });
       return;
     }
@@ -90,7 +101,7 @@ export default function RegisterScreen() {
     try {
       // Gọi API thứ nhất: gửi OTP xác thực email
       await tenantSendOtp(mail);
-      
+
       Toast.show({
         type: "success",
         text1: "Gửi OTP thành công",
@@ -122,11 +133,12 @@ export default function RegisterScreen() {
   const onVerifyOtp = async (otp: string) => {
     const name = fullName.trim();
     const mail = email.trim();
+    const phoneNum = phone.trim();
 
     setOtpLoading(true);
     try {
       // Gọi API thứ 2: xác nhận OTP và hoàn thành đăng ký
-      const res = await tenantRegisterWithEmail(name, mail, password, otp);
+      const res = await tenantRegisterWithEmail(name, mail, phoneNum, password, otp);
 
       if (!res?.status) {
         Toast.show({
@@ -220,6 +232,22 @@ export default function RegisterScreen() {
               onChangeText={setEmail}
               placeholder="Nhập địa chỉ email của bạn"
               keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              className="w-full"
+            />
+          </View>
+
+          <View className="mt-4 gap-1">
+            <Label nativeID="phone" className="text-base font-bold">
+              Số điện thoại
+            </Label>
+            <Input
+              aria-labelledby="phone"
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Nhập số điện thoại của bạn"
+              keyboardType="phone-pad"
               autoCapitalize="none"
               autoCorrect={false}
               className="w-full"

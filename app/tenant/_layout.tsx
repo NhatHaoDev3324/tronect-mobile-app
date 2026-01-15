@@ -4,113 +4,113 @@ import { router, Stack } from "expo-router";
 import { Pressable, type ViewProps } from "react-native";
 
 export type ThemedViewProps = ViewProps & {
-  lightColor?: string;
-  darkColor?: string;
+    lightColor?: string;
+    darkColor?: string;
 };
 export default function TenantLayout({
-  lightColor,
-  darkColor,
+    lightColor,
+    darkColor,
 }: ThemedViewProps) {
-  const textColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "text"
-  );
-  return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="modal/index"
-        options={{
-          title: "Modal",
-          headerBackVisible: false,
-          headerLeft: () => (
-            <Pressable
-              onPress={() => router.back()}
-              style={{ paddingHorizontal: 12 }}
-            >
-              <Ionicons name="arrow-back" size={24} color={textColor} />
-            </Pressable>
-          ),
-        }}
-      />
-      <Stack.Screen name="login/index" options={{ headerShown: false }} />
-      <Stack.Screen name="register/index" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="forgot-password/index"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="role-authentication/index"
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="profile/index"
-        options={{
-          headerShown: true,
-          headerTitleAlign: "center",
-          headerBackVisible: false,
-          title: "Hồ sơ của tôi",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => router.back()}
-              style={{ paddingHorizontal: 12 }}
-            >
-              <Ionicons name="arrow-back" size={24} color={textColor} />
-            </Pressable>
-          ),
-        }}
-      />
-      <Stack.Screen
-        name="edit-profile/index"
-        options={{
-          headerShown: true,
-          headerTitleAlign: "center",
-          headerBackVisible: false,
-          title: "Chỉnh sửa hồ sơ cá nhân",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => router.back()}
-              style={{ paddingHorizontal: 12 }}
-            >
-              <Ionicons name="arrow-back" size={24} color={textColor} />
-            </Pressable>
-          ),
-        }}
-      />
-      <Stack.Screen
-        name="appearance/index"
-        options={{
-          headerShown: true,
-          headerTitleAlign: "center",
-          headerBackVisible: false,
-          title: "Giao diện hiển thị",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => router.back()}
-              style={{ paddingHorizontal: 12 }}
-            >
-              <Ionicons name="arrow-back" size={24} color={textColor} />
-            </Pressable>
-          ),
-        }}
-      />
-      <Stack.Screen
-        name="change-password/index"
-        options={{
-          headerShown: true,
-          headerTitleAlign: "center",
-          headerBackVisible: false,
-          title: "Đổi mật khẩu",
-          headerLeft: () => (
-            <Pressable
-              onPress={() => router.back()}
-              style={{ paddingHorizontal: 12 }}
-            >
-              <Ionicons name="arrow-back" size={24} color={textColor} />
-            </Pressable>
-          ),
-        }}
-      />
-    </Stack>
-  );
+    const textColor = useThemeColor(
+        { light: lightColor, dark: darkColor },
+        "text"
+    );
+    return (
+        <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+                name="modal/index"
+                options={{
+                    title: "Modal",
+                    headerBackVisible: false,
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
+            <Stack.Screen name="login/index" options={{ headerShown: false }} />
+            <Stack.Screen name="register/index" options={{ headerShown: false }} />
+            <Stack.Screen
+                name="forgot-password/index"
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="role-authentication/index"
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="profile/index"
+                options={{
+                    headerShown: true,
+                    headerTitleAlign: "center",
+                    headerBackVisible: false,
+                    title: "Hồ sơ của tôi",
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
+            <Stack.Screen
+                name="edit-profile/index"
+                options={{
+                    headerShown: true,
+                    headerTitleAlign: "center",
+                    headerBackVisible: false,
+                    title: "Chỉnh sửa hồ sơ cá nhân",
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
+            <Stack.Screen
+                name="appearance/index"
+                options={{
+                    headerShown: true,
+                    headerTitleAlign: "center",
+                    headerBackVisible: false,
+                    title: "Giao diện hiển thị",
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
+            <Stack.Screen
+                name="change-password/index"
+                options={{
+                    headerShown: true,
+                    headerTitleAlign: "center",
+                    headerBackVisible: false,
+                    title: "Đổi mật khẩu",
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
+        </Stack>
+    );
 }
