@@ -61,13 +61,13 @@ const otherMenus = [
         key: "support",
         label: "Hỗ trợ khách hàng",
         icon: "headphones",
-        onPress: () => console.log("Hỗ trợ khách hàng"),
+        onPress: () => router.push("/tenant/support"),
     },
     {
         key: "faq",
         label: "Câu hỏi thường gặp",
         icon: "help-circle",
-        onPress: () => console.log("Câu hỏi thường gặp"),
+        onPress: () => router.push("/tenant/faq"),
     },
 ] as const;
 
@@ -249,6 +249,7 @@ export default function SearchScreen({
         };
 
         init();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

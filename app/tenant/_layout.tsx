@@ -15,23 +15,13 @@ export default function TenantLayout({
         { light: lightColor, dark: darkColor },
         "text"
     );
+
     return (
         <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
-                name="modal/index"
-                options={{
-                    title: "Modal",
-                    headerBackVisible: false,
-                    headerLeft: () => (
-                        <Pressable
-                            onPress={() => router.back()}
-                            style={{ paddingHorizontal: 12 }}
-                        >
-                            <Ionicons name="arrow-back" size={24} color={textColor} />
-                        </Pressable>
-                    ),
-                }}
+                name="chatbot/index"
+                options={{ headerShown: false }}
             />
             <Stack.Screen name="login/index" options={{ headerShown: false }} />
             <Stack.Screen name="register/index" options={{ headerShown: false }} />
@@ -101,6 +91,40 @@ export default function TenantLayout({
                     headerTitleAlign: "center",
                     headerBackVisible: false,
                     title: "Đổi mật khẩu",
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
+            <Stack.Screen
+                name="support/index"
+                options={{
+                    headerShown: true,
+                    headerTitleAlign: "center",
+                    headerBackVisible: false,
+                    title: "Hỗ trợ khách hàng",
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
+            <Stack.Screen
+                name="faq/index"
+                options={{
+                    headerShown: true,
+                    headerTitleAlign: "center",
+                    headerBackVisible: false,
+                    title: "Câu hỏi thường gặp",
                     headerLeft: () => (
                         <Pressable
                             onPress={() => router.back()}

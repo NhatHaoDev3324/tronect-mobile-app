@@ -1,8 +1,6 @@
-import { Icon } from '@/components/ui/icon';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as AccordionPrimitive from '@rn-primitives/accordion';
-import { ChevronDown } from 'lucide-react-native';
 import { Platform, Pressable, View } from 'react-native';
 import Animated, {
   FadeOutUp,
@@ -94,7 +92,7 @@ function AccordionTrigger({
             )}>
             <>{children}</>
             <Animated.View style={chevronStyle}>
-              <Icon
+              {/* <Icon
                 as={ChevronDown}
                 size={16}
                 className={cn(
@@ -103,7 +101,7 @@ function AccordionTrigger({
                     web: 'pointer-events-none translate-y-0.5 transition-transform duration-200',
                   })
                 )}
-              />
+              /> */}
             </Animated.View>
           </Trigger>
         </AccordionPrimitive.Trigger>

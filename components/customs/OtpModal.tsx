@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { X } from "lucide-react-native";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -142,7 +142,7 @@ export function OtpModal({
         className="flex-1 bg-black/40 justify-center px-5"
       >
         <Pressable
-          onPress={() => {}}
+          onPress={() => { }}
           className="bg-background rounded-2xl p-5 relative"
         >
           {/* Nút X đóng modal */}
@@ -187,8 +187,8 @@ export function OtpModal({
           <Text className="text-sm text-center text-muted-foreground mt-3">
             {secondsRemaining > 0
               ? `Thời gian còn lại: ${String(Math.floor(secondsRemaining / 60)).padStart(2, "0")}:${String(
-                  secondsRemaining % 60
-                ).padStart(2, "0")}`
+                secondsRemaining % 60
+              ).padStart(2, "0")}`
               : "OTP đã hết hạn"}
           </Text>
 

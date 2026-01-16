@@ -1,27 +1,14 @@
 import { HapticTab } from "@/components/haptic-tab";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Octicons from '@expo/vector-icons/Octicons';
+import { Image } from "expo-image";
 import { Tabs, router } from "expo-router";
-import { Pressable, View, type ViewProps } from "react-native";
+import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export type ThemedViewProps = ViewProps & {
-    lightColor?: string;
-    darkColor?: string;
-};
-
-export default function TabLayout({
-    lightColor,
-    darkColor,
-}: ThemedViewProps) {
+export default function TabLayout() {
     const insets = useSafeAreaInsets();
-    const textColor = useThemeColor(
-        { light: lightColor, dark: darkColor },
-        "text"
-    );
     return (
         <View style={{ flex: 1 }}>
             <Tabs
@@ -48,7 +35,8 @@ export default function TabLayout({
                 <Tabs.Screen
                     name="search"
                     options={{
-                        title: "Tìm kiếm",
+                        title: "Tìm kiếm phòng",
+                        headerTitleAlign: "center",
                         headerShown: true,
                         tabBarIcon: ({ color }) => (
                             <Feather name="search" size={24} color={color} />
@@ -93,7 +81,7 @@ export default function TabLayout({
                 />
             </Tabs>
             <Pressable
-                onPress={() => router.push("/tenant/modal")}
+                onPress={() => router.push("/tenant/chatbot")}
                 style={{
                     position: "absolute",
                     right: 20,
@@ -101,12 +89,20 @@ export default function TabLayout({
                     width: 48,
                     height: 48,
                     borderRadius: 28,
-                    backgroundColor: textColor + "20",
+                    borderBottomLeftRadius: 0,
+                    borderTopRightRadius: 0,
+                    backgroundColor: "#2baf90",
                     alignItems: "center",
                     justifyContent: "center",
                 }}
             >
-                <Octicons name="dependabot" size={24} color={textColor} />
+                {/* <Octicons name="dependabot" size={24} color={textColor} /> */}
+
+                <Image
+                    source={require("@/assets/images/chatbot.png")}
+                    style={{ width: 52, height: 52, marginBottom: 8 }}
+                    contentFit="cover"
+                />
             </Pressable>
         </View>
     );
