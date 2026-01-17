@@ -1,4 +1,4 @@
-import { getAllPosts } from "@/api/postApi";
+import { SearchPost } from "@/api/postApi";
 import Tag360 from "@/components/customs/Tag360";
 import TagCheck from "@/components/customs/TagCheck";
 import TagVip from "@/components/customs/TagVip";
@@ -45,14 +45,14 @@ export default function SearchResultScreen({
         features?: string;
     }>();
 
-    const [data, setData] = useState<PostInfoType[]>([]);
+    const [dataRoom, setDataRoom] = useState<PostInfoType[]>([]);
     const insets = useSafeAreaInsets();
-    const featuresArray = features?.split(",");
+    const featuresArray = features ? features.split(",") : [];
     const [keyword, setKeyword] = useState("");
 
     const fetchPostProposes = async () => {
-        const responsePost = await getAllPosts();
-        setData(responsePost);
+        const responsePost = await SearchPost(category || "phong-tro-tphcm", district || "", ward || "", "suggestions", priceMin || "", priceMax || "", areaMin || "", areaMax || "", featuresArray);
+        setDataRoom(responsePost.data);
     };
 
     useEffect(() => {
@@ -63,7 +63,7 @@ export default function SearchResultScreen({
         <View className="flex-1" style={{ backgroundColor }}>
             <View style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }} className="border-b border-border px-4">
                 <View className="flex-row items-center mb-3">
-                    <View className="flex-row items-center bg-white rounded-full px-4 flex-1">
+                    <View className="flex-row items-center bg-white rounded-full px-4 h-10 flex-1">
                         <Ionicons name="search-outline" size={20} color="#6b7280" />
                         <TextInput
                             value={keyword}
@@ -79,7 +79,7 @@ export default function SearchResultScreen({
                     </View>
                 </View>
             </View>
-            <Pressable className="flex-row items-center justify-between mb-3 border-b border-border px-4" onPress={() => router.push("/tenant/(tabs)/search")}>
+            <Pressable className="flex-row items-center justify-between border-b border-border px-4" onPress={() => router.push("/tenant/(tabs)/search")}>
                 <View className="flex-row items-center bg-white rounded-full py-2 flex-1">
                     <Ionicons name="location" size={20} color="#2baf90" />
                     <Text className="ml-2 text-xs line-clamp-1 mr-10">Khu vực: {ward && `${ward},`} {district && `${district},`} TP. Hồ Chí Minh</Text>
@@ -87,12 +87,12 @@ export default function SearchResultScreen({
                 <Ionicons name="funnel" size={18} color="#2baf90" />
             </Pressable>
             <ScrollView
-                className="px-4"
+                className="px-4 "
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 24 }}
             >
-                <View className="flex-row flex-wrap justify-between gap-y-2">
-                    {data.map(item => (
+                <View className="flex-row flex-wrap justify-between gap-y-2 mt-4">
+                    {dataRoom.map(item => (
                         <Pressable key={item.id} style={{ width: "49%" }}>
                             <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
                                 <View style={{ position: "relative" }}>

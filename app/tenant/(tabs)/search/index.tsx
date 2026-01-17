@@ -98,6 +98,7 @@ export default function SearchScreen({
     const router = useRouter();
 
     useEffect(() => {
+        setLoading(true);
         fetch(`https://provinces.open-api.vn/api/p/79?depth=2`)
             .then(res => res.json())
             .then(data => {
@@ -108,11 +109,13 @@ export default function SearchScreen({
                         codename: d.codename,
                     }))
                 );
+                setLoading(false);
             });
     }, []);
 
     useEffect(() => {
         if (!districtValue) return;
+        setLoading(true);
         fetch(`https://provinces.open-api.vn/api/d/${districtValue}?depth=2`)
             .then(res => res.json())
             .then(data => {
@@ -123,6 +126,7 @@ export default function SearchScreen({
                         codename: w.codename,
                     }))
                 );
+                setLoading(false);
             });
     }, [districtValue]);
 
@@ -190,6 +194,14 @@ export default function SearchScreen({
         setShowLocationModal(false);
     };
 
+    const refreshPage = () => {
+        setCategory(categories[0].id);
+        setDistrictValue("");
+        setWardValue("");
+        setPrice(null);
+        setArea(null);
+        setFeatures([]);
+    };
 
 
     return (
@@ -205,6 +217,7 @@ export default function SearchScreen({
                     <Text className="text-xl font-bold text-white">Tìm kiếm phòng</Text>
 
                 </View>
+                <Pressable onPress={refreshPage}><Ionicons name="refresh" size={24} color="white" /></Pressable>
             </View>
             <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
 
@@ -242,13 +255,13 @@ export default function SearchScreen({
                     <Text className="font-semibold mb-2">Khu vực</Text>
 
                     <Pressable
-                        className="border rounded-lg px-4 py-3 mb-2"
+                        className="border border-border rounded-lg px-4 py-3 mb-2"
                     >
                         <Text>Thành phố Hồ Chí Minh</Text>
                     </Pressable>
 
                     <Pressable
-                        className="border rounded-lg px-4 py-3 mb-2"
+                        className="border border-border rounded-lg px-4 py-3 mb-2"
                         onPress={openDistrictModal}
                     >
                         <Text>
@@ -260,7 +273,7 @@ export default function SearchScreen({
 
 
                     <Pressable
-                        className="border rounded-lg px-4 py-3"
+                        className="border border-border rounded-lg px-4 py-3"
                         onPress={openWardModal}
                         disabled={!districtValue}
                     >
@@ -460,7 +473,8 @@ export default function SearchScreen({
                         <Pressable
                             onPress={handleCloseModal}
                             style={{
-                                paddingVertical: 12,
+                                marginBottom: insets.bottom,
+                                paddingVertical: 8,
                                 backgroundColor: "#e5e7eb",
                                 borderRadius: 8,
                                 alignItems: "center",

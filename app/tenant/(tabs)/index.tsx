@@ -29,6 +29,7 @@ import {
     useColorScheme,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
 interface LocationItem {
@@ -48,6 +49,7 @@ export default function RealEstateHeroScreen() {
     const [roomTab, setRoomTab] = useState<"room" | "roomShare">("room");
     const colorScheme = useColorScheme();
     const [refreshing, setRefreshing] = useState(false);
+    const insets = useSafeAreaInsets();
 
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [locationStep, setLocationStep] = useState<"district" | "ward">(
@@ -67,6 +69,7 @@ export default function RealEstateHeroScreen() {
     const [wardName, setWardName] = useState("");
 
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
 
     const [postProposes, setPostProposes] = useState<PostInfoType[]>([]);
     const [services, setServices] = useState<ServiceType[]>([]);
@@ -74,15 +77,30 @@ export default function RealEstateHeroScreen() {
     const [postRoomShare, setPostRoomShare] = useState<PostInfoType[]>([]);
 
     const fetchPostProposes = async () => {
-        const response = await getAllPostsPropose();
-        const responseServices = await getAllCategoryServices();
-        const responsePost = await getAllPosts();
-        const responsePostRoomShare = await getAllPostRoomSharing();
-        setPostProposes(response.data);
-        setServices(responseServices);
-        setPost(responsePost);
-        setPostRoomShare(responsePostRoomShare);
+        try {
+            setInitialLoading(true);
+
+            const response = await getAllPostsPropose();
+            const responseServices = await getAllCategoryServices();
+            const responsePost = await getAllPosts();
+            const responsePostRoomShare = await getAllPostRoomSharing();
+
+            setPostProposes(response.data);
+            setServices(responseServices);
+            setPost(responsePost);
+            setPostRoomShare(responsePostRoomShare);
+        } catch (error) {
+            Toast.show({
+                type: "error",
+                text1: "Lỗi",
+                text2: "Không thể tải dữ liệu",
+                position: "top",
+            });
+        } finally {
+            setInitialLoading(false);
+        }
     };
+
 
     useEffect(() => {
         fetchPostProposes();
@@ -186,6 +204,7 @@ export default function RealEstateHeroScreen() {
         }
     };
 
+
     return (
         <>
             <ScrollView className="flex-1 bg-background" refreshControl={
@@ -252,7 +271,7 @@ export default function RealEstateHeroScreen() {
                     </View>
                 </View>
 
-                <View className="-mt-24 px-4">
+                <View className="-mt-24 px-4 ">
                     <Card className="rounded-3xl bg-white p-4 shadow-sm border-transparent gap-2">
                         <Pressable
                             onPress={() => setShowLocationModal(true)}
@@ -279,7 +298,7 @@ export default function RealEstateHeroScreen() {
                                 <Input
                                     value={getDisplayText()}
                                     placeholder="Tìm phòng trọ..."
-                                    className="pl-11 rounded-lg bg-muted text-black dark:text-black dark:bg-gray-100 border-gray-200"
+                                    className="text-sm pl-11 rounded-lg bg-muted text-black dark:text-black dark:bg-gray-100 border-gray-200"
                                 />
                             </View>
 
@@ -307,231 +326,242 @@ export default function RealEstateHeroScreen() {
                     </Card>
                 </View>
 
-                <View className="px-6">
-                    <Text className="mt-4 mb-2 text-lg font-bold">Đề xuất cho bạn</Text>
-                    <View>
-                        <FlatList
-                            data={postProposes}
-                            numColumns={2}
-                            columnWrapperStyle={{ gap: 12 }}
-                            contentContainerStyle={{ gap: 12 }}
-                            keyExtractor={(item) => item.id}
-                            scrollEnabled={false}
-                            renderItem={({ item }) => (
-                                <Pressable className="flex-1">
-                                    <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
-                                        <View style={{ position: "relative" }}>
-                                            <Image
-                                                source={{ uri: item.images[0] }}
-                                                style={{ width: "100%", height: 120 }}
-                                                contentFit="cover"
-                                            />
-                                            <View style={{ position: "absolute", top: 8, left: 8 }}>
-                                                <TagCheck verification_status={item.verification_status} />
-                                            </View>
-
-                                            <View style={{ position: "absolute", bottom: 8, right: 8, flexDirection: "row", gap: 2 }}>
-                                                <TagVip postType={item.post_type} />
-                                                <Tag360 picture_360={item.picture_360} />
-                                            </View>
-                                        </View>
-                                        <View className="p-2">
-                                            <Text className="text-sm font-semibold line-clamp-2">
-                                                {item.title}</Text>
-                                            <View className="flex-row items-center justify-between">
-                                                <View className="flex-row items-center gap-1">
-                                                    <Text className="text-red-500 font-bold text-sm">
-                                                        {item.price.toLocaleString()} đ
-                                                    </Text>
-                                                    <Text className="text-xs font-semibold">
-                                                        {" • "} {item.acreage} m²
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                            <View className="flex-row items-center gap-1">
-                                                <Ionicons
-                                                    name="location-outline"
-                                                    size={14}
-                                                    color="gray"
-                                                />
-                                                <Text className="text-xs text-muted-foreground">
-                                                    {item.district}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </Card>
-                                </Pressable>
-                            )}
-                        />
-                    </View>
-                </View>
-
-                <View className="px-6">
-                    <View className="flex-row items-center justify-between mt-4 mb-2">
-                        <Text className=" text-lg font-bold">Dịch vụ tiện ích</Text>
-                        <Text className="text-xs text-muted-foreground">Xem thêm</Text>
-                    </View>
-                    <View>
-                        <FlatList
-                            data={services.slice(0, 9)}
-                            numColumns={3}
-                            columnWrapperStyle={{ gap: 12 }}
-                            contentContainerStyle={{ gap: 12 }}
-                            keyExtractor={(item) => item.id}
-                            scrollEnabled={false}
-                            renderItem={({ item }) => (
-                                <Pressable style={{ width: "31%" }}>
-                                    <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0 rounded-md">
-                                        <Image
-                                            source={{ uri: item.image }}
-                                            style={{ width: "100%", height: 60 }}
-                                            contentFit="cover"
-                                            contentPosition="center"
-                                        />
-                                    </Card>
-                                    <Text className="px-1 pt-1 text-xs font-semibold line-clamp-2 text-center">
-                                        {item.title}
-                                    </Text>
-                                </Pressable>
-                            )}
-                        />
-                    </View>
-                </View>
-
-                <View className="px-6 mb-6">
-                    <View className="flex-row items-center justify-between mt-4 mb-2">
-                        <Text className="text-lg font-bold">Phòng ở Tronect</Text>
-                    </View>
-
-                    <View>
-                        {/* Custom Tab Header */}
-                        <View className="flex-row mb-4 ">
-                            <Pressable onPress={() => setRoomTab("room")} className="mr-6 pb-2">
-                                <Text className={cn("text-sm font-semibold", roomTab === "room" ? "text-[#FF6B35]" : "text-gray-400")}>
-                                    Phòng trọ
-                                </Text>
-                                {roomTab === "room" && (
-                                    <View className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B35]" />
-                                )}
-                            </Pressable>
-                            <Pressable onPress={() => setRoomTab("roomShare")} className="pb-2">
-                                <Text className={cn("text-sm font-semibold", roomTab === "roomShare" ? "text-[#FF6B35]" : "text-gray-400")}>
-                                    Phòng ở ghép
-                                </Text>
-                                {roomTab === "roomShare" && (
-                                    <View className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B35]" />
-                                )}
-                            </Pressable>
+                {
+                    initialLoading ? (
+                        <View style={{ width: "100%", height: "100%" }} className="items-center justify-center bg-background">
+                            <ActivityIndicator size="large" color="#2baf90" />
+                            <Text className="mt-3 text-muted-foreground">
+                                Đang tải dữ liệu...
+                            </Text>
                         </View>
 
-                        {roomTab === "room" && (
-                            <FlatList
-                                data={post}
-                                numColumns={2}
-                                columnWrapperStyle={{ gap: 12 }}
-                                contentContainerStyle={{ gap: 12 }}
-                                keyExtractor={(item) => item.id}
-                                scrollEnabled={false}
-                                renderItem={({ item }) => (
-                                    <Pressable style={{ width: "48%" }}>
-                                        <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
-                                            <View style={{ position: "relative" }}>
-                                                <Image
-                                                    source={{ uri: item.images[0] }}
-                                                    style={{ width: "100%", height: 120 }}
-                                                    contentFit="cover"
-                                                />
-                                                <View style={{ position: "absolute", top: 8, left: 8 }}>
-                                                    <TagCheck verification_status={item.verification_status} />
-                                                </View>
+                    ) : (
+                        <View>
+                            <View className="px-4">
+                                <Text className="mt-4 mb-2 text-lg font-bold">Đề xuất cho bạn</Text>
+                                <View>
+                                    <FlatList
+                                        data={postProposes}
+                                        numColumns={2}
+                                        columnWrapperStyle={{ gap: 12 }}
+                                        contentContainerStyle={{ gap: 12 }}
+                                        keyExtractor={(item) => item.id}
+                                        scrollEnabled={false}
+                                        renderItem={({ item }) => (
+                                            <Pressable className="flex-1">
+                                                <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
+                                                    <View style={{ position: "relative" }}>
+                                                        <Image
+                                                            source={{ uri: item.images[0] }}
+                                                            style={{ width: "100%", height: 120 }}
+                                                            contentFit="cover"
+                                                        />
+                                                        <View style={{ position: "absolute", top: 8, left: 8 }}>
+                                                            <TagCheck verification_status={item.verification_status} />
+                                                        </View>
 
-                                                <View style={{ position: "absolute", bottom: 8, right: 8, flexDirection: "row", gap: 2 }}>
-                                                    <TagVip postType={item.post_type} />
-                                                    <Tag360 picture_360={item.picture_360} />
-                                                </View>
-                                            </View>
-                                            <View className="p-2">
-                                                <Text className="text-sm font-semibold line-clamp-2">
-                                                    {item.title}</Text>
-                                                <View className="flex-row items-center justify-between">
-                                                    <View className="flex-row items-center gap-1">
-                                                        <Text className="text-red-500 font-bold text-sm">
-                                                            {item.price.toLocaleString()} đ
-                                                        </Text>
-                                                        <Text className="text-xs font-semibold">
-                                                            {" • "} {item.acreage} m²
-                                                        </Text>
+                                                        <View style={{ position: "absolute", bottom: 8, right: 8, flexDirection: "row", gap: 2 }}>
+                                                            <TagVip postType={item.post_type} />
+                                                            <Tag360 picture_360={item.picture_360} />
+                                                        </View>
                                                     </View>
-                                                </View>
-                                                <View className="flex-row items-center gap-1">
-                                                    <Ionicons
-                                                        name="location-outline"
-                                                        size={14}
-                                                        color="gray"
-                                                    />
-                                                    <Text className="text-xs text-muted-foreground">
-                                                        {item.district}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </Card>
-                                    </Pressable>
-                                )}
-                            />
-                        )}
+                                                    <View className="p-2">
+                                                        <Text className="text-sm font-semibold line-clamp-2">
+                                                            {item.title}</Text>
+                                                        <View className="flex-row items-center justify-between">
+                                                            <View className="flex-row items-center gap-1">
+                                                                <Text className="text-red-500 font-bold text-sm">
+                                                                    {item.price.toLocaleString()} đ
+                                                                </Text>
+                                                                <Text className="text-xs font-semibold">
+                                                                    {" • "} {item.acreage} m²
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                        <View className="flex-row items-center gap-1">
+                                                            <Ionicons
+                                                                name="location-outline"
+                                                                size={14}
+                                                                color="gray"
+                                                            />
+                                                            <Text className="text-xs text-muted-foreground">
+                                                                {item.district}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                </Card>
+                                            </Pressable>
+                                        )}
+                                    />
+                                </View>
+                            </View>
 
-                        {roomTab === "roomShare" && (
-                            <FlatList
-                                data={postRoomShare}
-                                numColumns={2}
-                                columnWrapperStyle={{ gap: 12 }}
-                                contentContainerStyle={{ gap: 12 }}
-                                keyExtractor={(item) => item.id}
-                                scrollEnabled={false}
-                                renderItem={({ item }) => (
-                                    <Pressable style={{ width: "48%" }}>
-                                        <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0 rounded-md">
-                                            <Image
-                                                source={{ uri: item.images[0] }}
-                                                style={{ width: "100%", height: 120 }}
-                                                contentFit="cover"
-                                                contentPosition="center"
-                                            />
-                                            <View className="p-2">
-                                                <Text className="text-sm font-semibold line-clamp-2">
+                            <View className="px-4">
+                                <View className="flex-row items-center justify-between mt-4 mb-2">
+                                    <Text className=" text-lg font-bold">Dịch vụ tiện ích</Text>
+                                    <Text className="text-xs text-muted-foreground">Xem thêm</Text>
+                                </View>
+                                <View>
+                                    <FlatList
+                                        data={services.slice(0, 9)}
+                                        numColumns={3}
+                                        columnWrapperStyle={{ gap: 12 }}
+                                        contentContainerStyle={{ gap: 12 }}
+                                        keyExtractor={(item) => item.id}
+                                        scrollEnabled={false}
+                                        renderItem={({ item }) => (
+                                            <Pressable style={{ width: "31%" }}>
+                                                <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0 rounded-md">
+                                                    <Image
+                                                        source={{ uri: item.image }}
+                                                        style={{ width: "100%", height: 60 }}
+                                                        contentFit="cover"
+                                                        contentPosition="center"
+                                                    />
+                                                </Card>
+                                                <Text className="px-1 pt-1 text-xs font-semibold line-clamp-2 text-center">
                                                     {item.title}
                                                 </Text>
-                                                <View className="flex-row items-center justify-between">
-                                                    <View className="flex-row items-center gap-1">
-                                                        <Text className="text-red-500 font-bold text-sm">
-                                                            {item.price.toLocaleString()} đ
-                                                        </Text>
-                                                        <Text className="text-xs font-semibold">
-                                                            {" • "} {item.acreage} m²
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                                <View className="flex-row items-center gap-1">
-                                                    <Ionicons
-                                                        name="location-outline"
-                                                        size={14}
-                                                        color="gray"
-                                                    />
-                                                    <Text className="text-xs text-muted-foreground">
-                                                        {item.district}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </Card>
-                                    </Pressable>
-                                )}
-                            />
-                        )}
-                    </View>
-                </View>
+                                            </Pressable>
+                                        )}
+                                    />
+                                </View>
+                            </View>
 
+                            <View className="px-4 mb-6">
+                                <View className="flex-row items-center justify-between mt-4 mb-2">
+                                    <Text className="text-lg font-bold">Phòng ở Tronect</Text>
+                                </View>
 
+                                <View>
+                                    {/* Custom Tab Header */}
+                                    <View className="flex-row mb-4 ">
+                                        <Pressable onPress={() => setRoomTab("room")} className="mr-6 pb-2">
+                                            <Text className={cn("text-sm font-semibold", roomTab === "room" ? "text-[#FF6B35]" : "text-gray-400")}>
+                                                Phòng trọ
+                                            </Text>
+                                            {roomTab === "room" && (
+                                                <View className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B35]" />
+                                            )}
+                                        </Pressable>
+                                        <Pressable onPress={() => setRoomTab("roomShare")} className="pb-2">
+                                            <Text className={cn("text-sm font-semibold", roomTab === "roomShare" ? "text-[#FF6B35]" : "text-gray-400")}>
+                                                Phòng ở ghép
+                                            </Text>
+                                            {roomTab === "roomShare" && (
+                                                <View className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6B35]" />
+                                            )}
+                                        </Pressable>
+                                    </View>
 
+                                    {roomTab === "room" && (
+                                        <FlatList
+                                            data={post}
+                                            numColumns={2}
+                                            columnWrapperStyle={{ gap: 12 }}
+                                            contentContainerStyle={{ gap: 12 }}
+                                            keyExtractor={(item) => item.id}
+                                            scrollEnabled={false}
+                                            renderItem={({ item }) => (
+                                                <Pressable style={{ width: "48%" }}>
+                                                    <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
+                                                        <View style={{ position: "relative" }}>
+                                                            <Image
+                                                                source={{ uri: item.images[0] }}
+                                                                style={{ width: "100%", height: 120 }}
+                                                                contentFit="cover"
+                                                            />
+                                                            <View style={{ position: "absolute", top: 8, left: 8 }}>
+                                                                <TagCheck verification_status={item.verification_status} />
+                                                            </View>
+
+                                                            <View style={{ position: "absolute", bottom: 8, right: 8, flexDirection: "row", gap: 2 }}>
+                                                                <TagVip postType={item.post_type} />
+                                                                <Tag360 picture_360={item.picture_360} />
+                                                            </View>
+                                                        </View>
+                                                        <View className="p-2">
+                                                            <Text className="text-sm font-semibold line-clamp-2">
+                                                                {item.title}</Text>
+                                                            <View className="flex-row items-center justify-between">
+                                                                <View className="flex-row items-center gap-1">
+                                                                    <Text className="text-red-500 font-bold text-sm">
+                                                                        {item.price.toLocaleString()} đ
+                                                                    </Text>
+                                                                    <Text className="text-xs font-semibold">
+                                                                        {" • "} {item.acreage} m²
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                            <View className="flex-row items-center gap-1">
+                                                                <Ionicons
+                                                                    name="location-outline"
+                                                                    size={14}
+                                                                    color="gray"
+                                                                />
+                                                                <Text className="text-xs text-muted-foreground">
+                                                                    {item.district}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                    </Card>
+                                                </Pressable>
+                                            )}
+                                        />
+                                    )}
+
+                                    {roomTab === "roomShare" && (
+                                        <FlatList
+                                            data={postRoomShare}
+                                            numColumns={2}
+                                            columnWrapperStyle={{ gap: 12 }}
+                                            contentContainerStyle={{ gap: 12 }}
+                                            keyExtractor={(item) => item.id}
+                                            scrollEnabled={false}
+                                            renderItem={({ item }) => (
+                                                <Pressable style={{ width: "48%" }}>
+                                                    <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0 rounded-md">
+                                                        <Image
+                                                            source={{ uri: item.images[0] }}
+                                                            style={{ width: "100%", height: 120 }}
+                                                            contentFit="cover"
+                                                            contentPosition="center"
+                                                        />
+                                                        <View className="p-2">
+                                                            <Text className="text-sm font-semibold line-clamp-2">
+                                                                {item.title}
+                                                            </Text>
+                                                            <View className="flex-row items-center justify-between">
+                                                                <View className="flex-row items-center gap-1">
+                                                                    <Text className="text-red-500 font-bold text-sm">
+                                                                        {item.price.toLocaleString()} đ
+                                                                    </Text>
+                                                                    <Text className="text-xs font-semibold">
+                                                                        {" • "} {item.acreage} m²
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                            <View className="flex-row items-center gap-1">
+                                                                <Ionicons
+                                                                    name="location-outline"
+                                                                    size={14}
+                                                                    color="gray"
+                                                                />
+                                                                <Text className="text-xs text-muted-foreground">
+                                                                    {item.district}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                    </Card>
+                                                </Pressable>
+                                            )}
+                                        />
+                                    )}
+                                </View>
+                            </View>
+                        </View>
+                    )
+                }
             </ScrollView >
 
             <Modal
@@ -642,7 +672,8 @@ export default function RealEstateHeroScreen() {
                         <Pressable
                             onPress={handleCloseModal}
                             style={{
-                                paddingVertical: 12,
+                                marginBottom: insets.bottom,
+                                paddingVertical: 8,
                                 backgroundColor: "#e5e7eb",
                                 borderRadius: 8,
                                 alignItems: "center",
