@@ -1,6 +1,6 @@
 import { getAllCategoryServices } from "@/api/categoryServicesApi";
-import { getAllPosts } from "@/api/postApi";
-import { getAllPostRoomSharing } from "@/api/postRoomShareApi";
+import { getAllPosts, savePost } from "@/api/postApi";
+import { getAllPostRoomSharing, savePostRoomSharing } from "@/api/postRoomShareApi";
 import { getAllPostsPropose } from "@/api/proposeApi";
 import Person from "@/assets/images/person.png";
 import { DividerCustom } from "@/components/customs/DividerCustom";
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/useAuthStore";
 import { PostInfoType } from "@/types/postInfoType";
 import { ServiceType } from "@/types/serviceType";
 import { Ionicons } from "@expo/vector-icons";
@@ -50,6 +51,7 @@ export default function RealEstateHeroScreen() {
     const colorScheme = useColorScheme();
     const [refreshing, setRefreshing] = useState(false);
     const insets = useSafeAreaInsets();
+    const { userID } = useAuthStore()
 
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [locationStep, setLocationStep] = useState<"district" | "ward">(
@@ -204,6 +206,56 @@ export default function RealEstateHeroScreen() {
         }
     };
 
+    const handleSavePost = async (slug: string, category: string) => {
+        if (!userID) {
+            Toast.show({
+                type: "error",
+                text1: "Bạn chưa đăng nhập",
+                text2: "Vui lòng đăng nhập để lưu bài viết",
+            });
+            return;
+        }
+
+        setPost(prev => toggleSaveInList(prev, slug));
+        setPostProposes(prev => toggleSaveInList(prev, slug));
+        setPostRoomShare(prev => toggleSaveInList(prev, slug));
+
+        try {
+            if (category === "phong-o-ghep-tphcm") {
+                await savePostRoomSharing(slug);
+            } else {
+                await savePost(slug);
+            }
+
+        } catch (error) {
+            setPost(prev => toggleSaveInList(prev, slug));
+            setPostProposes(prev => toggleSaveInList(prev, slug));
+            setPostRoomShare(prev => toggleSaveInList(prev, slug));
+
+            Toast.show({
+                type: "error",
+                text1: "Lỗi",
+                text2: "Không thể lưu bài viết",
+            });
+        }
+    };
+
+
+    const toggleSaveInList = (list: PostInfoType[], slug: string) =>
+        list.map(item => {
+            if (item.slug !== slug) return item;
+
+            const saved = Array.isArray(item.saved) ? item.saved : [];
+            const hasSaved = saved.includes(userID!);
+
+            return {
+                ...item,
+                saved: hasSaved
+                    ? saved.filter(id => id !== userID)
+                    : [...saved, userID!],
+            };
+        });
+
 
     return (
         <>
@@ -348,8 +400,8 @@ export default function RealEstateHeroScreen() {
                                         keyExtractor={(item) => item.id}
                                         scrollEnabled={false}
                                         renderItem={({ item }) => (
-                                            <Pressable className="flex-1">
-                                                <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
+                                            <Pressable className="flex-1" onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: item.category || "", }, })}>
+                                                <Card className="relative overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
                                                     <View style={{ position: "relative" }}>
                                                         <Image
                                                             source={{ uri: item.images[0] }}
@@ -389,6 +441,22 @@ export default function RealEstateHeroScreen() {
                                                             </Text>
                                                         </View>
                                                     </View>
+                                                    <Pressable
+                                                        style={{
+                                                            position: "absolute",
+                                                            right: 10,
+                                                            bottom: 10,
+                                                            zIndex: 10,
+                                                        }}
+                                                        hitSlop={10}
+                                                        onPress={() => handleSavePost(item.slug, item.category)}
+                                                    >
+                                                        <Ionicons
+                                                            name={item?.saved?.includes(userID || "") ? "heart" : "heart-outline"}
+                                                            size={22}
+                                                            color={item?.saved?.includes(userID || "") ? "red" : "gray"}
+                                                        />
+                                                    </Pressable>
                                                 </Card>
                                             </Pressable>
                                         )}
@@ -463,7 +531,7 @@ export default function RealEstateHeroScreen() {
                                             keyExtractor={(item) => item.id}
                                             scrollEnabled={false}
                                             renderItem={({ item }) => (
-                                                <Pressable style={{ width: "48%" }}>
+                                                <Pressable style={{ width: "48%" }} onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: item.category || "", }, })}>
                                                     <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
                                                         <View style={{ position: "relative" }}>
                                                             <Image
@@ -504,6 +572,22 @@ export default function RealEstateHeroScreen() {
                                                                 </Text>
                                                             </View>
                                                         </View>
+                                                        <Pressable
+                                                            style={{
+                                                                position: "absolute",
+                                                                right: 10,
+                                                                bottom: 10,
+                                                                zIndex: 10,
+                                                            }}
+                                                            hitSlop={10}
+                                                            onPress={() => handleSavePost(item.slug, item.category)}
+                                                        >
+                                                            <Ionicons
+                                                                name={item?.saved?.includes(userID || "") ? "heart" : "heart-outline"}
+                                                                size={22}
+                                                                color={item?.saved?.includes(userID || "") ? "red" : "gray"}
+                                                            />
+                                                        </Pressable>
                                                     </Card>
                                                 </Pressable>
                                             )}
@@ -519,7 +603,7 @@ export default function RealEstateHeroScreen() {
                                             keyExtractor={(item) => item.id}
                                             scrollEnabled={false}
                                             renderItem={({ item }) => (
-                                                <Pressable style={{ width: "48%" }}>
+                                                <Pressable style={{ width: "48%" }} onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: item.category || "", }, })}>
                                                     <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0 rounded-md">
                                                         <Image
                                                             source={{ uri: item.images[0] }}
@@ -552,6 +636,22 @@ export default function RealEstateHeroScreen() {
                                                                 </Text>
                                                             </View>
                                                         </View>
+                                                        <Pressable
+                                                            style={{
+                                                                position: "absolute",
+                                                                right: 10,
+                                                                bottom: 10,
+                                                                zIndex: 10,
+                                                            }}
+                                                            hitSlop={10}
+                                                            onPress={() => handleSavePost(item.slug, item.category)}
+                                                        >
+                                                            <Ionicons
+                                                                name={item?.saved?.includes(userID || "") ? "heart" : "heart-outline"}
+                                                                size={22}
+                                                                color={item?.saved?.includes(userID || "") ? "red" : "gray"}
+                                                            />
+                                                        </Pressable>
                                                     </Card>
                                                 </Pressable>
                                             )}

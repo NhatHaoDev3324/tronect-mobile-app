@@ -13,6 +13,12 @@ export default function SearchLayout() {
                     headerShown: false,
                 }}
             />
+            <Stack.Screen
+                name="[slug]"
+                options={{
+                    headerShown: false,
+                }}
+            />
         </Stack>
     );
 }

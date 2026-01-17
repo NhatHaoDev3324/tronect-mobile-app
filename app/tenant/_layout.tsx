@@ -135,6 +135,23 @@ export default function TenantLayout({
                     ),
                 }}
             />
+            <Stack.Screen
+                name="saved-posts/index"
+                options={{
+                    headerShown: true,
+                    headerTitleAlign: "center",
+                    headerBackVisible: false,
+                    title: "Tin đăng đã lưu",
+                    headerLeft: () => (
+                        <Pressable
+                            onPress={() => router.back()}
+                            style={{ paddingHorizontal: 12 }}
+                        >
+                            <Ionicons name="arrow-back" size={24} color={textColor} />
+                        </Pressable>
+                    ),
+                }}
+            />
         </Stack>
     );
 }

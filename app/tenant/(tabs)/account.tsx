@@ -40,7 +40,7 @@ const accountMenus = [
         key: "saved-posts",
         label: "Tin đăng đã lưu",
         icon: "heart",
-        onPress: () => console.log("Tin đăng đã lưu"),
+        onPress: () => router.push("/tenant/saved-posts"),
     },
     {
         key: "change-password",

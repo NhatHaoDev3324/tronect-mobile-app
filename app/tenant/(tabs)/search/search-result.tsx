@@ -1,9 +1,11 @@
-import { SearchPost } from "@/api/postApi";
+import { savePost, SearchPost } from "@/api/postApi";
+import { savePostRoomSharing, SearchPostRoomSharing } from "@/api/postRoomShareApi";
 import Tag360 from "@/components/customs/Tag360";
 import TagCheck from "@/components/customs/TagCheck";
 import TagVip from "@/components/customs/TagVip";
 import { Card } from "@/components/ui/card";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAuthStore } from "@/store/useAuthStore";
 import { PostInfoType } from "@/types/postInfoType";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -11,6 +13,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View, type ViewProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export type ThemedViewProps = ViewProps & {
     lightColor?: string;
@@ -44,20 +47,91 @@ export default function SearchResultScreen({
         areaMax?: string;
         features?: string;
     }>();
-
+    const { userID } = useAuthStore();
     const [dataRoom, setDataRoom] = useState<PostInfoType[]>([]);
+    const [originData, setOriginData] = useState<PostInfoType[]>([]);
+
     const insets = useSafeAreaInsets();
     const featuresArray = features ? features.split(",") : [];
     const [keyword, setKeyword] = useState("");
 
     const fetchPostProposes = async () => {
-        const responsePost = await SearchPost(category || "phong-tro-tphcm", district || "", ward || "", "suggestions", priceMin || "", priceMax || "", areaMin || "", areaMax || "", featuresArray);
+        let responsePost: any;
+        if (category === "phong-o-ghep-tphcm") {
+            responsePost = await SearchPostRoomSharing("phong-o-ghep-tphcm", district || "", ward || "", "suggestions", priceMin || "", priceMax || "", areaMin || "", areaMax || "", featuresArray);
+        } else {
+            responsePost = await SearchPost(category || "phong-tro-tphcm", district || "", ward || "", "suggestions", priceMin || "", priceMax || "", areaMin || "", areaMax || "", featuresArray);
+        }
+        setOriginData(responsePost.data);
         setDataRoom(responsePost.data);
     };
 
     useEffect(() => {
         fetchPostProposes();
     }, []);
+
+    useEffect(() => {
+        if (!keyword.trim()) {
+            setDataRoom(originData);
+            return;
+        }
+
+        const lowerKeyword = keyword.toLowerCase();
+
+        const filtered = originData.filter(item =>
+            item.title.toLowerCase().includes(lowerKeyword) ||
+            item.district.toLowerCase().includes(lowerKeyword) ||
+            item.ward?.toLowerCase().includes(lowerKeyword) ||
+            item.address.toLowerCase().includes(lowerKeyword)
+        );
+
+        setDataRoom(filtered);
+    }, [keyword, originData]);
+
+    const handleSavePost = async (slug: string, category: string) => {
+        if (!userID) {
+            Toast.show({
+                type: "error",
+                text1: "Bạn chưa đăng nhập",
+                text2: "Vui lòng đăng nhập để lưu bài viết",
+            });
+            return;
+        }
+
+        setDataRoom(prev => toggleSaveInList(prev, slug));
+        setOriginData(prev => toggleSaveInList(prev, slug));
+
+        try {
+            if (category === "phong-o-ghep-tphcm") {
+                await savePostRoomSharing(slug);
+            } else {
+                await savePost(slug);
+            }
+
+        } catch (error) {
+            setDataRoom(prev => toggleSaveInList(prev, slug));
+            setOriginData(prev => toggleSaveInList(prev, slug));
+            Toast.show({
+                type: "error",
+                text1: "Lỗi",
+                text2: "Không thể lưu bài viết",
+            });
+        }
+    };
+    const toggleSaveInList = (list: PostInfoType[], slug: string) =>
+        list.map(item => {
+            if (item.slug !== slug) return item;
+
+            const saved = Array.isArray(item.saved) ? item.saved : [];
+            const hasSaved = saved.includes(userID!);
+
+            return {
+                ...item,
+                saved: hasSaved
+                    ? saved.filter(id => id !== userID)
+                    : [...saved, userID!],
+            };
+        });
 
     return (
         <View className="flex-1" style={{ backgroundColor }}>
@@ -72,9 +146,6 @@ export default function SearchResultScreen({
                             placeholderTextColor="#9ca3af"
                             className="ml-2 flex-1 text-base"
                             returnKeyType="search"
-                            onSubmitEditing={() => {
-                                console.log("Search keyword:", keyword);
-                            }}
                         />
                     </View>
                 </View>
@@ -93,8 +164,8 @@ export default function SearchResultScreen({
             >
                 <View className="flex-row flex-wrap justify-between gap-y-2 mt-4">
                     {dataRoom.map(item => (
-                        <Pressable key={item.id} style={{ width: "49%" }}>
-                            <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
+                        <Pressable key={item.id} style={{ width: "49%" }} onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: category || "", }, })}>
+                            <Card className="relative overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
                                 <View style={{ position: "relative" }}>
                                     <Image
                                         source={{ uri: item.images[0] }}
@@ -141,6 +212,22 @@ export default function SearchResultScreen({
                                         </Text>
                                     </View>
                                 </View>
+                                <Pressable
+                                    style={{
+                                        position: "absolute",
+                                        right: 10,
+                                        bottom: 10,
+                                        zIndex: 10,
+                                    }}
+                                    hitSlop={10}
+                                    onPress={() => handleSavePost(item.slug, item.category)}
+                                >
+                                    <Ionicons
+                                        name={item?.saved?.includes(userID || "") ? "heart" : "heart-outline"}
+                                        size={22}
+                                        color={item?.saved?.includes(userID || "") ? "red" : "gray"}
+                                    />
+                                </Pressable>
                             </Card>
                         </Pressable>
                     ))}

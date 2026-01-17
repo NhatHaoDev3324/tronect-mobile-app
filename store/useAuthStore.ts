@@ -1,4 +1,3 @@
-// store/useAuthStore.ts
 import { RoleType } from "@/types/authType";
 import { create } from "zustand";
 
@@ -9,7 +8,7 @@ type AuthState = {
   userName: string;
   provider: string;
   phone: string;
-created: string
+  created: string
 
   setUserID: (id?: string) => void;
   setRole: (role: RoleType) => void;
@@ -24,7 +23,7 @@ created: string
 
 export const useAuthStore = create<AuthState>((set) => ({
   userID: undefined,
-  role: "user" as RoleType, 
+  role: "user" as RoleType,
   urlImg: "",
   userName: "",
   provider: "",
@@ -37,7 +36,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUserName: (name) => set({ userName: name }),
   setProvider: (provider) => set({ provider }),
   setPhone: (phone) => set({ phone }),
-  setCreated: (created) => set({created}),
+  setCreated: (created) => set({ created }),
 
   reset: () =>
     set({
