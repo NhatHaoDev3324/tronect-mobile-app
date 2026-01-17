@@ -152,6 +152,10 @@ export default function TenantLayout({
                     ),
                 }}
             />
+            <Stack.Screen
+                name="post-detail/index"
+                options={{ headerShown: false }}
+            />
         </Stack>
     );
 }

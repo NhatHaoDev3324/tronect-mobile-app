@@ -400,7 +400,7 @@ export default function RealEstateHeroScreen() {
                                         keyExtractor={(item) => item.id}
                                         scrollEnabled={false}
                                         renderItem={({ item }) => (
-                                            <Pressable className="flex-1" onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: item.category || "", }, })}>
+                                            <Pressable className="flex-1" onPress={() => router.push({ pathname: "/tenant/post-detail", params: { slug: item.slug, category: item.category || "", }, })}>
                                                 <Card className="relative overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
                                                     <View style={{ position: "relative" }}>
                                                         <Image
@@ -531,7 +531,7 @@ export default function RealEstateHeroScreen() {
                                             keyExtractor={(item) => item.id}
                                             scrollEnabled={false}
                                             renderItem={({ item }) => (
-                                                <Pressable style={{ width: "48%" }} onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: item.category || "", }, })}>
+                                                <Pressable style={{ width: "48%" }} onPress={() => router.push({ pathname: "/tenant/post-detail", params: { slug: item.slug, category: item.category || "", }, })}>
                                                     <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
                                                         <View style={{ position: "relative" }}>
                                                             <Image
@@ -603,7 +603,7 @@ export default function RealEstateHeroScreen() {
                                             keyExtractor={(item) => item.id}
                                             scrollEnabled={false}
                                             renderItem={({ item }) => (
-                                                <Pressable style={{ width: "48%" }} onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: item.category || "", }, })}>
+                                                <Pressable style={{ width: "48%" }} onPress={() => router.push({ pathname: "/tenant/post-detail", params: { slug: item.slug, category: item.category || "", }, })}>
                                                     <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0 rounded-md">
                                                         <Image
                                                             source={{ uri: item.images[0] }}
