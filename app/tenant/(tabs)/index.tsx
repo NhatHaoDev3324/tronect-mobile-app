@@ -17,16 +17,19 @@ import { PostInfoType } from "@/types/postInfoType";
 import { ServiceType } from "@/types/serviceType";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
     Modal,
     Pressable,
+    RefreshControl,
     ScrollView,
     useColorScheme,
     View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 interface LocationItem {
     value: string;
@@ -41,10 +44,10 @@ interface LocationAPI {
 }
 
 export default function RealEstateHeroScreen() {
-    const [tab, setTab] = useState<"room" | "roomShare">("room");
+    const [tab, setTab] = useState<"phong-tro-tphcm" | "phong-o-ghep-tphcm">("phong-tro-tphcm");
     const [roomTab, setRoomTab] = useState<"room" | "roomShare">("room");
-    const [keyword, setKeyword] = useState("");
     const colorScheme = useColorScheme();
+    const [refreshing, setRefreshing] = useState(false);
 
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [locationStep, setLocationStep] = useState<"district" | "ward">(
@@ -70,18 +73,18 @@ export default function RealEstateHeroScreen() {
     const [post, setPost] = useState<PostInfoType[]>([]);
     const [postRoomShare, setPostRoomShare] = useState<PostInfoType[]>([]);
 
+    const fetchPostProposes = async () => {
+        const response = await getAllPostsPropose();
+        const responseServices = await getAllCategoryServices();
+        const responsePost = await getAllPosts();
+        const responsePostRoomShare = await getAllPostRoomSharing();
+        setPostProposes(response.data);
+        setServices(responseServices);
+        setPost(responsePost);
+        setPostRoomShare(responsePostRoomShare);
+    };
 
     useEffect(() => {
-        const fetchPostProposes = async () => {
-            const response = await getAllPostsPropose();
-            const responseServices = await getAllCategoryServices();
-            const responsePost = await getAllPosts();
-            const responsePostRoomShare = await getAllPostRoomSharing();
-            setPostProposes(response.data);
-            setServices(responseServices);
-            setPost(responsePost);
-            setPostRoomShare(responsePostRoomShare);
-        };
         fetchPostProposes();
     }, []);
 
@@ -139,7 +142,7 @@ export default function RealEstateHeroScreen() {
     };
 
     const getDisplayText = () => {
-        const roomType = tab === "room" ? "Phòng trọ" : "Phòng ghép";
+        const roomType = tab === "phong-tro-tphcm" ? "Phòng trọ" : "Phòng ghép";
         const parts: string[] = [roomType];
 
         if (wardName) {
@@ -167,9 +170,33 @@ export default function RealEstateHeroScreen() {
         setLocationStep("district");
     };
 
+    const onRefresh = async () => {
+        try {
+            setRefreshing(true);
+            await fetchPostProposes();
+        } catch (e: any) {
+            Toast.show({
+                type: "error",
+                text1: "Lỗi",
+                text2: e?.message ?? "Không thể làm mới dữ liệu",
+                position: "top",
+            });
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     return (
         <>
-            <ScrollView className="flex-1 bg-background">
+            <ScrollView className="flex-1 bg-background" refreshControl={
+                <RefreshControl
+                    progressViewOffset={40}
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor="#2baf90"
+                    colors={["#2baf90"]}
+                />
+            }>
                 <View className="bg-[#2baf90] px-6 pt-20 pb-36 rounded-b-[60px] overflow-hidden">
                     <Text className="text-white text-3xl font-extrabold">Tronect</Text>
                     <Text className="text-white/90 mt-2 text-base">
@@ -178,16 +205,16 @@ export default function RealEstateHeroScreen() {
 
                     <View className="mt-2 flex-row items-center">
                         <Pressable
-                            onPress={() => setTab("room")}
+                            onPress={() => setTab("phong-tro-tphcm")}
                             className={cn(
                                 "h-8 px-4 rounded-full items-center justify-center",
-                                tab === "room" ? "bg-white" : "bg-transparent"
+                                tab === "phong-tro-tphcm" ? "bg-white" : "bg-transparent"
                             )}
                         >
                             <Text
                                 className={cn(
                                     "text-sm font-semibold",
-                                    tab === "room" ? "text-[#2baf90]" : "text-white"
+                                    tab === "phong-tro-tphcm" ? "text-[#2baf90]" : "text-white"
                                 )}
                             >
                                 Phòng trọ
@@ -195,16 +222,16 @@ export default function RealEstateHeroScreen() {
                         </Pressable>
 
                         <Pressable
-                            onPress={() => setTab("roomShare")}
+                            onPress={() => setTab("phong-o-ghep-tphcm")}
                             className={cn(
                                 " h-8 px-4 rounded-full items-center justify-center",
-                                tab === "roomShare" ? "bg-white" : "bg-transparent"
+                                tab === "phong-o-ghep-tphcm" ? "bg-white" : "bg-transparent"
                             )}
                         >
                             <Text
                                 className={cn(
                                     "text-sm font-semibold",
-                                    tab === "roomShare" ? "text-[#2baf90]" : "text-white"
+                                    tab === "phong-o-ghep-tphcm" ? "text-[#2baf90]" : "text-white"
                                 )}
                             >
                                 Phòng ghép
@@ -226,40 +253,31 @@ export default function RealEstateHeroScreen() {
                 </View>
 
                 <View className="-mt-24 px-4">
-                    <Card className="rounded-3xl bg-white p-4 shadow-sm border-transparent gap-4">
+                    <Card className="rounded-3xl bg-white p-4 shadow-sm border-transparent gap-2">
                         <Pressable
                             onPress={() => setShowLocationModal(true)}
                             className="flex-row items-center justify-between"
                         >
-                            <View className="flex-row items-center gap-3">
+                            <View className="flex-row items-center gap-4 pb-1">
                                 <View className=" h-8 w-8 rounded-2xl bg-[#2baf90]/20 items-center justify-center">
                                     <Ionicons name="location-outline" size={20} color="#2baf90" />
                                 </View>
                                 <Text className="text-sm text-muted-foreground font-semibold">
-                                    Khu vực:{" "}
+                                    Khu vực
                                 </Text>
                             </View>
-                            <View className="flex-row items-center gap-2 flex-1">
-                                <Text
-                                    className="text-sm font-bold text-[#2baf90] flex-1"
-                                    numberOfLines={1}
-                                >
-                                    {getDisplayText()}
-                                </Text>
-                                <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
-                            </View>
+                            <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
                         </Pressable>
                         <DividerCustom />
 
                         {/* Search */}
-                        <View className="flex-row items-center gap-3">
+                        <View className="flex-row items-center gap-2 pt-1">
                             <View className="flex-1 relative">
                                 <View className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
                                     <Ionicons name="search" size={20} color="#9CA3AF" />
                                 </View>
                                 <Input
-                                    value={keyword}
-                                    onChangeText={setKeyword}
+                                    value={getDisplayText()}
                                     placeholder="Tìm phòng trọ..."
                                     className="pl-11 rounded-lg bg-muted text-black dark:text-black dark:bg-gray-100 border-gray-200"
                                 />
@@ -269,7 +287,14 @@ export default function RealEstateHeroScreen() {
                                 variant={"tronect"}
                                 className="rounded-lg"
                                 onPress={() => {
-                                    setKeyword("");
+                                    router.push({
+                                        pathname: "/tenant/(tabs)/search/search-result",
+                                        params: {
+                                            category: tab,
+                                            district: districtName,
+                                            ward: wardName,
+                                        },
+                                    });
                                     setDistrictValue("");
                                     setWardValue("");
                                     setDistrictName("");

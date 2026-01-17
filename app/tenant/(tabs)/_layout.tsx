@@ -35,9 +35,7 @@ export default function TabLayout() {
                 <Tabs.Screen
                     name="search"
                     options={{
-                        title: "Tìm kiếm phòng",
-                        headerTitleAlign: "center",
-                        headerShown: true,
+                        title: "Tìm kiếm",
                         tabBarIcon: ({ color }) => (
                             <Feather name="search" size={24} color={color} />
                         ),
