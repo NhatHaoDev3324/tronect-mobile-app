@@ -3,6 +3,8 @@ import {
     getPostRoomSharingBySlug,
     savePostRoomSharing,
 } from "@/api/postRoomShareApi";
+
+
 import Button360 from "@/components/customs/Button360";
 import { DividerCustom } from "@/components/customs/DividerCustom";
 import TagCheck from "@/components/customs/TagCheck";
@@ -10,6 +12,7 @@ import TagVip from "@/components/customs/TagVip";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuthStore } from "@/store/useAuthStore";
 import { PostInfoType } from "@/types/postInfoType";
+import { options } from "@/utils/dataitem";
 import { getNameRole } from "@/utils/getNameRole";
 import { getRoomName } from "@/utils/getRoomName";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +23,7 @@ import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Dimensions,
+    Linking,
     Pressable,
     ScrollView,
     Text,
@@ -253,7 +257,7 @@ export default function PostDetailScreen({
 
                 <View className="px-4 py-2 flex-col gap-2">
                     <Text
-                        className="text-xl font-bold leading-6"
+                        className="text-xl font-bold leading-6 text-foreground"
                         numberOfLines={2}
                     >
                         {data?.title}
@@ -266,12 +270,12 @@ export default function PostDetailScreen({
 
                         <Text className="text-gray-400 text-xl">•</Text>
 
-                        <Text className="text-base font-semibold">
+                        <Text className="text-base font-semibold text-foreground">
                             {data?.acreage} m²
                         </Text>
                     </View>
 
-                    <View className="flex-row items-start gap-2">
+                    <View className="flex-row items-start gap-2 ">
                         <Ionicons
                             name="location-outline"
                             size={16}
@@ -279,7 +283,7 @@ export default function PostDetailScreen({
                             style={{ marginTop: 2 }}
                         />
                         <Text
-                            className="text-sm text-gray-600 flex-1"
+                            className="text-sm text-muted-foreground flex-1"
                             numberOfLines={2}
                             ellipsizeMode="tail"
                         >
@@ -302,7 +306,7 @@ export default function PostDetailScreen({
 
                         <View className="flex-1">
                             <Text
-                                className="text-base font-semibold"
+                                className="text-base font-semibold text-foreground"
                                 numberOfLines={1}
                             >
                                 {data?.landlord.username}
@@ -317,38 +321,129 @@ export default function PostDetailScreen({
                         </View>
                     </View>
                 </View>
-            </ScrollView>
+
+                <View className="py-1">
+                    <DividerCustom />
+                </View>
+
+                <View className="px-4 py-2 flex-col gap-2">
+                    <Text className="text-lg font-bold text-foreground">
+                        Thông tin mô tả
+                    </Text>
+                    <Text className="text-base text-foreground">
+                        {data?.description}
+                    </Text>
+                </View>
+
+                <View className="py-1">
+                    <DividerCustom />
+                </View>
+
+                <View className="px-4 py-2 flex-col gap-2">
+                    <Text className="text-lg font-bold text-foreground">
+                        Nổi bật
+                    </Text>
+                    <View className="flex flex-row flex-wrap">
+                        {options.map((item) => {
+                            const isOption = data?.outstanding?.includes(item.title);
+                            return (
+                                <View key={item.value} className="w-1/2 flex flex-row items-center mb-2 gap-2">
+                                    <View className={`w-4 h-4 rounded-full items-center justify-center ${isOption ? "bg-green-500" : "bg-red-500"}`}>
+                                        <Ionicons name={isOption ? "checkmark" : "close"} size={12} color="white" />
+                                    </View>
+
+                                    <Text className={`text-xs ${!isOption ? "line-through opacity-60" : ""}`} numberOfLines={1}>{item.title}</Text>
+                                </View>
+                            );
+                        })}
+                    </View>
+                </View>
+
+                <View className="py-1">
+                    <DividerCustom />
+                </View>
+
+                {(data?.nearby_amenities?.length ?? 0) > 0 &&
+                    <>
+                        <View className="px-4 py-2 flex-col gap-2">
+                            <Text className="text-lg font-bold text-foreground">
+                                Tiện ích xung quanh
+                            </Text>
+                            <View className="flex flex-row flex-wrap gap-2">
+                                {data?.nearby_amenities?.map((item, index) => (
+                                    <View
+                                        key={index}
+                                        className="w-full flex flex-row items-center justify-between border border-gray-300 rounded-md p-2"
+                                    >
+                                        <Text
+                                            className="font-medium text-sm flex-shrink"
+                                            numberOfLines={1}
+                                        >
+                                            - {item.name}
+                                        </Text>
+
+                                        <Text className="text-xs text-gray-500 ml-2">
+                                            {item.distance} {item.unit_distance || "m"}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                        <View className="py-1">
+                            <DividerCustom />
+                        </View>
+                    </>
+                }
+            </ScrollView >
+
+
 
             <View
                 style={{
-                    height: 72 + insets.bottom,
+                    height: 60 + insets.bottom,
                     paddingBottom: insets.bottom,
                     borderTopWidth: 1,
                     borderTopColor: "#e5e7eb",
-                    backgroundColor: "white",
                 }}
             >
                 <View className="flex-row items-center">
-                    <View className="w-1/4 h-full items-center justify-center border-r border-border">
-                        <Pressable className="items-center justify-center">
-                            <Ionicons name="chatbubble-ellipses-outline" size={22} color="black" />
-                            <Text className="text-sm text-black mt-1">
-                                Zalo
-                            </Text>
-                        </Pressable>
-                    </View>
-                    <View className="w-1/4 h-full items-center justify-center border-l border-border">
-                        <Pressable className="items-center justify-center">
-                            <Ionicons
-                                name="chatbubble-ellipses-outline"
-                                size={22}
-                                color="#2baf90"
-                            />
-                            <Text className="text-sm text-[#2baf90] mt-1">
-                                Chat
-                            </Text>
-                        </Pressable>
-                    </View>
+                    {
+                        data?.landlord.zalo ?
+                            (
+                                <View className="w-1/2 h-full flex-row items-center justify-center">
+                                    <View className="w-1/2 h-full items-center justify-center border-r border-border">
+                                        <Pressable className="items-center justify-center" onPress={() => { Linking.openURL(`https://zalo.me/${data?.landlord.phone}`); }}>
+                                            <Image
+                                                source={require("@/assets/icon/zalo.svg")}
+                                                style={{ width: 40, height: 40 }}
+                                            />
+                                        </Pressable>
+                                    </View>
+                                    <View className="w-1/2 h-full items-center justify-center border-l border-border">
+                                        <Pressable className="items-center justify-center">
+                                            <Ionicons
+                                                name="chatbubble-ellipses"
+                                                size={32}
+                                                color="#2baf90"
+                                            />
+                                        </Pressable>
+                                    </View>
+                                </View>
+                            ) : (
+                                <View className="w-1/2 h-full items-center justify-center">
+                                    <Pressable className="flex-row items-center justify-center gap-2">
+                                        <Ionicons
+                                            name="chatbubble-ellipses"
+                                            size={32}
+                                            color="#2baf90"
+                                        />
+                                        <Text className="text-base font-bold text-foreground">
+                                            Nhắn tin
+                                        </Text>
+                                    </Pressable>
+                                </View>
+                            )
+                    }
 
 
                     <View className="w-2/4 h-full items-center justify-center bg-red-600">
@@ -360,9 +455,8 @@ export default function PostDetailScreen({
                         </Pressable>
                     </View>
                 </View>
-
             </View>
 
-        </View>
+        </View >
     );
 }
