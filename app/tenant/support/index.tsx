@@ -23,7 +23,7 @@ export default function SupportScreen({
 }: ThemedViewProps) {
   const backgroundColor = useThemeColor(
     { light: lightColor, dark: darkColor },
-    "background"
+    "background",
   );
 
   const phoneNumber = "0832500785";
@@ -59,7 +59,7 @@ export default function SupportScreen({
         >
           <Ionicons name="call" size={20} color="white" />
           <Text className="ml-2 text-white font-semibold">
-            Gọi: {phoneNumber}
+            Gọi qua điện thoại
           </Text>
         </Pressable>
 
@@ -68,15 +68,13 @@ export default function SupportScreen({
           className="flex-row items-center justify-center rounded-xl bg-[#2f7cf6] py-2"
         >
           <Ionicons name="chatbubble-ellipses" size={20} color="white" />
-          <Text className="ml-2 text-white font-semibold">
-            Zalo
-          </Text>
+          <Text className="ml-2 text-white font-semibold">Zalo</Text>
         </Pressable>
       </ThemedView>
 
       <ThemedView className="mt-4 px-4">
         <Text className="text-center text-xs text-muted-foreground">
-          ⏰ Thời gian hỗ trợ: 8:00 – 22:00 (Thứ 2 – Chủ nhật)
+          ⏰ Thời gian hỗ trợ: 8:00 - 22:00 (Thứ 2 - Chủ nhật)
         </Text>
       </ThemedView>
     </ScrollView>

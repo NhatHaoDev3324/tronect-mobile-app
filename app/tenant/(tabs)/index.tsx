@@ -4,6 +4,7 @@ import { getAllPostRoomSharing, savePostRoomSharing } from "@/api/postRoomShareA
 import { getAllPostsPropose } from "@/api/proposeApi";
 import Person from "@/assets/images/person.png";
 import { DividerCustom } from "@/components/customs/DividerCustom";
+import { LoadingData } from "@/components/customs/LoadingData";
 import { Tag360 } from "@/components/customs/Tag360";
 import { TagCheck } from "@/components/customs/TagCheck";
 import { TagVip } from "@/components/customs/TagVip";
@@ -380,13 +381,7 @@ export default function RealEstateHeroScreen() {
 
                 {
                     initialLoading ? (
-                        <View style={{ width: "100%", height: "100%" }} className="items-center justify-center bg-background">
-                            <ActivityIndicator size="large" color="#2baf90" />
-                            <Text className="mt-3 text-muted-foreground">
-                                Đang tải dữ liệu...
-                            </Text>
-                        </View>
-
+                        <LoadingData />
                     ) : (
                         <View>
                             <View className="px-4">

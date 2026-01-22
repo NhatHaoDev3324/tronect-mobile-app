@@ -1,6 +1,7 @@
 import { tenantMyProfile, tenantUpdateAvatar } from "@/api/authTenantApi";
 import noAvatar from "@/assets/images/noAvata.png";
 import { DividerCustom } from "@/components/customs/DividerCustom";
+import { LoadingData } from "@/components/customs/LoadingData";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ export default function SearchScreen({
     const { userName, urlImg, created, userID } = useAuthStore();
     const [logoutOpen, setLogoutOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const setUserID = useAuthStore((s) => s.setUserID);
@@ -230,6 +232,7 @@ export default function SearchScreen({
 
     useEffect(() => {
         const init = async () => {
+            setInitialLoading(true)
             try {
                 if (!userID) {
                     const res = await tenantMyProfile();
@@ -245,6 +248,8 @@ export default function SearchScreen({
                 }
             } catch (error: any) {
                 console.error("Error loading profile:", error);
+            } finally {
+                setInitialLoading(false)
             }
         };
 
@@ -262,250 +267,259 @@ export default function SearchScreen({
                 colors={["#2baf90"]}
             />
         }>
-            <ThemedView className="flex flex-col items-center mt-24 mb-4">
-                <ThemedView
-                    style={{
-                        position: "relative",
-                        width: 100,
-                        height: 100,
-                        marginBottom: 12,
-                    }}
-                >
-                    <Pressable onPress={pickAndUploadAvatar} disabled={uploading}>
-                        <Image
-                            source={userID ? urlImg : noAvatar}
-                            style={{ width: 100, height: 100, borderRadius: 999 }}
-                            contentFit="cover"
-                        />
-
-                        {uploading && (
-                            <View
+            {
+                initialLoading ?
+                    <ThemedView className="flex flex-col items-center justify-center h-screen">
+                        <LoadingData />
+                    </ThemedView>
+                    :
+                    <>
+                        <ThemedView className="flex flex-col items-center mt-24 mb-4">
+                            <ThemedView
                                 style={{
-                                    position: "absolute",
-                                    inset: 0,
-                                    borderRadius: 999,
-                                    backgroundColor: "rgba(0,0,0,0.35)",
-                                    alignItems: "center",
-                                    justifyContent: "center",
+                                    position: "relative",
+                                    width: 100,
+                                    height: 100,
+                                    marginBottom: 12,
                                 }}
                             >
-                                <ActivityIndicator color="#fff" />
-                            </View>
-                        )}
-                    </Pressable>
+                                <Pressable onPress={pickAndUploadAvatar} disabled={uploading}>
+                                    <Image
+                                        source={userID ? urlImg : noAvatar}
+                                        style={{ width: 100, height: 100, borderRadius: 999 }}
+                                        contentFit="cover"
+                                    />
 
-                    {/* nút edit */}
-                    <Pressable
-                        onPress={pickAndUploadAvatar}
-                        disabled={uploading}
-                        style={{
-                            position: "absolute",
-                            bottom: 0,
-                            right: 0,
-                            width: 32,
-                            height: 32,
-                            borderRadius: 16,
-                            backgroundColor: "#000",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderWidth: 2,
-                            borderColor: "#fff",
-                            opacity: uploading ? 0.6 : 1,
-                        }}
-                    >
-                        <Feather name="edit-2" size={16} color="#fff" />
-                    </Pressable>
-                </ThemedView>
-                <ThemedText type="subtitle" style={{ marginBottom: 4 }}>
-                    {userID ? userName : "Không xác định"}
-                </ThemedText>
-                <ThemedText style={{ color: "gray", fontSize: 14 }}>
-                    Tham gia ngày: {userID ? formatDateOnly(created) : "Không xác định"}
-                </ThemedText>
-            </ThemedView>
+                                    {uploading && (
+                                        <View
+                                            style={{
+                                                position: "absolute",
+                                                inset: 0,
+                                                borderRadius: 999,
+                                                backgroundColor: "rgba(0,0,0,0.35)",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                            }}
+                                        >
+                                            <ActivityIndicator color="#fff" />
+                                        </View>
+                                    )}
+                                </Pressable>
 
-            <ThemedView>
-                <ThemedText
-                    className="px-4 "
-                    style={[
-                        !userID ? { display: "none" } : undefined,
-                        { color: "gray", fontSize: 14, fontWeight: "bold" },
-                    ]}
-                >
-                    Tài khoản
-                </ThemedText>
-                <ThemedView
-                    style={[
-                        !userID ? { display: "none" } : undefined,
-                        { backgroundColor },
-                        {
-                            borderRadius: 16,
-                            paddingVertical: 4,
-                        },
-                    ]}
-                >
-                    {accountMenus.map((item) => (
-                        <Pressable
-                            key={item.key}
-                            onPress={item.onPress}
-                            style={[
-                                { backgroundColor },
-                                {
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    paddingVertical: 14,
-                                    paddingHorizontal: 16,
-                                },
-                            ]}
-                        >
-                            <Feather name={item.icon} size={20} color="#8E8E93" />
-
-                            <ThemedText style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>
-                                {item.label}
+                                {/* nút edit */}
+                                <Pressable
+                                    onPress={pickAndUploadAvatar}
+                                    disabled={uploading}
+                                    style={{
+                                        position: "absolute",
+                                        bottom: 0,
+                                        right: 0,
+                                        width: 32,
+                                        height: 32,
+                                        borderRadius: 16,
+                                        backgroundColor: "#000",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        borderWidth: 2,
+                                        borderColor: "#fff",
+                                        opacity: uploading ? 0.6 : 1,
+                                    }}
+                                >
+                                    <Feather name="edit-2" size={16} color="#fff" />
+                                </Pressable>
+                            </ThemedView>
+                            <ThemedText type="subtitle" style={{ marginBottom: 4 }}>
+                                {userID ? userName : "Không xác định"}
                             </ThemedText>
+                            <ThemedText style={{ color: "gray", fontSize: 14 }}>
+                                Tham gia ngày: {userID ? formatDateOnly(created) : "Không xác định"}
+                            </ThemedText>
+                        </ThemedView>
 
-                            <Feather name="chevron-right" size={20} color="#C7C7CC" />
-                        </Pressable>
-                    ))}
-                </ThemedView>
-
-                <DividerCustom />
-
-                <ThemedView>
-                    <ThemedText
-                        className="mt-4 px-4"
-                        style={{ color: "gray", fontSize: 14, fontWeight: "bold" }}
-                    >
-                        Hướng dẫn
-                    </ThemedText>
-                    <ThemedView
-                        style={[
-                            { backgroundColor },
-                            {
-                                borderRadius: 16,
-                                paddingVertical: 4,
-                            },
-                        ]}
-                    >
-                        {otherMenus.map((item) => (
-                            <Pressable
-                                key={item.key}
-                                onPress={item.onPress}
+                        <ThemedView>
+                            <ThemedText
+                                className="px-4 "
                                 style={[
+                                    !userID ? { display: "none" } : undefined,
+                                    { color: "gray", fontSize: 14, fontWeight: "bold" },
+                                ]}
+                            >
+                                Tài khoản
+                            </ThemedText>
+                            <ThemedView
+                                style={[
+                                    !userID ? { display: "none" } : undefined,
                                     { backgroundColor },
                                     {
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        paddingVertical: 14,
-                                        paddingHorizontal: 16,
+                                        borderRadius: 16,
+                                        paddingVertical: 4,
                                     },
                                 ]}
                             >
-                                <Feather name={item.icon} size={20} color="#8E8E93" />
+                                {accountMenus.map((item) => (
+                                    <Pressable
+                                        key={item.key}
+                                        onPress={item.onPress}
+                                        style={[
+                                            { backgroundColor },
+                                            {
+                                                flexDirection: "row",
+                                                alignItems: "center",
+                                                paddingVertical: 14,
+                                                paddingHorizontal: 16,
+                                            },
+                                        ]}
+                                    >
+                                        <Feather name={item.icon} size={20} color="#8E8E93" />
 
-                                <ThemedText style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>
-                                    {item.label}
-                                </ThemedText>
+                                        <ThemedText style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>
+                                            {item.label}
+                                        </ThemedText>
 
-                                <Feather name="chevron-right" size={20} color="#C7C7CC" />
-                            </Pressable>
-                        ))}
-                    </ThemedView>
+                                        <Feather name="chevron-right" size={20} color="#C7C7CC" />
+                                    </Pressable>
+                                ))}
+                            </ThemedView>
 
-                    <DividerCustom />
+                            <DividerCustom />
 
-                    <ThemedView className="mt-2">
-                        <Pressable
-                            onPress={() => {
-                                if (userID) setLogoutOpen(true);
-                                else router.push("/tenant/login");
-                            }}
-                            android_ripple={{ color: "#EF444420" }}
-                            style={[
-                                { backgroundColor },
-                                {
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    paddingVertical: 14,
-                                    paddingHorizontal: 16,
-                                    borderRadius: 16,
-                                },
-                            ]}
-                        >
-                            <Feather
-                                name={userID ? "log-out" : "log-in"}
-                                size={20}
-                                color={userID ? "#EF4444" : "#8E8E93"}
-                            />
-
-                            <ThemedText
-                                style={{
-                                    flex: 1,
-                                    marginLeft: 12,
-                                    fontSize: 16,
-                                    fontWeight: userID ? "600" : "400",
-                                }}
-                            >
-                                {userID ? "Đăng xuất" : "Đăng nhập"}
-                            </ThemedText>
-                        </Pressable>
-                    </ThemedView>
-                </ThemedView>
-            </ThemedView>
-            <Modal
-                visible={logoutOpen}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setLogoutOpen(false)}
-            >
-                {/* Backdrop */}
-                <Pressable
-                    className="flex-1 bg-black/50 justify-center px-6"
-                    onPress={() => setLogoutOpen(false)}
-                >
-                    {/* Card */}
-                    <Pressable
-                        className="rounded-2xl bg-card border border-border p-4"
-                        onPress={() => { }}
-                    >
-                        <ThemedText
-                            style={{ fontSize: 18, fontWeight: "700", marginBottom: 6 }}
-                        >
-                            Đăng xuất
-                        </ThemedText>
-
-                        <ThemedText
-                            style={{ color: "gray", fontSize: 14, marginBottom: 16 }}
-                        >
-                            Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?
-                        </ThemedText>
-
-                        <View style={{ flexDirection: "row", gap: 12 }}>
-                            <View style={{ flex: 1 }}>
-                                <Button
-                                    variant="outline"
-                                    onPress={() => setLogoutOpen(false)}
-                                    disabled={loading}
+                            <ThemedView>
+                                <ThemedText
+                                    className="mt-4 px-4"
+                                    style={{ color: "gray", fontSize: 14, fontWeight: "bold" }}
                                 >
-                                    <Text>Hủy</Text>
-                                </Button>
-                            </View>
+                                    Hướng dẫn
+                                </ThemedText>
+                                <ThemedView
+                                    style={[
+                                        { backgroundColor },
+                                        {
+                                            borderRadius: 16,
+                                            paddingVertical: 4,
+                                        },
+                                    ]}
+                                >
+                                    {otherMenus.map((item) => (
+                                        <Pressable
+                                            key={item.key}
+                                            onPress={item.onPress}
+                                            style={[
+                                                { backgroundColor },
+                                                {
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    paddingVertical: 14,
+                                                    paddingHorizontal: 16,
+                                                },
+                                            ]}
+                                        >
+                                            <Feather name={item.icon} size={20} color="#8E8E93" />
 
-                            <View style={{ flex: 1 }}>
-                                <Button onPress={confirmLogout} disabled={loading}>
-                                    <View className="flex-row items-center justify-center min-h-[20px]">
-                                        {loading ? (
-                                            <ActivityIndicator size="small" color="#fff" />
-                                        ) : (
-                                            <Text className="font-semibold">Đăng xuất</Text>
-                                        )}
+                                            <ThemedText style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>
+                                                {item.label}
+                                            </ThemedText>
+
+                                            <Feather name="chevron-right" size={20} color="#C7C7CC" />
+                                        </Pressable>
+                                    ))}
+                                </ThemedView>
+
+                                <DividerCustom />
+
+                                <ThemedView className="mt-2">
+                                    <Pressable
+                                        onPress={() => {
+                                            if (userID) setLogoutOpen(true);
+                                            else router.push("/tenant/login");
+                                        }}
+                                        android_ripple={{ color: "#EF444420" }}
+                                        style={[
+                                            { backgroundColor },
+                                            {
+                                                flexDirection: "row",
+                                                alignItems: "center",
+                                                paddingVertical: 14,
+                                                paddingHorizontal: 16,
+                                                borderRadius: 16,
+                                            },
+                                        ]}
+                                    >
+                                        <Feather
+                                            name={userID ? "log-out" : "log-in"}
+                                            size={20}
+                                            color={userID ? "#EF4444" : "#8E8E93"}
+                                        />
+
+                                        <ThemedText
+                                            style={{
+                                                flex: 1,
+                                                marginLeft: 12,
+                                                fontSize: 16,
+                                                fontWeight: userID ? "600" : "400",
+                                            }}
+                                        >
+                                            {userID ? "Đăng xuất" : "Đăng nhập"}
+                                        </ThemedText>
+                                    </Pressable>
+                                </ThemedView>
+                            </ThemedView>
+                        </ThemedView>
+                        <Modal
+                            visible={logoutOpen}
+                            transparent
+                            animationType="fade"
+                            onRequestClose={() => setLogoutOpen(false)}
+                        >
+                            {/* Backdrop */}
+                            <Pressable
+                                className="flex-1 bg-black/50 justify-center px-6"
+                                onPress={() => setLogoutOpen(false)}
+                            >
+                                {/* Card */}
+                                <Pressable
+                                    className="rounded-2xl bg-card border border-border p-4"
+                                    onPress={() => { }}
+                                >
+                                    <ThemedText
+                                        style={{ fontSize: 18, fontWeight: "700", marginBottom: 6 }}
+                                    >
+                                        Đăng xuất
+                                    </ThemedText>
+
+                                    <ThemedText
+                                        style={{ color: "gray", fontSize: 14, marginBottom: 16 }}
+                                    >
+                                        Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này không?
+                                    </ThemedText>
+
+                                    <View style={{ flexDirection: "row", gap: 12 }}>
+                                        <View style={{ flex: 1 }}>
+                                            <Button
+                                                variant="outline"
+                                                onPress={() => setLogoutOpen(false)}
+                                                disabled={loading}
+                                            >
+                                                <Text>Hủy</Text>
+                                            </Button>
+                                        </View>
+
+                                        <View style={{ flex: 1 }}>
+                                            <Button onPress={confirmLogout} disabled={loading}>
+                                                <View className="flex-row items-center justify-center min-h-[20px]">
+                                                    {loading ? (
+                                                        <ActivityIndicator size="small" color="#fff" />
+                                                    ) : (
+                                                        <Text className="font-semibold">Đăng xuất</Text>
+                                                    )}
+                                                </View>
+                                            </Button>
+                                        </View>
                                     </View>
-                                </Button>
-                            </View>
-                        </View>
-                    </Pressable>
-                </Pressable>
-            </Modal>
+                                </Pressable>
+                            </Pressable>
+                        </Modal>
+                    </>
+            }
         </ScrollView>
     );
 }

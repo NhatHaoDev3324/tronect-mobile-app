@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 interface TagCheckProps {
@@ -10,6 +11,7 @@ export const TagCheck = ({ verification_status, onPress }: TagCheckProps) => {
 
     const Content = (
         <View style={styles.container}>
+            <MaterialCommunityIcons name="check" size={16} color="#fff" />
             <Text style={styles.text}>Đã xác thực</Text>
         </View>
     );

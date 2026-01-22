@@ -2,7 +2,7 @@ import { Star } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 interface TagVipProps {
-  postType: string;
+  postType: string | undefined;
   onPress?: () => void;
 }
 
