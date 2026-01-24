@@ -164,7 +164,7 @@ export default function SearchResultScreen({
             >
                 <View className="flex-row flex-wrap justify-between gap-y-2 mt-4">
                     {dataRoom.map(item => (
-                        <Pressable key={item.id} style={{ width: "49%" }} onPress={() => router.push({ pathname: "/tenant/search/[slug]", params: { slug: item.slug, category: category || "", }, })}>
+                        <Pressable key={item.id} style={{ width: "49%" }} onPress={() => router.push({ pathname: "/tenant/post-detail", params: { slug: item.slug, category: category || "", }, })}>
                             <Card className="relative overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
                                 <View style={{ position: "relative" }}>
                                     <Image

@@ -4,7 +4,6 @@ import {
     savePostRoomSharing,
 } from "@/api/postRoomShareApi";
 
-
 import Button360 from "@/components/customs/Button360";
 import { DividerCustom } from "@/components/customs/DividerCustom";
 import TagCheck from "@/components/customs/TagCheck";
@@ -24,12 +23,15 @@ import {
     ActivityIndicator,
     Dimensions,
     Linking,
+    Modal,
     Pressable,
     ScrollView,
     Text,
     View,
     type ViewProps,
 } from "react-native";
+import ImageZoom from 'react-native-image-pan-zoom';
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
@@ -58,6 +60,11 @@ export default function PostDetailScreen({
 
     const { width } = Dimensions.get("window");
     const insets = useSafeAreaInsets();
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [previewData, setPreviewData] = useState<{
+        type: 'image' | 'video';
+        uri: string;
+    } | null>(null);
 
     const images = data?.images ?? [];
     const hasVideo = Boolean(data?.video);
@@ -179,14 +186,22 @@ export default function PostDetailScreen({
                     >
                         <View style={{ width, height: 260 }}>
                             {hasVideo ? (
-                                <Video
-                                    source={{ uri: data!.video }}
-                                    style={{ width: "100%", height: "100%" }}
-                                    resizeMode={ResizeMode.COVER}
-                                    shouldPlay={activeIndex === 0}
-                                    isLooping
-                                    useNativeControls={false}
-                                />
+                                <Pressable
+                                    style={{ width, height: 260 }}
+                                    onPress={() => {
+                                        setPreviewData({ type: 'video', uri: data!.video });
+                                        setPreviewVisible(true);
+                                    }}
+                                >
+                                    <Video
+                                        source={{ uri: data!.video }}
+                                        style={{ width: '100%', height: '100%' }}
+                                        resizeMode={ResizeMode.COVER}
+                                        shouldPlay={activeIndex === 0}
+                                        isLooping
+                                    />
+                                </Pressable>
+
                             ) : (
                                 images[0] && (
                                     <Image
@@ -199,13 +214,21 @@ export default function PostDetailScreen({
                         </View>
 
                         {imageSlides.map((img, index) => (
-                            <Image
-                                key={index}
-                                source={{ uri: img }}
-                                style={{ width, height: 260 }}
-                                contentFit="cover"
-                            />
+                            <Pressable
+                                key={`${img}-${index}`}
+                                onPress={() => {
+                                    setPreviewData({ type: 'image', uri: img });
+                                    setPreviewVisible(true);
+                                }}
+                            >
+                                <Image
+                                    source={{ uri: img }}
+                                    style={{ width, height: 260 }}
+                                    contentFit="cover"
+                                />
+                            </Pressable>
                         ))}
+
                     </ScrollView>
 
                     <View
@@ -231,7 +254,10 @@ export default function PostDetailScreen({
                             right: 12,
                         }}
                     >
-                        <Button360 picture_360={data?.picture_360} />
+                        <Button360 picture_360={data?.picture_360} onPress={() => router.push({
+                            pathname: "/tenant/panorama360",
+                            params: { imageUrl: data?.picture_360 },
+                        })} />
                     </View>
                 </View>
                 <View className="px-4 flex-row gap-2 justify-between mt-2" >
@@ -416,6 +442,8 @@ export default function PostDetailScreen({
                                             <Image
                                                 source={require("@/assets/icon/zalo.svg")}
                                                 style={{ width: 40, height: 40 }}
+                                                contentFit="cover"
+
                                             />
                                         </Pressable>
                                     </View>
@@ -456,6 +484,50 @@ export default function PostDetailScreen({
                     </View>
                 </View>
             </View>
+            <Modal
+                visible={previewVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setPreviewVisible(false)}
+            >
+                <View style={{ flex: 1, backgroundColor: 'black' }}>
+
+                    <Pressable
+                        onPress={() => setPreviewVisible(false)}
+                        style={{ position: 'absolute', top: 40, right: 20, zIndex: 10 }}
+                    >
+                        <Text style={{ color: 'white', fontSize: 18 }}>✕</Text>
+                    </Pressable>
+
+                    {previewData?.type === 'image' && (
+                        <ImageZoom
+                            cropWidth={Dimensions.get('window').width}
+                            cropHeight={Dimensions.get('window').height}
+                            imageWidth={Dimensions.get('window').width}
+                            imageHeight={Dimensions.get('window').height}
+                        >
+                            <Image
+                                source={{ uri: previewData.uri }}
+                                style={{
+                                    width: Dimensions.get('window').width,
+                                    height: Dimensions.get('window').height,
+                                }}
+                                contentFit="contain"
+                            />
+                        </ImageZoom>
+                    )}
+
+                    {previewData?.type === 'video' && (
+                        <Video
+                            source={{ uri: previewData.uri }}
+                            style={{ width: '100%', height: '100%' }}
+                            resizeMode={ResizeMode.CONTAIN}
+                            shouldPlay={previewVisible}
+                            useNativeControls
+                        />
+                    )}
+                </View>
+            </Modal>
 
         </View >
     );

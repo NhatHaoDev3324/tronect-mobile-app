@@ -156,6 +156,10 @@ export default function TenantLayout({
                 name="post-detail/index"
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="panorama360/index"
+                options={{ headerShown: false }}
+            />
         </Stack>
     );
 }
