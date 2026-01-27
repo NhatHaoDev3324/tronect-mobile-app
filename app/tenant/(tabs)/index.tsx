@@ -70,6 +70,7 @@ export default function RealEstateHeroScreen() {
     const [provinceName, setProvinceName] = useState("TP.HCM");
     const [districtName, setDistrictName] = useState("");
     const [wardName, setWardName] = useState("");
+    const [wardSlug, setWardSlug] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
@@ -92,7 +93,7 @@ export default function RealEstateHeroScreen() {
             setServices(responseServices);
             setPost(responsePost);
             setPostRoomShare(responsePostRoomShare);
-        } catch (error) {
+        } catch {
             Toast.show({
                 type: "error",
                 text1: "Lỗi",
@@ -158,6 +159,7 @@ export default function RealEstateHeroScreen() {
     const handleWardSelect = (item: LocationItem) => {
         setWardValue(item.value);
         setWardName(item.label);
+        setWardSlug(item.codename);
         setShowLocationModal(false);
         setLocationStep("district");
     };
@@ -228,7 +230,7 @@ export default function RealEstateHeroScreen() {
                 await savePost(slug);
             }
 
-        } catch (error) {
+        } catch {
             setPost(prev => toggleSaveInList(prev, slug));
             setPostProposes(prev => toggleSaveInList(prev, slug));
             setPostRoomShare(prev => toggleSaveInList(prev, slug));
@@ -351,7 +353,7 @@ export default function RealEstateHeroScreen() {
                                 <Input
                                     value={getDisplayText()}
                                     placeholder="Tìm phòng trọ..."
-                                    className="text-sm pl-11 rounded-lg bg-muted text-black dark:text-black dark:bg-gray-100 border-gray-200"
+                                    className="h-10 text-sm pl-11 rounded-lg bg-muted text-black dark:text-black dark:bg-gray-100 border-gray-200 line-clamp-1"
                                 />
                             </View>
 
@@ -363,14 +365,16 @@ export default function RealEstateHeroScreen() {
                                         pathname: "/tenant/(tabs)/search/search-result",
                                         params: {
                                             category: tab,
-                                            district: districtName,
-                                            ward: wardName,
+                                            district: districtName || "",
+                                            ward: wardSlug || "",
+                                            wardName: wardName || "",
                                         },
                                     });
                                     setDistrictValue("");
                                     setWardValue("");
                                     setDistrictName("");
                                     setWardName("");
+                                    setWardSlug("");
                                 }}
                             >
                                 <Text className="text-white font-semibold text-base">Tìm</Text>
@@ -462,7 +466,12 @@ export default function RealEstateHeroScreen() {
                             <View className="px-4">
                                 <View className="flex-row items-center justify-between mt-4 mb-2">
                                     <Text className=" text-lg font-bold">Dịch vụ tiện ích</Text>
-                                    <Text className="text-xs text-muted-foreground">Xem thêm</Text>
+                                    <Pressable
+                                        onPress={() => router.push("/tenant/service")}
+                                    >
+                                        <Text className="text-xs text-muted-foreground">Xem thêm</Text>
+                                    </Pressable>
+
                                 </View>
                                 <View>
                                     <FlatList

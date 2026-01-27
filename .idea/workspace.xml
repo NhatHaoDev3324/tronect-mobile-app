@@ -5,11 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="99e39c0f-ec7f-452c-ae39-69f697ff51c5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/tenant/login/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/login/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/(tabs)/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/(tabs)/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/(tabs)/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/(tabs)/search/search-result.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/(tabs)/search/search-result.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/panorama360/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/panorama360/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/post-detail/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/post-detail/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/types/authType.ts" beforeDir="false" afterPath="$PROJECT_DIR$/types/authType.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/dataitem.ts" beforeDir="false" afterPath="$PROJECT_DIR$/utils/dataitem.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,9 +28,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="381oxclFwt5RY0PASh1Zm2WFEV5" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -38,11 +44,13 @@
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "ToolWindow.Running Devices.ShowToolbar": "false",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "Auth-Google",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/KhoaLuanTotNghiep/mobile-app/tronect-mobile-app"
+    "last_opened_file_path": "D:/KhoaLuanTotNghiep/mobile-app/tronect-mobile-app",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
   <component name="TaskManager">

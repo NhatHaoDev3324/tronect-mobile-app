@@ -1,5 +1,6 @@
 import { Panorama360View } from "@/components/customs/Panorama360Screen";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,9 +13,15 @@ export default function Panorama360Screen() {
 
     return (
         <View className="flex-1 bg-black">
-            <View
-                style={{ paddingTop: insets.top + 12 }}
-                className="flex-row items-center border-b px-4 py-3 bg-[#2baf90]"
+            <LinearGradient
+                colors={["#3b82f6", "#7c3aed", "#a78bfa"]}
+                start={[0, 0]}
+                end={[1, 1]}
+                style={{
+                    paddingTop: insets.top + 12, flexDirection: "row", alignItems: "center",
+                    paddingHorizontal: 28,
+                    paddingVertical: 12,
+                }}
             >
                 <Pressable onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="white" />
@@ -23,7 +30,7 @@ export default function Panorama360Screen() {
                 <Text className="ml-4 text-xl font-semibold text-white">
                     Xem phòng 360
                 </Text>
-            </View>
+            </LinearGradient>
 
             <View className="flex-1">
                 <Panorama360View imageUrl={imageUrl} />

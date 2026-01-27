@@ -68,7 +68,7 @@ export default function TabLayout() {
                     name="index"
                     options={{
                         title: "Trang chủ",
-                        tabBarIcon: ({ color }) => (
+                        tabBarIcon: ({ color }: { color: string }) => (
                             <AntDesign name="home" size={24} color={color} />
                         ),
                     }}
@@ -78,7 +78,7 @@ export default function TabLayout() {
                     name="search"
                     options={{
                         title: "Tìm kiếm",
-                        tabBarIcon: ({ color }) => (
+                        tabBarIcon: ({ color }: { color: string }) => (
                             <Feather name="search" size={24} color={color} />
                         ),
                     }}
@@ -89,7 +89,7 @@ export default function TabLayout() {
                     options={{
                         title: "Đăng bài",
                         headerShown: true,
-                        tabBarIcon: ({ color }) => (
+                        tabBarIcon: ({ color }: { color: string }) => (
                             <AntDesign name="plus-circle" size={24} color={color} />
                         ),
                     }}
@@ -100,7 +100,7 @@ export default function TabLayout() {
                     options={{
                         title: "Nhắn tin",
                         headerShown: true,
-                        tabBarIcon: ({ color }) => (
+                        tabBarIcon: ({ color }: { color: string }) => (
                             <Ionicons
                                 name="chatbubble-ellipses-outline"
                                 size={24}
@@ -114,7 +114,7 @@ export default function TabLayout() {
                     name="account"
                     options={{
                         title: "Tài khoản",
-                        tabBarIcon: ({ color }) => (
+                        tabBarIcon: ({ color }: { color: string }) => (
                             <Feather name="user" size={24} color={color} />
                         ),
                     }}

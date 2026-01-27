@@ -8,14 +8,14 @@ export interface AdminInfoType {
     email: string;
     phone: string;
     role: RoleType,
-    picture: string;
+    picture: string | undefined;
     provider: string;
     gender: GenderType;
     date_of_birth: Date | undefined;
     bio: string;
     zalo: string;
-    created_at: string  | Date;
-    updated_at: string  | Date;
+    created_at: string | Date;
+    updated_at: string | Date;
 }
 
 export interface LandlordInfoType {
@@ -24,7 +24,7 @@ export interface LandlordInfoType {
     email: string;
     phone: string;
     role: RoleType,
-    picture: string;
+    picture: string | undefined;
     provider: string;
     gender: GenderType;
     date_of_birth: Date | undefined;
@@ -40,7 +40,7 @@ export interface TenantInfoType {
     email: string;
     phone: string;
     role: RoleType,
-    picture: string;
+    picture: string | undefined;
     provider: string;
     gender: GenderType;
     date_of_birth: Date | undefined;

@@ -41,3 +41,11 @@ export const options = [
     { title: "Thoáng mát, nhiều ánh sáng", value: "thoang-mat-nhieu-anh-sang" },
     { title: "Cho phép nuôi thú cưng", value: "cho-phep-nuoi-thu-cung" }
 ];
+
+
+export const reasons = [
+    { id: 'scam', label: 'Tin có dấu hiệu lừa đảo' },
+    { id: 'duplicate', label: 'Tin trùng lặp nội dung' },
+    { id: 'incorrect', label: 'Thông tin không đúng thực tế' },
+    { id: 'other', label: 'Lý do khác' },
+];

@@ -78,7 +78,7 @@ export default function SearchScreen({
     const [category, setCategory] = useState(categories[0].id);
     const insets = useSafeAreaInsets();
 
-    const [provinceValue] = useState("79"); // HCM cố định
+    // const [provinceValue] = useState("79"); // HCM cố định
     const [districtValue, setDistrictValue] = useState("");
     const [wardValue, setWardValue] = useState("");
 
@@ -145,7 +145,9 @@ export default function SearchScreen({
         features.forEach((f, i) => params.set(`features[${i}]`, f));
 
         const districtSlug = districts.find(d => d.value === districtValue)?.label || "";
-        const wardSlug = wards.find(w => w.value === wardValue)?.label || "";
+        const wardName = wards.find(w => w.value === wardValue)?.label || "";
+
+        const wardSlug = wards.find(w => w.value === wardValue)?.codename || "";
 
         router.push({
             pathname: "/tenant/(tabs)/search/search-result",
@@ -153,6 +155,7 @@ export default function SearchScreen({
                 category,
                 district: districtSlug,
                 ward: wardSlug,
+                wardName: wardName,
                 priceMin: price?.min,
                 priceMax: price?.max,
                 areaMin: area?.min,

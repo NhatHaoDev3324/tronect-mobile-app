@@ -3,22 +3,26 @@ import {
     getPostRoomSharingBySlug,
     savePostRoomSharing,
 } from "@/api/postRoomShareApi";
+import { createReport } from "@/api/reportApi";
 
 import Button360 from "@/components/customs/Button360";
 import { DividerCustom } from "@/components/customs/DividerCustom";
+import RoomOrder from "@/components/customs/RoomOrder";
+import RoomSameArea from "@/components/customs/RoomSameArea";
 import TagCheck from "@/components/customs/TagCheck";
 import TagVip from "@/components/customs/TagVip";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuthStore } from "@/store/useAuthStore";
 import { PostInfoType } from "@/types/postInfoType";
-import { options } from "@/utils/dataitem";
+import { options, reasons } from "@/utils/dataitem";
 import { getNameRole } from "@/utils/getNameRole";
 import { getRoomName } from "@/utils/getRoomName";
 import { Ionicons } from "@expo/vector-icons";
+import BottomSheet, { BottomSheetBackdrop, BottomSheetBackdropProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { ResizeMode, Video } from "expo-av";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Dimensions,
@@ -28,10 +32,10 @@ import {
     ScrollView,
     Text,
     View,
-    type ViewProps,
+    type ViewProps
 } from "react-native";
+import { TextInput } from "react-native-gesture-handler";
 import ImageZoom from 'react-native-image-pan-zoom';
-
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
@@ -48,12 +52,17 @@ export default function PostDetailScreen({
         { light: lightColor, dark: darkColor },
         "background",
     );
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const [selectedReason, setSelectedReason] = useState<string | null>(null);
+    const [otherReason, setOtherReason] = useState('');
+    const [description, setDescription] = useState('');
+
 
     const { slug, category } = useLocalSearchParams<{
         slug: string;
         category: string;
     }>();
-    const { userID } = useAuthStore();
+    const { userID, userName, phone } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<PostInfoType>();
     const [activeIndex, setActiveIndex] = useState(0);
@@ -118,6 +127,50 @@ export default function PostDetailScreen({
                 type: "error",
                 text1: "Lỗi",
                 text2: "Không thể lưu bài viết",
+            });
+        }
+    };
+
+    const renderBackdrop = useCallback(
+        (props: BottomSheetBackdropProps) => (
+            <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                pressBehavior="close"
+            />
+        ),
+        []
+    );
+    const handleSubmit = async () => {
+        if (!selectedReason) {
+            Toast.show({
+                type: 'error',
+                text1: 'Lỗi',
+                text2: 'Vui lòng chọn lý do phản ánh',
+            });
+            return;
+        }
+
+
+
+        try {
+            await createReport(data?.id!, userName, phone, selectedReason === "Lý do khác" ? otherReason ? otherReason : "Lý do khác" : selectedReason, description);
+            Toast.show({
+                type: 'success',
+                text1: 'Thành công',
+                text2: 'Gửi phản ánh thành công',
+            });
+
+            setSelectedReason(null);
+            setOtherReason("");
+            setDescription("");
+            bottomSheetRef.current?.close();
+        } catch {
+            Toast.show({
+                type: 'error',
+                text1: 'Lỗi',
+                text2: 'Gửi phản ánh thất bại',
             });
         }
     };
@@ -204,11 +257,20 @@ export default function PostDetailScreen({
 
                             ) : (
                                 images[0] && (
-                                    <Image
-                                        source={{ uri: images[0] }}
-                                        style={{ width: "100%", height: "100%" }}
-                                        contentFit="cover"
-                                    />
+                                    <Pressable
+                                        key={`${images[0]}`}
+                                        onPress={() => {
+                                            setPreviewData({ type: 'image', uri: images[0] });
+                                            setPreviewVisible(true);
+                                        }}
+                                    >
+                                        <Image
+                                            source={{ uri: images[0] }}
+                                            style={{ width: "100%", height: "100%" }}
+                                            contentFit="cover"
+                                        />
+                                    </Pressable>
+
                                 )
                             )}
                         </View>
@@ -322,10 +384,10 @@ export default function PostDetailScreen({
                     <DividerCustom />
                 </View>
 
-                <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center px-4 py-1 gap-4">
+                <View className="flex-row items-center justify-between px-4">
+                    <View className="flex-row items-center py-1 gap-4 flex-1">
                         <Image
-                            source={data?.landlord.picture}
+                            source={data?.landlord?.picture || data?.tenant?.picture}
                             style={{ width: 52, height: 52, borderRadius: 999 }}
                             contentFit="cover"
                         />
@@ -335,17 +397,28 @@ export default function PostDetailScreen({
                                 className="text-base font-semibold text-foreground"
                                 numberOfLines={1}
                             >
-                                {data?.landlord.username}
+                                {data?.landlord?.username || data?.tenant?.username}
                             </Text>
 
                             <Text
                                 className="text-sm text-gray-500"
                                 numberOfLines={1}
                             >
-                                {getNameRole(data?.landlord.role ?? "Không xác định")}
+                                {getNameRole((data?.landlord?.role || data?.tenant?.role) ?? "Không xác định")}
                             </Text>
                         </View>
                     </View>
+
+                    <Pressable
+                        style={{ paddingRight: 16 }}
+                        onPress={() => bottomSheetRef.current?.expand()}
+                    >
+                        <Ionicons
+                            name="warning-outline"
+                            size={24}
+                            color="#6b7280"
+                        />
+                    </Pressable>
                 </View>
 
                 <View className="py-1">
@@ -389,7 +462,8 @@ export default function PostDetailScreen({
                     <DividerCustom />
                 </View>
 
-                {(data?.nearby_amenities?.length ?? 0) > 0 &&
+                {
+                    (data?.nearby_amenities?.length ?? 0) > 0 &&
                     <>
                         <View className="px-4 py-2 flex-col gap-2">
                             <Text className="text-lg font-bold text-foreground">
@@ -420,6 +494,15 @@ export default function PostDetailScreen({
                         </View>
                     </>
                 }
+
+                <View>
+                    <RoomSameArea slug={data?.slug || ""} category={data?.category || ""} />
+                    <View className="py-1">
+                        <DividerCustom />
+                    </View>
+                    <RoomOrder category={data?.category || ""} />
+                </View>
+
             </ScrollView >
 
 
@@ -434,11 +517,11 @@ export default function PostDetailScreen({
             >
                 <View className="flex-row items-center">
                     {
-                        data?.landlord.zalo ?
+                        data?.landlord?.zalo || data?.tenant?.zalo ?
                             (
                                 <View className="w-1/2 h-full flex-row items-center justify-center">
                                     <View className="w-1/2 h-full items-center justify-center border-r border-border">
-                                        <Pressable className="items-center justify-center" onPress={() => { Linking.openURL(`https://zalo.me/${data?.landlord.phone}`); }}>
+                                        <Pressable className="items-center justify-center" onPress={() => { Linking.openURL(`https://zalo.me/${data?.landlord?.phone || data?.tenant?.phone}`); }}>
                                             <Image
                                                 source={require("@/assets/icon/zalo.svg")}
                                                 style={{ width: 40, height: 40 }}
@@ -462,7 +545,7 @@ export default function PostDetailScreen({
                                     <Pressable className="flex-row items-center justify-center gap-2">
                                         <Ionicons
                                             name="chatbubble-ellipses"
-                                            size={32}
+                                            size={28}
                                             color="#2baf90"
                                         />
                                         <Text className="text-base font-bold text-foreground">
@@ -475,7 +558,7 @@ export default function PostDetailScreen({
 
 
                     <View className="w-2/4 h-full items-center justify-center bg-red-600">
-                        <Pressable className="flex-row gap-2 items-center justify-center">
+                        <Pressable className="flex-row gap-2 items-center justify-center" onPress={() => { Linking.openURL(`tel:${data?.landlord?.phone || data?.tenant?.phone}`); }}>
                             <Ionicons name="call" size={20} color="white" />
                             <Text className="text-base font-bold text-white">
                                 Gọi ngay
@@ -484,6 +567,109 @@ export default function PostDetailScreen({
                     </View>
                 </View>
             </View>
+
+            <BottomSheet
+                ref={bottomSheetRef}
+                index={-1}
+                snapPoints={['70%', '90%']}
+                enablePanDownToClose
+                backdropComponent={renderBackdrop}
+            >
+                <BottomSheetView style={{ padding: 16, height: 560 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+                        Phản ánh tin đăng
+                    </Text>
+
+                    <Text style={{ marginVertical: 8, color: '#555' }}>
+                        Nếu bạn phát hiện tin đăng có thông tin sai lệch, hãy gửi phản ánh.
+                    </Text>
+
+                    {reasons.map((reason) => (
+                        <View key={reason.id} style={{ marginVertical: 6 }}>
+                            <Pressable
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                                onPress={() => {
+                                    setSelectedReason(reason.label);
+                                    if (reason.label !== 'Lý do khác') {
+                                        setOtherReason('');
+                                    }
+                                }}
+                            >
+                                <Ionicons
+                                    name={
+                                        selectedReason === reason.label
+                                            ? 'checkbox'
+                                            : 'square-outline'
+                                    }
+                                    size={20}
+                                    color="#f97316"
+                                />
+                                <Text style={{ marginLeft: 8 }}>
+                                    {reason.label}
+                                </Text>
+                            </Pressable>
+
+                            {reason.label === 'Lý do khác' &&
+                                selectedReason === 'Lý do khác' && (
+                                    <TextInput
+                                        placeholder="Nhập lý do khác..."
+                                        value={otherReason}
+                                        onChangeText={setOtherReason}
+                                        style={{
+                                            borderWidth: 1,
+                                            borderColor: '#ccc',
+                                            padding: 8,
+                                            marginTop: 6,
+                                            borderRadius: 6,
+                                        }}
+                                    />
+                                )}
+                        </View>
+                    ))}
+
+
+                    <Text style={{ marginTop: 12, fontWeight: '600' }}>
+                        Mô tả
+                    </Text>
+                    <TextInput
+                        multiline
+                        numberOfLines={5}
+                        placeholder="Nhập mô tả..."
+                        value={description}
+                        onChangeText={setDescription}
+                        style={{
+                            height: 120,
+                            borderWidth: 1,
+                            borderColor: '#ccc',
+                            padding: 10,
+                            borderRadius: 6,
+                            marginTop: 6,
+                            textAlignVertical: 'top',
+                        }}
+                    />
+
+                    <Pressable
+                        style={{
+                            backgroundColor: '#f97316',
+                            padding: 14,
+                            borderRadius: 8,
+                            marginTop: 16,
+                        }}
+                        onPress={handleSubmit}
+                    >
+                        <Text
+                            style={{
+                                color: '#fff',
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                            }}
+                        >
+                            Gửi phản ánh
+                        </Text>
+                    </Pressable>
+                </BottomSheetView>
+            </BottomSheet>
+
             <Modal
                 visible={previewVisible}
                 transparent
