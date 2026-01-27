@@ -451,7 +451,7 @@ export default function PostDetailScreen({
                                         <Ionicons name={isOption ? "checkmark" : "close"} size={12} color="white" />
                                     </View>
 
-                                    <Text className={`text-xs ${!isOption ? "line-through opacity-60" : ""}`} numberOfLines={1}>{item.title}</Text>
+                                    <Text className={`text-xs text-foreground ${!isOption ? "line-through opacity-40" : ""}`} numberOfLines={1}>{item.title}</Text>
                                 </View>
                             );
                         })}
@@ -476,7 +476,7 @@ export default function PostDetailScreen({
                                         className="w-full flex flex-row items-center justify-between border border-gray-300 rounded-md p-2"
                                     >
                                         <Text
-                                            className="font-medium text-sm flex-shrink"
+                                            className="font-medium text-sm flex-shrink "
                                             numberOfLines={1}
                                         >
                                             - {item.name}
@@ -511,8 +511,8 @@ export default function PostDetailScreen({
                 style={{
                     height: 60 + insets.bottom,
                     paddingBottom: insets.bottom,
-                    borderTopWidth: 1,
-                    borderTopColor: "#e5e7eb",
+                    borderTopWidth: 0.2,
+                    borderTopColor: "#d1d5db",
                 }}
             >
                 <View className="flex-row items-center">

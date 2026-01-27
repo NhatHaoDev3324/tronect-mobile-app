@@ -204,9 +204,9 @@ export default function SearchResultScreen({
                 </View>
             </View>
             <Pressable className="flex-row items-center justify-between border-b border-border px-4" onPress={() => router.push("/tenant/(tabs)/search")}>
-                <View className="flex-row items-center bg-white rounded-full py-2 flex-1">
+                <View className="flex-row items-center rounded-full py-2 flex-1">
                     <Ionicons name="location" size={20} color="#2baf90" />
-                    <Text className="ml-2 text-xs line-clamp-1 mr-10">Khu vực: {wardName && `${wardName},`} {district && `${district},`} TP. Hồ Chí Minh</Text>
+                    <Text className="ml-2 text-xs text-foreground line-clamp-1 mr-10">Khu vực: {wardName && `${wardName},`} {district && `${district},`} TP. Hồ Chí Minh</Text>
                 </View>
                 <Ionicons name="funnel" size={18} color="#2baf90" />
             </Pressable>
@@ -250,7 +250,7 @@ export default function SearchResultScreen({
                                     </View>
 
                                     <View className="p-2">
-                                        <Text className="text-sm font-semibold line-clamp-2">
+                                        <Text className="text-sm text-foreground font-semibold line-clamp-2">
                                             {item.title}
                                         </Text>
 

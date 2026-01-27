@@ -467,7 +467,7 @@ export default function RealEstateHeroScreen() {
                                 <View className="flex-row items-center justify-between mt-4 mb-2">
                                     <Text className=" text-lg font-bold">Dịch vụ tiện ích</Text>
                                     <Pressable
-                                        onPress={() => router.push("/tenant/service")}
+                                        onPress={() => router.push("/tenant/all-service")}
                                     >
                                         <Text className="text-xs text-muted-foreground">Xem thêm</Text>
                                     </Pressable>

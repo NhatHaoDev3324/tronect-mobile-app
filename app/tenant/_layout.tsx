@@ -163,7 +163,15 @@ export default function TenantLayout({
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name="service/index"
+                    name="all-service/index"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="all-service/service"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="all-service/detail"
                     options={{ headerShown: false }}
                 />
             </Stack>

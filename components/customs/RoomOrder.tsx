@@ -122,7 +122,7 @@ export default function RoomOrder({ category }: RoomOrderProps) {
                                     </View>
                                 </View>
                                 <View className="p-2">
-                                    <Text className="text-sm font-semibold line-clamp-2">
+                                    <Text className="text-sm text-foreground font-semibold line-clamp-2">
                                         {item.title}</Text>
                                     <View className="flex-row items-center justify-between">
                                         <View className="flex-row items-center gap-1">
