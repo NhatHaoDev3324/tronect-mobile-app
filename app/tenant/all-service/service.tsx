@@ -1,10 +1,11 @@
 import { SearchAllPartnerService } from "@/api/partnersServicesApi";
 import { LoadingData } from "@/components/customs/LoadingData";
+import RequireAuthOnEnter from "@/components/customs/RequireAuthOnEnter";
 import { Card } from "@/components/ui/card";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { PartnerServiceType } from "@/types/serviceType";
 import { stringToSlug } from "@/utils/slug";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
@@ -86,7 +87,9 @@ export default function ServicePage() {
         };
 
         fetchServices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stored]);
+
     const geocodeByAddress = async (addr: string) => {
         const key = "02J9Wx9p10tp03FhTnLFqxem0YjFaE03pBTiAU94";
         const url = `https://rsapi.goong.io/geocode?address=${encodeURIComponent(
@@ -162,6 +165,7 @@ export default function ServicePage() {
                 style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }}
                 className="flex-row items-center justify-between px-4 py-3"
             >
+
                 <Pressable onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="white" />
                 </Pressable>
@@ -171,7 +175,7 @@ export default function ServicePage() {
                 </Text>
 
                 <Pressable onPress={resetLocation}>
-                    <Ionicons name="refresh" size={22} color="white" />
+                    <Feather name="refresh-cw" size={22} color="white" />
                 </Pressable>
             </View>
 
@@ -182,7 +186,7 @@ export default function ServicePage() {
             ) : stored ? (stored?.address ? (
                 <View className="flex-1 px-4">
                     <View className="bg-card rounded-xl px-4 py-3 mt-4 border border-border">
-                        <Text className="text-base font-semibold">Vị trí đã lưu</Text>
+                        <Text className="text-base font-semibold text-foreground">Vị trí đã lưu</Text>
                         <View className="flex-row items-start gap-1">
                             <Ionicons
                                 name="location-outline"
@@ -209,7 +213,7 @@ export default function ServicePage() {
                                     onChangeText={setSearch}
                                     placeholder="Tìm theo tên đối tác..."
                                     placeholderTextColor="#9ca3af"
-                                    className="ml-2 flex-1 p-2"
+                                    className="ml-2 flex-1 p-2 text-foreground"
                                     returnKeyType="search"
                                     clearButtonMode="while-editing"
                                 />
@@ -224,6 +228,25 @@ export default function ServicePage() {
                             contentContainerStyle={{ gap: 8 }}
                             keyExtractor={(item) => item.id}
                             scrollEnabled={false}
+                            ListEmptyComponent={
+                                search.trim() !== "" ? (
+                                    <View className="items-center justify-center py-10">
+                                        <Ionicons name="search-outline" size={52} color="#9ca3af" />
+                                        <Text className="mt-2 text-base font-semibold text-foreground">
+                                            Không tìm thấy kết quả phù hợp
+                                        </Text>
+                                        <Text className="mt-1 text-sm text-muted-foreground text-center px-6">
+                                            Không tìm thấy đối tác nào phù hợp với từ khóa
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <View className="items-center justify-center py-10">
+                                        <Text className="text-muted-foreground">
+                                            Hiện chưa có đối tác nào
+                                        </Text>
+                                    </View>
+                                )
+                            }
                             renderItem={({ item }) => (
                                 <Pressable style={{ width: "49%" }} onPress={() => router.push({
                                     pathname: `/tenant/all-service/detail`,
@@ -246,7 +269,7 @@ export default function ServicePage() {
                                             </View>
                                         </View>
                                         <View className="p-2">
-                                            <Text className="text-base font-semibold flex-1 text-ellipsis leading-5" numberOfLines={2} ellipsizeMode="tail">
+                                            <Text className="text-base font-semibold flex-1 text-ellipsis leading-5 text-foreground" numberOfLines={2} ellipsizeMode="tail">
                                                 {item.title}
                                             </Text>
                                             <Text className="text-red-500 font-bold text-sm mb-1">
@@ -281,6 +304,7 @@ export default function ServicePage() {
                 </View>
             )}
 
+
             <Modal visible={showDialog} transparent animationType="fade">
                 <View className="flex-1 bg-black/50 justify-center items-center">
                     <View className="w-[85%] bg-white rounded-xl p-4">
@@ -305,6 +329,7 @@ export default function ServicePage() {
                     </View>
                 </View>
             </Modal>
+            <RequireAuthOnEnter enabled={true} />
         </View>
     );
 }

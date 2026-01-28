@@ -3,7 +3,7 @@ import { LoadingData } from "@/components/customs/LoadingData";
 import { Card } from "@/components/ui/card";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ServiceType } from "@/types/serviceType";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router, useFocusEffect } from "expo-router";
@@ -200,7 +200,7 @@ export default function AllServicePage() {
                 </Text>
 
                 <Pressable onPress={resetLocation}>
-                    <Ionicons name="refresh" size={22} color="white" />
+                    <Feather name="refresh-cw" size={22} color="white" />
                 </Pressable>
             </View>
 
@@ -211,7 +211,7 @@ export default function AllServicePage() {
             ) : stored ? (stored?.address ? (
                 <View className="flex-1 px-4">
                     <View className="bg-card rounded-xl px-4 py-3 mt-4 border border-border">
-                        <Text className="text-base font-semibold">Vị trí đã lưu</Text>
+                        <Text className="text-base font-semibold text-foreground">Vị trí đã lưu</Text>
                         <View className="flex-row items-start gap-1">
                             <Ionicons
                                 name="location-outline"
@@ -238,7 +238,7 @@ export default function AllServicePage() {
                                     onChangeText={setSearch}
                                     placeholder="Tìm theo tên dịch vụ..."
                                     placeholderTextColor="#9ca3af"
-                                    className="ml-2 flex-1 p-2"
+                                    className="ml-2 flex-1 p-2 text-foreground"
                                     returnKeyType="search"
                                 />
                             </View>
@@ -252,6 +252,25 @@ export default function AllServicePage() {
                             contentContainerStyle={{ gap: 12 }}
                             keyExtractor={(item) => item.id}
                             scrollEnabled={false}
+                            ListEmptyComponent={
+                                search.trim() !== "" ? (
+                                    <View className="items-center justify-center py-10">
+                                        <Ionicons name="search-outline" size={52} color="#9ca3af" />
+                                        <Text className="mt-2 text-base font-semibold text-foreground">
+                                            Không tìm thấy kết quả phù hợp
+                                        </Text>
+                                        <Text className="mt-1 text-sm text-muted-foreground text-center px-6">
+                                            Không có danh mục dịch vụ nào phù hợp với từ khóa
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <View className="items-center justify-center py-10">
+                                        <Text className="text-muted-foreground">
+                                            Hiện chưa có danh mục dịch vụ nào
+                                        </Text>
+                                    </View>
+                                )
+                            }
                             renderItem={({ item }) => (
                                 <Pressable style={{ width: "31%" }}
                                     onPress={() => router.push({
@@ -271,7 +290,7 @@ export default function AllServicePage() {
                                             contentPosition="center"
                                         />
                                     </Card>
-                                    <Text className="px-1 pt-1 text-xs font-semibold line-clamp-2 text-center">
+                                    <Text className="px-1 pt-1 text-xs font-semibold line-clamp-2 text-center  text-foreground">
                                         {item.title}
                                     </Text>
                                 </Pressable>

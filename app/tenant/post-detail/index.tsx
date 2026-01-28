@@ -5,12 +5,13 @@ import {
 } from "@/api/postRoomShareApi";
 import { createReport } from "@/api/reportApi";
 
-import Button360 from "@/components/customs/Button360";
+import { Button360 } from "@/components/customs/Button360";
 import { DividerCustom } from "@/components/customs/DividerCustom";
+import RequireAuthOnEnter from "@/components/customs/RequireAuthOnEnter";
 import RoomOrder from "@/components/customs/RoomOrder";
 import RoomSameArea from "@/components/customs/RoomSameArea";
-import TagCheck from "@/components/customs/TagCheck";
-import TagVip from "@/components/customs/TagVip";
+import { TagCheck } from "@/components/customs/TagCheck";
+import { TagVip } from "@/components/customs/TagVip";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuthStore } from "@/store/useAuthStore";
 import { PostInfoType } from "@/types/postInfoType";
@@ -99,6 +100,7 @@ export default function PostDetailScreen({
         };
 
         fetchDetail();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug]);
 
     const handleSavePost = async (slug: string, category: string) => {
@@ -120,7 +122,7 @@ export default function PostDetailScreen({
             } else {
                 await savePost(slug);
             }
-        } catch (error) {
+        } catch {
             setData(prevData);
 
             Toast.show({
@@ -197,6 +199,7 @@ export default function PostDetailScreen({
 
     return (
         <View className="flex-1" style={{ backgroundColor }}>
+            <RequireAuthOnEnter enabled={true} />
             <View
                 style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }}
                 className="flex-row items-center justify-between border-b border-border px-4 py-3"

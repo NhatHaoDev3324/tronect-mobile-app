@@ -6,8 +6,13 @@ import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Panorama360Screen() {
-    const { imageUrl } = useLocalSearchParams<{ imageUrl: string }>();
+    const params = useLocalSearchParams<{ imageUrl?: string }>();
     const insets = useSafeAreaInsets();
+
+    // ✅ FIX: decode + remove quote
+    const imageUrl = params.imageUrl
+        ? decodeURIComponent(params.imageUrl).replace(/^"+|"+$/g, "")
+        : null;
 
     if (!imageUrl) return null;
 
@@ -18,7 +23,9 @@ export default function Panorama360Screen() {
                 start={[0, 0]}
                 end={[1, 1]}
                 style={{
-                    paddingTop: insets.top + 12, flexDirection: "row", alignItems: "center",
+                    paddingTop: insets.top + 12,
+                    flexDirection: "row",
+                    alignItems: "center",
                     paddingHorizontal: 28,
                     paddingVertical: 12,
                 }}

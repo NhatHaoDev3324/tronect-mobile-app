@@ -1,4 +1,5 @@
 import { tenantMyProfile } from "@/api/authTenantApi";
+import AuthPressable from "@/components/customs/AuthPressable";
 import { HapticTab } from "@/components/haptic-tab";
 import { useAuthStore } from "@/store/useAuthStore";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -8,7 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { Tabs, router } from "expo-router";
 import { useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
@@ -120,8 +121,8 @@ export default function TabLayout() {
                     }}
                 />
             </Tabs>
-            <Pressable
-                onPress={() => router.push("/tenant/chatbot")}
+            <AuthPressable
+                onAuthorizedPress={() => router.push("/tenant/chatbot")}
                 style={{
                     position: "absolute",
                     right: 20,
@@ -136,14 +137,12 @@ export default function TabLayout() {
                     justifyContent: "center",
                 }}
             >
-                {/* <Octicons name="dependabot" size={24} color={textColor} /> */}
-
                 <Image
                     source={require("@/assets/images/chatbot.png")}
                     style={{ width: 52, height: 52, marginBottom: 8 }}
                     contentFit="cover"
                 />
-            </Pressable>
+            </AuthPressable>
         </View>
     );
 }

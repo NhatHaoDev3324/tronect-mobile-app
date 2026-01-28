@@ -482,7 +482,12 @@ export default function RealEstateHeroScreen() {
                                         keyExtractor={(item) => item.id}
                                         scrollEnabled={false}
                                         renderItem={({ item }) => (
-                                            <Pressable style={{ width: "31%" }}>
+                                            <Pressable style={{ width: "31%" }} onPress={() => router.push({
+                                                pathname: `/tenant/all-service/service`,
+                                                params: {
+                                                    title: item.title,
+                                                }
+                                            })}>
                                                 <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0 rounded-md">
                                                     <Image
                                                         source={{ uri: item.image }}
