@@ -1,9 +1,9 @@
 import { getPostBySlug, savePost } from "@/api/postApi";
 import { getPostRoomSharingBySlug, savePostRoomSharing } from "@/api/postRoomShareApi";
-import Button360 from "@/components/customs/Button360";
+import { Button360 } from "@/components/customs/Button360";
 import { DividerCustom } from "@/components/customs/DividerCustom";
-import TagCheck from "@/components/customs/TagCheck";
-import TagVip from "@/components/customs/TagVip";
+import { TagCheck } from "@/components/customs/TagCheck";
+import { TagVip } from "@/components/customs/TagVip";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuthStore } from "@/store/useAuthStore";
 import { PostInfoType } from "@/types/postInfoType";
@@ -78,6 +78,7 @@ export default function PostDetailScreen({
         };
 
         fetchDetail();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug]);
 
     const handleSavePost = async (slug: string, category: string) => {
@@ -90,19 +91,16 @@ export default function PostDetailScreen({
             return;
         }
 
-        // 🔥 1. OPTIMISTIC UPDATE (đổi tim NGAY)
         const prevData = data;
         setData(toggleSaveInPost(data));
 
         try {
-            // 🔁 2. CALL API
             if (category === "phong-o-ghep-tphcm") {
                 await savePostRoomSharing(slug);
             } else {
                 await savePost(slug);
             }
-        } catch (error) {
-            // ❌ 3. ROLLBACK
+        } catch {
             setData(prevData);
 
             Toast.show({

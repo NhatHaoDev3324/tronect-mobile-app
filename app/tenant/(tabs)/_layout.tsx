@@ -89,7 +89,6 @@ export default function TabLayout() {
                     name="post"
                     options={{
                         title: "Đăng bài",
-                        headerShown: true,
                         tabBarIcon: ({ color }: { color: string }) => (
                             <AntDesign name="plus-circle" size={24} color={color} />
                         ),

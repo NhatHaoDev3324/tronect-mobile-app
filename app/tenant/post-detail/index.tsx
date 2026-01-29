@@ -37,6 +37,7 @@ import {
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import ImageZoom from 'react-native-image-pan-zoom';
+import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
@@ -497,6 +498,61 @@ export default function PostDetailScreen({
                         </View>
                     </>
                 }
+
+
+                <View className="px-4 py-2 flex-col gap-1">
+                    <Text className="text-lg font-bold text-foreground">
+                        Vị trí & bản đồ
+                    </Text>
+                    <View className="flex-row items-start gap-2 ">
+                        <Ionicons
+                            name="location-outline"
+                            size={16}
+                            color="#6b7280"
+                            style={{ marginTop: 2 }}
+                        />
+                        <Text
+                            className="text-sm text-muted-foreground flex-1"
+                            numberOfLines={2}
+                            ellipsizeMode="tail"
+                        >
+                            Địa chỉ: {data?.address}
+                        </Text>
+                    </View>
+                    <View className="w-full rounded-xl overflow-hidden">
+                        <MapView
+                            style={{ width: "100%", height: 300 }}
+                            initialRegion={{
+                                latitude: Number(data?.lat),
+                                longitude: Number(data?.lng),
+                                latitudeDelta: 0.005,
+                                longitudeDelta: 0.005,
+                            }}
+                        >
+                            <Marker
+                                coordinate={{
+                                    latitude: Number(data?.lat),
+                                    longitude: Number(data?.lng),
+                                }}
+                                title={data?.title}
+                            />
+                        </MapView>
+                    </View>
+                    <View className="w-full h-11 items-center justify-center rounded-lg border border-border mt-1">
+                        <Pressable className=" flex-row items-center justify-center gap-2 pb-1" onPress={() => { Linking.openURL(`https://www.google.com/maps?q=${data?.lat},${data?.lng}`) }}>
+                            <Image
+                                source={require("@/assets/icon/GoogleIcon.png")}
+                                style={{ width: 32, height: 32 }}
+                                contentFit="cover"
+                            />
+                            <Text className="text-foreground font-semibold">Xem bản đồ trên Google Maps</Text>
+                        </Pressable>
+                    </View>
+                </View>
+
+                <View className="py-1">
+                    <DividerCustom />
+                </View>
 
                 <View>
                     <RoomSameArea slug={data?.slug || ""} category={data?.category || ""} />

@@ -11,6 +11,7 @@ import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, Pressable, ScrollView, Text, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DetailServicePage = () => {
@@ -176,6 +177,34 @@ const DetailServicePage = () => {
                                 <DividerCustom />
                             </View>
 
+                            <View className="px-4 py-2 flex-col gap-1">
+                                <Text className="text-lg font-bold text-foreground">
+                                    Vị trí & bản đồ
+                                </Text>
+                                <View className="w-full rounded-xl overflow-hidden">
+                                    <MapView
+                                        style={{ width: "100%", height: 300 }}
+                                        initialRegion={{
+                                            latitude: Number(data?.lat),
+                                            longitude: Number(data?.lng),
+                                            latitudeDelta: 0.005,
+                                            longitudeDelta: 0.005,
+                                        }}
+                                    >
+                                        <Marker
+                                            coordinate={{
+                                                latitude: Number(data?.lat),
+                                                longitude: Number(data?.lng),
+                                            }}
+                                            title={data?.title}
+                                        />
+                                    </MapView>
+                                </View>
+                            </View>
+
+                            <View className="py-1">
+                                <DividerCustom />
+                            </View>
                             <View className="px-4 py-2 flex-col gap-1">
                                 <Text className="text-lg font-bold text-foreground">
                                     Thông tin mô tả

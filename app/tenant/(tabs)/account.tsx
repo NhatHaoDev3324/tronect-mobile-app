@@ -10,6 +10,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatDateOnly } from "@/utils/formatDateTime";
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -234,6 +235,12 @@ export default function SearchScreen({
         const init = async () => {
             setInitialLoading(true)
             try {
+                const token = await AsyncStorage.getItem("accessToken");
+
+                if (!token) {
+                    return;
+                }
+
                 if (!userID) {
                     const res = await tenantMyProfile();
                     const profile = res.data || res;
@@ -246,7 +253,7 @@ export default function SearchScreen({
                     setProvider(profile.provider);
                     setCreated(profile.created_at);
                 }
-            } catch (error: any) {
+            } catch (error) {
                 console.error("Error loading profile:", error);
             } finally {
                 setInitialLoading(false)
