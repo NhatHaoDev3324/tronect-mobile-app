@@ -9,9 +9,9 @@ import { useEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Card } from "../ui/card";
-import Tag360 from "./Tag360";
-import TagCheck from "./TagCheck";
-import TagVip from "./TagVip";
+import { Tag360 } from "./Tag360";
+import { TagCheck } from "./TagCheck";
+import { TagVip } from "./TagVip";
 
 interface RoomOrderProps {
     category: string;
@@ -36,6 +36,7 @@ export default function RoomOrder({ category }: RoomOrderProps) {
             }
         };
         fetchPost();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const toggleSaveInList = (list: PostInfoType[], slug: string) =>

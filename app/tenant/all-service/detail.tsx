@@ -98,7 +98,7 @@ const DetailServicePage = () => {
                             </View>
                             <View className="px-4 py-2 flex-col mt-2 gap-1">
                                 <Text
-                                    className="text-xl font-bold leading-6 text-foreground"
+                                    className="text-2xl font-bold leading-6 text-foreground"
                                     numberOfLines={2}
                                 >
                                     {data?.title}
@@ -181,6 +181,21 @@ const DetailServicePage = () => {
                                 <Text className="text-lg font-bold text-foreground">
                                     Vị trí & bản đồ
                                 </Text>
+                                <View className="flex-row items-start gap-2 ">
+                                    <Ionicons
+                                        name="location-outline"
+                                        size={16}
+                                        color="#6b7280"
+                                        style={{ marginTop: 2 }}
+                                    />
+                                    <Text
+                                        className="text-sm text-muted-foreground flex-1"
+                                        numberOfLines={2}
+                                        ellipsizeMode="tail"
+                                    >
+                                        Địa chỉ: {data?.address}
+                                    </Text>
+                                </View>
                                 <View className="w-full rounded-xl overflow-hidden">
                                     <MapView
                                         style={{ width: "100%", height: 300 }}
@@ -222,7 +237,7 @@ const DetailServicePage = () => {
 
             <View
                 style={{
-                    height: 60 + insets.bottom,
+                    height: 52 + insets.bottom,
                     paddingBottom: insets.bottom,
                     borderTopWidth: 0.2,
                     borderTopColor: "#d1d5db",
@@ -232,7 +247,7 @@ const DetailServicePage = () => {
                     {data?.zalo ?
                         (
                             <View className="w-1/2 h-full flex-row items-center justify-center">
-                                <View className="w-1/2 h-full items-center justify-center border-r border-border">
+                                <View className="w-1/2 h-12 items-center justify-center border-r border-border">
                                     <Pressable className="items-center justify-center" onPress={() => { Linking.openURL(`https://www.google.com/maps?q=${data?.lat},${data?.lng}`) }}>
                                         <Image
                                             source={require("@/assets/icon/GoogleIcon.png")}
@@ -241,7 +256,7 @@ const DetailServicePage = () => {
                                         />
                                     </Pressable>
                                 </View>
-                                <View className="w-1/2 h-full items-center justify-center border-l border-border">
+                                <View className="w-1/2 h-12 items-center justify-center border-l border-border">
                                     <Pressable className="items-center justify-center" onPress={() => { Linking.openURL(`https://zalo.me/${data?.zalo}`) }} >
                                         <Image
                                             source={require("@/assets/icon/zalo.svg")}
@@ -252,7 +267,7 @@ const DetailServicePage = () => {
                                 </View>
                             </View>
                         ) : (
-                            <View className="w-1/2 h-full items-center justify-center">
+                            <View className="w-1/2 h-12 items-center justify-center">
                                 <Pressable className="flex-row items-center justify-center gap-2" onPress={() => { Linking.openURL(`https://www.google.com/maps?q=${data?.lat},${data?.lng}`) }}>
                                     <Image
                                         source={require("@/assets/icon/GoogleIcon.png")}
@@ -267,7 +282,7 @@ const DetailServicePage = () => {
                             </View>
                         )
                     }
-                    <View className="w-2/4 h-full items-center justify-center bg-red-600">
+                    <View className="w-2/4 h-12 items-center justify-center bg-red-600">
                         <Pressable className="flex-row gap-2 items-center justify-center" onPress={() => { Linking.openURL(`tel:${data?.phone}`) }}>
                             <Ionicons name="call" size={20} color="white" />
                             <Text className="text-base font-bold text-white">

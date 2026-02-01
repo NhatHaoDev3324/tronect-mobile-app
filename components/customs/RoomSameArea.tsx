@@ -9,9 +9,9 @@ import { useEffect, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Card } from "../ui/card";
-import Tag360 from "./Tag360";
-import TagCheck from "./TagCheck";
-import TagVip from "./TagVip";
+import { Tag360 } from "./Tag360";
+import { TagCheck } from "./TagCheck";
+import { TagVip } from "./TagVip";
 
 interface RoomSameAreaProps {
     slug: string;
@@ -22,22 +22,24 @@ export default function RoomSameArea({ slug, category }: RoomSameAreaProps) {
     const { userID } = useAuthStore()
     const [post, setPost] = useState<PostInfoType[]>([])
 
-    useEffect(() => {
-        const fetchPost = async () => {
-            try {
-                let res;
-                if (category === "phong-o-ghep-tphcm") {
-                    res = await getRelatedPostRoomSharing(slug);
-                } else {
-                    res = await getRelatedPosts(slug);
-                }
-                setPost(res);
-            } catch (error) {
-                console.log("Error fetching post:", error);
+    const fetchPost = async (slug: string, category: string) => {
+        if (!slug || !category) return;
+        try {
+            let res;
+            if (category === "phong-o-ghep-tphcm") {
+                res = await getRelatedPostRoomSharing(slug);
+            } else {
+                res = await getRelatedPosts(slug);
             }
-        };
-        fetchPost();
-    }, [slug]);
+            setPost(res);
+        } catch (error) {
+            console.log("Error fetching post:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchPost(slug, category);
+    }, [slug, category]);
 
     const toggleSaveInList = (list: PostInfoType[], slug: string) =>
         list.map(item => {

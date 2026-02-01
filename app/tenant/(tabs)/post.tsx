@@ -1,28 +1,27 @@
+import { tenantPostRoomSharing } from "@/api/postRoomShareApi";
+import AuthPressable from "@/components/customs/AuthPressable";
 import DropdownComponent from "@/components/customs/DropdownComponent";
-import { Button } from "@/components/ui/button";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAuthStore } from "@/store/useAuthStore";
+import { NearbyAmenity } from "@/types/postInfoType";
 import { options } from "@/utils/dataitem";
 import { getFullAddress } from "@/utils/getFullAddress";
 import { getLocationFromAddress } from "@/utils/getLocationFromAddress";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useEffect, useRef, useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View, ViewProps } from "react-native";
+import { ResizeMode, Video } from "expo-av";
+
+import * as ImagePicker from "expo-image-picker";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Pressable, Image as RNImage, ScrollView, Text, TextInput, View, ViewProps } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import Toast from "react-native-toast-message";
 
 export type ThemedViewProps = ViewProps & {
     lightColor?: string;
     darkColor?: string;
 };
-
-interface Amenity {
-    name: string;
-    distance: number;
-    unit: "m" | "km";
-}
-
 
 interface LocationItem {
     value: string;
@@ -36,7 +35,29 @@ interface LocationAPI {
     codename: string;
 }
 
+interface FormErrors {
+    title?: string;
+    description?: string;
+    price?: string;
+    area?: string;
+
+    province?: string;
+    district?: string;
+    ward?: string;
+    street?: string;
+    houseNumber?: string;
+    address?: string;
+
+    location?: string;
+    images?: string;
+    user?: string;
+}
+
+
 export default function SearchScreen(props: ThemedViewProps) {
+    const { userID } = useAuthStore();
+    const scrollRef = useRef<ScrollView>(null);
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
@@ -66,7 +87,7 @@ export default function SearchScreen(props: ThemedViewProps) {
     const [inputName, setInputName] = useState("");
     const [inputDistance, setInputDistance] = useState("");
     const [unitDistance, setUnitDistance] = useState<"m" | "km">("m");
-    const [amenities, setAmenities] = useState<Amenity[]>([]);
+    const [amenities, setAmenities] = useState<NearbyAmenity[]>([]);
     const mapRef = useRef<MapView>(null);
     const [nameMarker, setNameMarker] = useState<string | null>(null);
     const insets = useSafeAreaInsets();
@@ -74,6 +95,163 @@ export default function SearchScreen(props: ThemedViewProps) {
         { light: props.lightColor, dark: props.darkColor },
         "background"
     );
+
+
+    const MIN_IMAGES = 5;
+    const MAX_IMAGES = 20;
+
+    const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
+    const [video, setVideo] = useState<ImagePicker.ImagePickerAsset | null>(null);
+    const [videoError, setVideoError] = useState<string>("");
+    const [errors, setErrors] = useState<FormErrors>({});
+
+    const [loading, setLoading] = useState(false);
+
+
+    const pickImages = async () => {
+        if (images.length >= MAX_IMAGES) {
+            setErrors((prev) => ({
+                ...prev,
+                images:
+                    newImages.length < MIN_IMAGES
+                        ? `Chỉ được chọn tối đa ${MAX_IMAGES} ảnh`
+                        : undefined,
+            }));
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsMultipleSelection: true,
+            quality: 1,
+            selectionLimit: MAX_IMAGES - images.length,
+        });
+
+        if (result.canceled) return;
+
+        const newImages = [...images, ...result.assets];
+
+        if (newImages.length > MAX_IMAGES) {
+            setErrors((prev) => ({
+                ...prev,
+                images:
+                    newImages.length < MIN_IMAGES
+                        ? `Chỉ được chọn tối đa ${MAX_IMAGES} ảnh`
+                        : undefined,
+            }));
+
+
+            return;
+        }
+
+        setImages(newImages);
+
+        if (newImages.length < MIN_IMAGES) {
+            setErrors((prev) => ({
+                ...prev,
+                images:
+                    newImages.length < MIN_IMAGES
+                        ? `Cần tối thiểu ${MIN_IMAGES} ảnh`
+                        : undefined,
+            }));
+
+        } else {
+            setErrors((prev) => ({
+                ...prev,
+                images: undefined,
+            }));
+        }
+    };
+
+
+    const removeImage = (uri: string) => {
+        const filtered = images.filter(img => img.uri !== uri);
+        setImages(filtered);
+
+        if (filtered.length < MIN_IMAGES) {
+            setErrors((prev) => ({
+                ...prev,
+                images:
+                    filtered.length < MIN_IMAGES
+                        ? `Cần tối thiểu ${MIN_IMAGES} ảnh`
+                        : undefined,
+            }));
+        } else {
+            setErrors((prev) => ({
+                ...prev,
+                images: undefined,
+            }));
+        }
+    };
+
+    const pickVideo = async () => {
+        if (video) {
+            setVideoError("Chỉ được tải lên 1 video");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+            quality: 1,
+        });
+
+        if (result.canceled) return;
+
+        const selectedVideo = result.assets[0];
+
+        if (typeof selectedVideo.duration === "number") {
+            const durationInSeconds = selectedVideo.duration / 1000;
+
+            if (durationInSeconds > 120) {
+                setVideoError("Video tối đa 120 giây");
+                return;
+            }
+        }
+
+        if (typeof selectedVideo.fileSize === "number") {
+            if (selectedVideo.fileSize > 50 * 1024 * 1024) {
+                setVideoError("Dung lượng video tối đa 50MB");
+                return;
+            }
+        }
+
+        setVideo(selectedVideo);
+        setVideoError("");
+    };
+
+
+    const removeVideo = () => {
+        setVideo(null);
+        setVideoError("");
+    };
+
+    const resetForm = () => {
+        setTitle("");
+        setDescription("");
+        setPrice("");
+        setUnit("đồng/tháng");
+        setArea("");
+
+        setProvince(null);
+        setDistrict(null);
+        setWard(null);
+
+        setStreet("");
+        setHouseNumber("");
+        setAddress("");
+        setLat(null);
+        setLng(null);
+
+        setSelected([]);
+        setImages([]);
+        setVideo(null);
+        setVideoError("");
+        setAmenities([]);
+        setErrors({});
+    };
+
+
+
 
     useEffect(() => {
         fetch("https://provinces.open-api.vn/api/p/")
@@ -159,7 +337,6 @@ export default function SearchScreen(props: ThemedViewProps) {
                 if (location) {
                     setLat(location.lat);
                     setLng(location.lng);
-                    setAddress(location.address);
                     setNameMarker(location?.name ?? "");
                 }
             })
@@ -190,6 +367,115 @@ export default function SearchScreen(props: ThemedViewProps) {
         );
     };
 
+    const validateForm = (): FormErrors => {
+        const newErrors: FormErrors = {};
+
+        if (!title.trim()) newErrors.title = "Vui lòng nhập tiêu đề";
+        if (!description.trim()) newErrors.description = "Vui lòng nhập nội dung mô tả";
+
+        if (!price || Number(price) <= 0)
+            newErrors.price = "Giá thuê không hợp lệ";
+
+        if (!area || Number(area) <= 0)
+            newErrors.area = "Diện tích không hợp lệ";
+
+        if (!provinceLabel) newErrors.province = "Chưa chọn tỉnh/thành";
+        if (!districtLabel) newErrors.district = "Chưa chọn quận/huyện";
+        if (!wardLabel) newErrors.ward = "Chưa chọn phường/xã";
+
+        if (!street.trim()) newErrors.street = "Chưa nhập tên đường";
+        if (!houseNumber.trim()) newErrors.houseNumber = "Chưa nhập số nhà";
+        if (!address.trim()) newErrors.address = "Địa chỉ chưa hợp lệ";
+
+        if (!lat || !lng)
+            newErrors.location = "Không xác định được vị trí";
+
+        if (images.length < MIN_IMAGES)
+            newErrors.images = `Cần tối thiểu ${MIN_IMAGES} ảnh`;
+
+        if (!userID)
+            newErrors.user = "Không xác định được người đăng";
+
+        return newErrors;
+    };
+
+
+
+    const handleSubmit = async () => {
+        if (loading) return;
+
+        const validationErrors = validateForm();
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            Toast.show({
+                type: "error",
+                text1: "Đã xảy ra lỗi",
+                text2: "Vui lòng kiểm tra lại thông tin",
+            });
+            return;
+        }
+
+        setErrors({});
+
+        try {
+            setLoading(true);
+            await tenantPostRoomSharing(
+                "phong-o-ghep-tphcm",
+                provinceLabel!,
+                districtLabel!,
+                wardLabel!,
+                street,
+                houseNumber,
+                address,
+                lat!,
+                lng!,
+                title,
+                description,
+                Number(price),
+                unit,
+                area,
+                1,
+                selected,
+                images,
+                video,
+                "",
+                amenities,
+                userID!
+            );
+            Toast.show({
+                type: "success",
+                text1: "Đăng tin thành công",
+                text2: "Tin đăng của bạn đã được hiển thị ở Tronect",
+            });
+            resetForm();
+            router.replace("/tenant/manage-posts");
+
+        } catch (err) {
+            console.log(err);
+            Toast.show({
+                type: "error",
+                text1: "Đăng tin thất bại",
+                text2: "Vui lòng thử lại",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            resetForm();
+            requestAnimationFrame(() => {
+                scrollRef.current?.scrollTo({ y: 0, animated: false });
+            });
+            return () => { };
+        }, [])
+    );
+
+
+
+
     return (
         <View className="flex-1" style={{ backgroundColor }}>
             <View style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }} className="flex-row items-center justify-between border-b border-border px-4 py-3">
@@ -204,22 +490,30 @@ export default function SearchScreen(props: ThemedViewProps) {
 
                 </View>
             </View>
-            <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: insets.bottom }}>
+            <ScrollView ref={scrollRef} className="flex-1 p-4" contentContainerStyle={{ paddingBottom: insets.bottom }}>
                 <View className="flex-col gap-2 border border-border rounded-xl p-4 mb-2">
-                    <Text className="font-bold text-lg">Thông tin mô tả</Text>
+                    <Text className="font-bold text-lg text-foreground">Thông tin mô tả</Text>
 
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Tiêu đề</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Tiêu đề</Text>
                         <TextInput
                             placeholder="Nhập tiêu đề"
-                            className="border border-border rounded-md px-3 py-2"
+                            className={`border rounded-md px-3 py-2 text-foreground ${errors.title ? "border-red-500" : "border-border"
+                                }`}
                             value={title}
-                            onChangeText={setTitle}
+                            onChangeText={(text) => {
+                                setTitle(text);
+                                setErrors((prev) => ({ ...prev, title: undefined }));
+                            }}
                         />
+                        {errors.title ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.title}</Text>
+                        ) : null}
+
                     </View>
 
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Nội dung mô tả</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Nội dung mô tả</Text>
 
                         <TextInput
                             placeholder="Nhập nội dung mô tả"
@@ -227,57 +521,74 @@ export default function SearchScreen(props: ThemedViewProps) {
                             numberOfLines={6}
                             scrollEnabled
                             textAlignVertical="top"
-                            className="border border-border rounded-md px-3 py-2 min-h-[200px]"
+                            className={`border rounded-md px-3 py-2 text-foreground h-40 ${errors.description ? "border-red-500" : "border-border"
+                                }`}
                             value={description}
-                            onChangeText={setDescription}
+                            onChangeText={(text) => {
+                                setDescription(text);
+                                setErrors((prev) => ({ ...prev, description: undefined }));
+                            }}
                         />
+                        {errors.description ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.description}</Text>
+                        ) : null}
                     </View>
 
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Giá thuê</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Giá thuê</Text>
                         <View className="flex-row items-center gap-2">
                             <TextInput
                                 placeholder="Nhập giá thuê"
-                                className="border border-border rounded-md px-3 py-2 flex-1"
+                                className={`border rounded-md px-3 py-2 text-foreground flex-1 ${errors.price ? "border-red-500" : "border-border"
+                                    }`}
                                 keyboardType="numeric"
                                 value={price ? Number(price).toLocaleString("vi-VN") : ""}
                                 onChangeText={(text) => {
                                     const numericValue = text.replace(/\D/g, "");
                                     setPrice(numericValue);
+                                    setErrors((prev) => ({ ...prev, price: undefined }));
                                 }}
                             />
                             <Pressable
                                 onPress={() =>
                                     setUnit((prev) => (prev === "đồng/tháng" ? "đồng/m2/tháng" : "đồng/tháng"))
                                 }
-                                className="flex-row items-center gap-1 border border-border rounded-md px-3 py-2"
+                                className="flex-row items-center gap-1 border border-border rounded-md px-3 py-2 text-foreground"
                             >
-                                <Text className="text-sm">{unit}</Text>
+                                <Text className="text-sm text-foreground">{unit}</Text>
                                 <Ionicons name="chevron-down" size={14} />
                             </Pressable>
                         </View>
+                        {errors.price ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.price}</Text>
+                        ) : null}
                     </View>
 
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Diện tích</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold  text-foreground mb-1">Diện tích</Text>
                         <TextInput
                             placeholder="Nhập diện tích"
-                            className="border border-border rounded-md px-3 py-2"
+                            className={`border rounded-md px-3 py-2 text-foreground ${errors.area ? "border-red-500" : "border-border"
+                                }`}
                             keyboardType="numeric"
                             value={area ? `${area} m²` : ""}
                             onChangeText={(text) => {
                                 const numericValue = text.replace(/\D/g, "");
                                 setArea(numericValue);
+                                setErrors((prev) => ({ ...prev, area: undefined }));
                             }}
                         />
+                        {errors.area ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.area}</Text>
+                        ) : null}
                     </View>
                 </View>
 
                 <View className="flex-col gap-2 border border-border rounded-xl p-4 mb-2">
-                    <Text className="font-bold text-lg">Khu vực</Text>
+                    <Text className="font-bold text-lg text-foreground">Khu vực</Text>
 
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Tỉnh/Thành phố</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Tỉnh/Thành phố</Text>
                         <DropdownComponent
                             placeholder="Chọn tỉnh/thành phố"
                             data={provinces}
@@ -286,63 +597,97 @@ export default function SearchScreen(props: ThemedViewProps) {
                                 setProvince(value);
                                 setDistrict(null);
                                 setWard(null);
+                                setErrors((prev) => ({ ...prev, province: undefined }));
                             }}
                         />
+                        {errors.province ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.province}</Text>
+                        ) : null}
                     </View>
 
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Quận/Huyện</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Quận/Huyện</Text>
                         <DropdownComponent
                             placeholder="Chọn quận/huyện"
                             data={districts}
                             value={district}
-                            onChange={setDistrict}
+                            onChange={(value) => {
+                                setDistrict(value);
+                                setWard(null);
+                                setErrors((prev) => ({ ...prev, district: undefined }));
+                            }}
                             disabled={!province}
                         />
+                        {errors.district ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.district}</Text>
+                        ) : null}
                     </View>
 
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Phường/Xã</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Phường/Xã</Text>
                         <DropdownComponent
                             placeholder="Chọn phường/xã"
                             data={wards}
                             value={ward}
-                            onChange={setWard}
+                            onChange={(value) => {
+                                setWard(value);
+                                setErrors((prev) => ({ ...prev, ward: undefined }));
+                            }}
                             disabled={!district}
                         />
-
+                        {errors.ward ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.ward}</Text>
+                        ) : null}
                     </View>
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Đường phố</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Đường phố</Text>
                         <TextInput
                             placeholder="Nhập đường phố"
-                            className="border border-border rounded-md px-3 py-2"
+                            className={`border rounded-md px-3 py-2 text-foreground ${errors.street ? "border-red-500" : "border-border"
+                                }`}
                             value={street}
-                            onChangeText={setStreet}
+                            onChangeText={(text) => {
+                                setStreet(text);
+                                setErrors((prev) => ({ ...prev, street: undefined }));
+                            }}
                             editable={!!ward}
                         />
+                        {errors.street ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.street}</Text>
+                        ) : null}
                     </View>
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Số nhà</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Số nhà</Text>
                         <TextInput
                             placeholder="Nhập số nhà"
-                            className="border border-border rounded-md px-3 py-2"
+                            className={`border rounded-md px-3 py-2 text-foreground ${errors.houseNumber ? "border-red-500" : "border-border"
+                                }`}
                             value={houseNumber}
-                            onChangeText={setHouseNumber}
+                            onChangeText={(text) => {
+                                setHouseNumber(text);
+                                setErrors((prev) => ({ ...prev, houseNumber: undefined }));
+                            }}
                             editable={!!street}
                         />
+                        {errors.houseNumber ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.houseNumber}</Text>
+                        ) : null}
                     </View>
-                    <View className="flex-col gap-1">
-                        <Text className="font-semibold">Địa chỉ chi tiết</Text>
+                    <View className="flex-col">
+                        <Text className="font-semibold text-foreground mb-1">Địa chỉ chi tiết</Text>
                         <TextInput
                             placeholder="Nhập địa chỉ chi tiết"
-                            className="border border-border rounded-md px-3 py-2 h-20"
+                            className={`border rounded-md px-3 py-2 text-foreground h-20 ${errors.address ? "border-red-500" : "border-border"
+                                }`}
                             value={address}
                             editable={false}
                             selectTextOnFocus
                             multiline
                             textAlignVertical="top"
                         />
+                        {errors.address ? (
+                            <Text className="text-red-500 text-sm mt-2">{errors.address}</Text>
+                        ) : null}
                     </View>
                     <View className="rounded-md">
                         <MapView
@@ -367,7 +712,7 @@ export default function SearchScreen(props: ThemedViewProps) {
                 </View>
 
                 <View className="flex-col gap-2 border border-border rounded-xl p-4 mb-2">
-                    <Text className="font-bold text-lg">Đặc điểm nổi bật</Text>
+                    <Text className="font-bold text-lg text-foreground">Đặc điểm nổi bật</Text>
                     <View className="flex-row flex-wrap">
                         {options.map((item) => {
                             const checked = selected.includes(item.title);
@@ -383,14 +728,14 @@ export default function SearchScreen(props: ThemedViewProps) {
                                         size={20}
                                         color={checked ? "#2baf90" : "#999"}
                                     />
-                                    <Text className="text-sm">{item.title}</Text>
+                                    <Text className="text-sm text-foreground">{item.title}</Text>
                                 </Pressable>
                             );
                         })}
 
                         {selected.length > 0 && (
                             <View className="mt-3 border-t border-border pt-3">
-                                <Text className="font-semibold mb-2">
+                                <Text className="font-semibold mb-2 text-foreground">
                                     Đã chọn ({selected.length})
                                 </Text>
 
@@ -400,7 +745,7 @@ export default function SearchScreen(props: ThemedViewProps) {
                                             key={item}
                                             className="px-3 py-1 rounded-full bg-primary/10 border border-primary"
                                         >
-                                            <Text className="text-sm text-primary">{item}</Text>
+                                            <Text className="text-sm text-foreground">{item}</Text>
                                         </View>
                                     ))}
                                 </View>
@@ -411,27 +756,27 @@ export default function SearchScreen(props: ThemedViewProps) {
                 </View>
 
                 <View className="flex-col gap-4 border border-border rounded-xl p-4 mb-2">
-                    <Text className="font-bold text-lg">Tiện ích xung quanh</Text>
+                    <Text className="font-bold text-lg text-foreground">Tiện ích xung quanh</Text>
 
                     <View className="flex-col gap-3">
-                        <View className="flex-col gap-1">
-                            <Text className="font-semibold">Tên tiện ích</Text>
+                        <View className="flex-col">
+                            <Text className="font-semibold text-foreground mb-1">Tên tiện ích</Text>
                             <TextInput
                                 placeholder="Nhập tên tiện ích"
-                                className="border border-border rounded-md px-3 py-2"
+                                className="border border-border rounded-md px-3 py-2 text-foreground"
                                 value={inputName}
                                 onChangeText={setInputName}
                             />
                         </View>
 
-                        <View className="flex-col gap-1">
-                            <Text className="font-semibold">Khoảng cách</Text>
+                        <View className="flex-col">
+                            <Text className="font-semibold text-foreground mb-1">Khoảng cách</Text>
 
                             <View className="flex-row items-center gap-2">
                                 <TextInput
                                     placeholder="Nhập khoảng cách"
                                     keyboardType="numeric"
-                                    className="flex-1 border border-border rounded-md px-3 py-2"
+                                    className="flex-1 border border-border rounded-md px-3 py-2 text-foreground"
                                     value={inputDistance}
                                     onChangeText={(text) =>
                                         setInputDistance(text.replace(/\D/g, ""))
@@ -444,7 +789,7 @@ export default function SearchScreen(props: ThemedViewProps) {
                                     }
                                     className="flex-row items-center gap-1 border border-border rounded-md px-3 py-2"
                                 >
-                                    <Text className="text-sm">{unitDistance}</Text>
+                                    <Text className="text-sm text-foreground">{unitDistance}</Text>
                                     <Ionicons name="chevron-down" size={14} />
                                 </Pressable>
                             </View>
@@ -459,7 +804,7 @@ export default function SearchScreen(props: ThemedViewProps) {
                                     {
                                         name: inputName,
                                         distance: Number(inputDistance),
-                                        unit: unitDistance,
+                                        unit_distance: unitDistance,
                                     },
                                 ]);
 
@@ -483,8 +828,8 @@ export default function SearchScreen(props: ThemedViewProps) {
                                         key={index}
                                         className="flex-row justify-between items-center"
                                     >
-                                        <Text className="text-sm">
-                                            • {item.name} – {item.distance} {item.unit}
+                                        <Text className="text-sm text-foreground">
+                                            • {item.name} – {item.distance} {item.unit_distance}
                                         </Text>
 
                                         <Pressable onPress={() =>
@@ -500,11 +845,146 @@ export default function SearchScreen(props: ThemedViewProps) {
                         )}
                     </View>
                 </View>
-                <View className="py-3 bg-background">
-                    <Button variant={"tronect"} size={"sm"}>
-                        <Text className="text-white">Đăng bài</Text>
-                    </Button>
+
+                <View className="flex-col gap-4 border border-border rounded-xl p-4 mb-2">
+                    <Text className="font-bold text-lg text-foreground">Hình ảnh</Text>
+
+                    <Pressable
+                        onPress={pickImages}
+                        className={`h-40 rounded-2xl border-2 border-dashed flex items-center justify-center
+                        ${errors.images
+                                ? "border-red-500 bg-red-500/10"
+                                : "border-primary bg-primary/10"
+                            }`}
+                    >
+                        <Ionicons name="camera-outline" size={48} color="#6b7280" />
+                        <Text className="text-muted-foreground">
+                            Chọn ảnh từ thiết bị ({images.length}/{MAX_IMAGES})
+                        </Text>
+                    </Pressable>
+
+                    {errors.images ? (
+                        <Text className="text-red-500 text-sm">{errors.images}</Text>
+                    ) : null}
+                    {images.length > 0 && (
+                        <FlatList
+                            data={images}
+                            horizontal
+                            keyExtractor={(item) => item.uri}
+                            showsHorizontalScrollIndicator={false}
+                            style={{ height: 100 }}
+                            contentContainerStyle={{ gap: 8 }}
+                            renderItem={({ item }) => (
+                                <View className="relative">
+                                    <RNImage
+                                        source={{ uri: item.uri }}
+                                        style={{ width: 96, height: 96, borderRadius: 8 }}
+                                        resizeMode="cover"
+                                    />
+
+                                    <Pressable
+                                        onPress={() => removeImage(item.uri)}
+                                        className="absolute top-1 right-1 bg-black/60 rounded-full w-6 h-6 items-center justify-center"
+                                    >
+                                        <Text className="text-white text-xs font-bold">✕</Text>
+                                    </Pressable>
+                                </View>
+                            )}
+                        />
+                    )}
+
+                    <View className="mt-2">
+                        <Text className="text-xs text-muted-foreground">
+                            • Tải lên tối thiểu 5 ảnh trong một bài đăng
+                        </Text>
+                        <Text className="text-xs text-muted-foreground">
+                            • Tải lên tối đa 20 ảnh trong một bài đăng
+                        </Text>
+                        <Text className="text-xs text-muted-foreground">
+                            • Dung lượng ảnh tối đa 10MB
+                        </Text>
+                        <Text className="text-xs text-muted-foreground">
+                            • Hình ảnh phải liên quan đến phòng trọ, nhà cho thuê
+                        </Text>
+                        <Text className="text-xs text-muted-foreground">
+                            • Không chèn văn bản, số điện thoại lên ảnh
+                        </Text>
+                    </View>
+
+
+
                 </View>
+                <View className="flex-col gap-4 border border-border rounded-xl p-4 mb-2">
+                    <Text className="font-bold text-lg text-foreground">Video</Text>
+
+                    {!video ? (
+                        <Pressable
+                            onPress={pickVideo}
+                            disabled={!!video}
+                            className={`h-40 rounded-2xl border-2 border-dashed flex items-center justify-center
+                                ${video
+                                    ? "opacity-50"
+                                    : videoError
+                                        ? "border-red-500 bg-red-500/10"
+                                        : "border-primary bg-primary/10"
+                                }`}
+                        >
+
+                            <Ionicons name="videocam-outline" size={48} color="#6b7280" />
+                            <Text className="text-muted-foreground mt-2">
+                                Chọn 1 video từ thiết bị
+                            </Text>
+                        </Pressable>
+                    ) : (
+                        <View className="relative">
+                            <Video
+                                source={{ uri: video.uri }}
+                                style={{ width: "100%", height: 220, borderRadius: 12 }}
+                                useNativeControls
+                                resizeMode={ResizeMode.CONTAIN}
+
+                            />
+
+                            <Pressable
+                                onPress={removeVideo}
+                                className="absolute top-2 right-2 bg-black/60 rounded-full w-8 h-8 items-center justify-center"
+                            >
+                                <Text className="text-white font-bold">✕</Text>
+                            </Pressable>
+                        </View>
+                    )}
+
+                    {videoError ? (
+                        <Text className="text-red-500 text-sm">{videoError}</Text>
+                    ) : null}
+
+                    <View>
+                        <Text className="text-xs text-muted-foreground">• Hỗ trợ tải lên 1 video cho mỗi bài đăng</Text>
+                        <Text className="text-xs text-muted-foreground">• Dung lượng video tối đa 50MB</Text>
+                        <Text className="text-xs text-muted-foreground">• Định dạng hỗ trợ: MP4, MOV, hoặc WebM</Text>
+                        <Text className="text-xs text-muted-foreground">• Video phải ghi lại không gian phòng trọ một cách rõ ràng</Text>
+                        <Text className="text-xs text-muted-foreground">• Không chèn văn bản, số điện thoại vào video</Text>
+                        <Text className="text-xs text-muted-foreground">• Không dùng hiệu ứng gây khó nhìn hoặc làm sai lệch tình trạng thực tế của phòng</Text>
+                    </View>
+                </View>
+
+
+                <AuthPressable onAuthorizedPress={handleSubmit} style={{
+                    paddingVertical: 12,
+                    backgroundColor: "#2baf90",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 10,
+                }}>
+                    <View className="flex-row items-center gap-2">
+                        {loading && (
+                            <ActivityIndicator size="small" color="#fff" />
+                        )}
+                        <Text className="text-white font-semibold">
+                            {loading ? "Đang đăng bài..." : "Đăng bài"}
+                        </Text>
+                    </View>
+                </AuthPressable>
             </ScrollView>
         </View>
     );

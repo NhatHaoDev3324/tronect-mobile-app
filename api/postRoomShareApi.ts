@@ -1,5 +1,6 @@
 import { NearbyAmenity } from "@/types/postInfoType";
 import api from "@/utils/axios";
+import * as ImagePicker from "expo-image-picker";
 
 export const tenantPostRoomSharing = async (
     category: string,
@@ -18,8 +19,8 @@ export const tenantPostRoomSharing = async (
     acreage: string,
     quantityRoom: number,
     outstanding: string[],
-    imageFiles: File[],
-    videoFile: File | null | undefined,
+    imageFiles: ImagePicker.ImagePickerAsset[],
+    videoFile: ImagePicker.ImagePickerAsset | null,
     videoLink: string | null | undefined,
     nearby_amenities: NearbyAmenity[],
     tenantId: string
@@ -49,12 +50,21 @@ export const tenantPostRoomSharing = async (
         formData.append("outstanding", item);
     });
 
-    imageFiles.forEach((file) => {
-        formData.append("images", file);
+    imageFiles.forEach((img, index) => {
+        formData.append("images", {
+            uri: img.uri,
+            name: `image_${index}.jpg`,
+            type: img.mimeType || "image/jpeg",
+        } as any);
     });
 
+
     if (videoFile) {
-        formData.append("video", videoFile);
+        formData.append("video", {
+            uri: videoFile.uri,
+            name: "video.mp4",
+            type: videoFile.mimeType || "video/mp4",
+        } as any);
     }
 
     const request = await api.post("/api/post/room_share/create", formData, {

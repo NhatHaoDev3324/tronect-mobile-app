@@ -12,7 +12,7 @@ export type LocationResult = {
 const geocodeByAddress = async (address: string): Promise<LocationResult> => {
     const url = `https://rsapi.goong.io/geocode?address=${encodeURIComponent(
         address
-    )}&api_key=${process.env.EXPO_PUBLIC_GOONG_API_KEY || "02J9Wx9p10tp03FhTnLFqxem0YjFaE03pBTiAU94"}`;
+    )}&api_key=${process.env.EXPO_PUBLIC_GOONG_API_KEY}`;
 
     const res = await fetch(url);
     const data = await res.json();

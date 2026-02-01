@@ -1,4 +1,5 @@
 import { RoleType } from "@/types/authType";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 
 type AuthState = {
@@ -38,7 +39,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   setPhone: (phone) => set({ phone }),
   setCreated: (created) => set({ created }),
 
-  reset: () =>
+  reset: async () => {
+    await AsyncStorage.removeItem("accessToken");
+    await AsyncStorage.removeItem("user_location_v1");
     set({
       userID: undefined,
       role: "user" as RoleType,
@@ -47,5 +50,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       provider: "",
       phone: "",
       created: "",
-    }),
+    })
+  },
 }));

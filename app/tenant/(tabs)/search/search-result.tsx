@@ -1,9 +1,9 @@
 import { savePost, SearchPost } from "@/api/postApi";
 import { savePostRoomSharing, SearchPostRoomSharing } from "@/api/postRoomShareApi";
 import { LoadingData } from "@/components/customs/LoadingData";
-import Tag360 from "@/components/customs/Tag360";
-import TagCheck from "@/components/customs/TagCheck";
-import TagVip from "@/components/customs/TagVip";
+import { Tag360 } from "@/components/customs/Tag360";
+import { TagCheck } from "@/components/customs/TagCheck";
+import { TagVip } from "@/components/customs/TagVip";
 import { Card } from "@/components/ui/card";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -94,7 +94,7 @@ export default function SearchResultScreen({
             setOriginData(responsePost.data);
             setDataRoom(responsePost.data);
 
-        } catch (error) {
+        } catch {
             Toast.show({
                 type: "error",
                 text1: "Lỗi",
@@ -109,6 +109,7 @@ export default function SearchResultScreen({
     useFocusEffect(
         useCallback(() => {
             fetchPostProposes();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [
             category,
             district,
@@ -160,7 +161,7 @@ export default function SearchResultScreen({
                 await savePost(slug);
             }
 
-        } catch (error) {
+        } catch {
             setDataRoom(prev => toggleSaveInList(prev, slug));
             setOriginData(prev => toggleSaveInList(prev, slug));
             Toast.show({

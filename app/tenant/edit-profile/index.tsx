@@ -321,7 +321,7 @@ export default function EditProfile({
         >
           <Pressable onPress={pickAndUploadAvatar} disabled={uploading}>
             <Image
-              source={userID ? urlImg : noAvatar}
+              source={userID ? (urlImg ? urlImg : noAvatar) : noAvatar}
               style={{ width: 68, height: 68, borderRadius: 999 }}
               contentFit="cover"
             />
@@ -436,7 +436,7 @@ export default function EditProfile({
               >
                 <Picker
                   selectedValue={data.gender}
-                  style={{ color: textColor}}
+                  style={{ color: textColor }}
                   onValueChange={(value) =>
                     setData((p) => ({
                       ...p,
@@ -521,7 +521,7 @@ export default function EditProfile({
                         borderTopLeftRadius: 16,
                         borderTopRightRadius: 16,
                       }}
-                      onPress={() => {}}
+                      onPress={() => { }}
                     >
                       <View
                         style={{

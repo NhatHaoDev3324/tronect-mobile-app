@@ -2,8 +2,8 @@ import { tenantMyProfile } from "@/api/authTenantApi";
 import { useAuthStore } from "@/store/useAuthStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
     Modal,
     Pressable,
@@ -38,44 +38,46 @@ export default function RequireAuthOnEnter({ enabled = true }: Props) {
             ? require("@/assets/logo/dark-LogoWithWord-h.png")
             : require("@/assets/logo/light-LogoWithWord-h.png");
 
-    useEffect(() => {
-        if (!enabled) return;
 
-        const checkAuth = async () => {
-            try {
+    useFocusEffect(
+        useCallback(() => {
+            if (!enabled) return;
 
-                if (userID) return;
+            const checkAuth = async () => {
+                try {
 
-                const token = await AsyncStorage.getItem("token");
-                if (!token) {
-                    setShowModal(true);
-                    return;
-                }
-                const res = await tenantMyProfile();
-                const profile = res.data || res;
+                    if (userID) return;
 
-                if (!profile?.id) {
+                    const token = await AsyncStorage.getItem("token");
+                    if (!token) {
+                        setShowModal(true);
+                        return;
+                    }
+                    const res = await tenantMyProfile();
+                    const profile = res.data || res;
+
+                    if (!profile?.id) {
+                        reset();
+                        setShowModal(true);
+                        return;
+                    }
+
+                    setUserID(profile.id);
+                    setRole(profile.role);
+                    setUserName(profile.username);
+                    setUrlImg(profile.picture);
+                    setPhone(profile.phone);
+                    setProvider(profile.provider);
+                    setCreated(profile.created_at);
+                } catch {
                     reset();
                     setShowModal(true);
-                    return;
                 }
+            };
 
-                setUserID(profile.id);
-                setRole(profile.role);
-                setUserName(profile.username);
-                setUrlImg(profile.picture);
-                setPhone(profile.phone);
-                setProvider(profile.provider);
-                setCreated(profile.created_at);
-            } catch {
-                reset();
-                setShowModal(true);
-            }
-        };
-
-        checkAuth();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [enabled]);
+            checkAuth();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [enabled]));
 
     return (
         <Modal visible={showModal} transparent animationType="fade">
@@ -109,6 +111,7 @@ export default function RequireAuthOnEnter({ enabled = true }: Props) {
 
                         <Pressable
                             onPress={() => {
+                                setShowModal(false);
                                 router.push("/tenant/login");
                             }}
                             className="flex-1 bg-[#2baf90] rounded-xl py-2"

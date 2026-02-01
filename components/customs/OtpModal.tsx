@@ -29,7 +29,7 @@ export function OtpModal({
   onResend,
 }: Props) {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
-  const inputsRef = useRef<Array<TextInput | null>>([]);
+  const inputsRef = useRef<(TextInput | null)[]>([]);
   const [secondsRemaining, setSecondsRemaining] = useState<number>(300); // 5 minutes
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 

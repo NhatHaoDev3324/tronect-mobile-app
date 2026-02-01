@@ -8,9 +8,9 @@ import {
 
 import { getPostsSaved, savePost } from "@/api/postApi";
 import { getPostsRoomSharingSaved, savePostRoomSharing } from "@/api/postRoomShareApi";
-import Tag360 from "@/components/customs/Tag360";
-import TagCheck from "@/components/customs/TagCheck";
-import TagVip from "@/components/customs/TagVip";
+import { Tag360 } from "@/components/customs/Tag360";
+import { TagCheck } from "@/components/customs/TagCheck";
+import { TagVip } from "@/components/customs/TagVip";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -40,17 +40,17 @@ export default function SavedPostsScreen({
     const [roomTab, setRoomTab] = useState("room");
     const [post, setPost] = useState<PostInfoType[]>([]);
     const [postRoomShare, setPostRoomShare] = useState<PostInfoType[]>([]);
-    const [initialLoading, setInitialLoading] = useState(false);
-    const phoneNumber = "0832500785";
-    const zaloLink = "https://zalo.me/0832500785";
+    // const [initialLoading, setInitialLoading] = useState(false);
+    // const phoneNumber = "0832500785";
+    // const zaloLink = "https://zalo.me/0832500785";
     const fetchPostProposes = async () => {
         try {
-            setInitialLoading(true);
+            // setInitialLoading(true);
             const responsePost = await getPostsSaved();
             const responsePostRoomShare = await getPostsRoomSharingSaved();
             setPost(responsePost.data);
             setPostRoomShare(responsePostRoomShare.data);
-        } catch (error) {
+        } catch {
             Toast.show({
                 type: "error",
                 text1: "Lỗi",
@@ -58,7 +58,7 @@ export default function SavedPostsScreen({
                 position: "top",
             });
         } finally {
-            setInitialLoading(false);
+            // setInitialLoading(false);
         }
     };
 
@@ -90,7 +90,7 @@ export default function SavedPostsScreen({
             } else {
                 await savePost(slug);
             }
-        } catch (error) {
+        } catch {
             if (removedRoom) {
                 setPost(prev => [removedRoom, ...prev]);
             }

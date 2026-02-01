@@ -4,6 +4,7 @@ import {
     savePostRoomSharing,
 } from "@/api/postRoomShareApi";
 import { createReport } from "@/api/reportApi";
+import noAvatar from "@/assets/images/noAvata.png";
 
 import { Button360 } from "@/components/customs/Button360";
 import { DividerCustom } from "@/components/customs/DividerCustom";
@@ -391,7 +392,7 @@ export default function PostDetailScreen({
                 <View className="flex-row items-center justify-between px-4">
                     <View className="flex-row items-center py-1 gap-4 flex-1">
                         <Image
-                            source={data?.landlord?.picture || data?.tenant?.picture}
+                            source={data?.landlord?.picture || data?.tenant?.picture || noAvatar}
                             style={{ width: 52, height: 52, borderRadius: 999 }}
                             contentFit="cover"
                         />

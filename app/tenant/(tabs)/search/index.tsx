@@ -28,11 +28,11 @@ type Option = {
     codename: string;
 };
 
-type ProvinceAPI = {
-    name: string;
-    code: number;
-    codename: string;
-};
+// type ProvinceAPI = {
+//     name: string;
+//     code: number;
+//     codename: string;
+// };
 
 type DistrictAPI = {
     name: string;

@@ -36,7 +36,7 @@ const accountMenus = [
         key: "manage-posts",
         label: "Quản lý bài đăng",
         icon: "file-text",
-        onPress: () => console.log("Quản lý bài đăng"),
+        onPress: () => router.push("/tenant/manage-posts"),
     },
     {
         key: "saved-posts",
@@ -97,6 +97,15 @@ export default function SearchScreen({
     const setCreated = useAuthStore((s) => s.setCreated);
 
     const onRefresh = async () => {
+        if (!userID) {
+            Toast.show({
+                type: "error",
+                text1: "Bạn chưa đăng nhập",
+                text2: "Vui lòng đăng nhập để sử dụng phần mềm của Tronect.",
+                position: "top",
+            });
+            return;
+        }
         try {
             setRefreshing(true);
 
@@ -134,7 +143,7 @@ export default function SearchScreen({
             setLogoutOpen(false);
             await useAuthStore.getState().reset();
             router.replace("/tenant/(tabs)");
-            Toast.show({ type: "success", text1: "Đã đăng xuất", position: "top" });
+            Toast.show({ type: "success", text1: "Đã đăng xuất", text2: "Hẹn gặp lại bạn trong thời gian tới!", position: "top" });
         } catch (e: any) {
             Toast.show({
                 type: "error",
@@ -292,7 +301,7 @@ export default function SearchScreen({
                             >
                                 <Pressable onPress={pickAndUploadAvatar} disabled={uploading}>
                                     <Image
-                                        source={userID ? urlImg : noAvatar}
+                                        source={userID ? (urlImg ? urlImg : noAvatar) : noAvatar}
                                         style={{ width: 100, height: 100, borderRadius: 999 }}
                                         contentFit="cover"
                                     />

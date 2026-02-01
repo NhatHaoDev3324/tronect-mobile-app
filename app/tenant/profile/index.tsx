@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import noAvatar from "@/assets/images/noAvata.png";
 import {
@@ -44,7 +44,7 @@ export default function Profile({
 
   useEffect(() => {
     onRefresh();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onRefresh = async () => {
@@ -180,7 +180,7 @@ export default function Profile({
         >
           <Pressable onPress={pickAndUploadAvatar} disabled={uploading}>
             <Image
-              source={userID ? urlImg : noAvatar}
+              source={userID ? (urlImg ? urlImg : noAvatar) : noAvatar}
               style={{ width: 68, height: 68, borderRadius: 999 }}
               contentFit="cover"
             />

@@ -1,5 +1,6 @@
 import { getAllCategoryServices } from "@/api/categoryServicesApi";
 import { LoadingData } from "@/components/customs/LoadingData";
+import RequireAuthOnEnter from "@/components/customs/RequireAuthOnEnter";
 import { Card } from "@/components/ui/card";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ServiceType } from "@/types/serviceType";
@@ -109,10 +110,9 @@ export default function AllServicePage() {
 
 
     const geocodeByAddress = async (addr: string) => {
-        const key = "02J9Wx9p10tp03FhTnLFqxem0YjFaE03pBTiAU94";
         const url = `https://rsapi.goong.io/geocode?address=${encodeURIComponent(
             addr
-        )}&api_key=${key}`;
+        )}&api_key=${process.env.EXPO_PUBLIC_GOONG_API_KEY}`;
 
         const res = await fetch(url);
         const data = await res.json();
@@ -186,7 +186,7 @@ export default function AllServicePage() {
     }, [search, services]);
 
     return (
-        <View className="flex-1" style={{ backgroundColor }}>
+        <View style={{ flex: 1, backgroundColor }}>
             <View
                 style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }}
                 className="flex-row items-center justify-between px-4 py-3"
@@ -212,7 +212,7 @@ export default function AllServicePage() {
                 <View className="flex-1 px-4">
                     <View className="bg-card rounded-xl px-4 py-3 mt-4 border border-border">
                         <Text className="text-base font-semibold text-foreground">Vị trí đã lưu</Text>
-                        <View className="flex-row items-start gap-1">
+                        <View className="flex-row items-center gap-1">
                             <Ionicons
                                 name="location-outline"
                                 size={16}
@@ -309,6 +309,8 @@ export default function AllServicePage() {
                 </View>
             )}
 
+            <RequireAuthOnEnter enabled={true} />
+
             <Modal visible={showDialog} transparent animationType="fade">
                 <View className="flex-1 bg-black/50 justify-center items-center">
                     <View className="w-[85%] bg-white rounded-xl p-4">
@@ -323,16 +325,17 @@ export default function AllServicePage() {
                         />
 
                         <View className="flex-row gap-2">
-                            <Pressable onPress={() => router.back()} style={{ width: '49%', borderWidth: 1, borderColor: '#d1d5db', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: 'white', }}>
+                            <Pressable onPress={() => router.back()} style={{ width: '49%', borderWidth: 1, borderColor: '#d1d5db', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: 'white', }}>
                                 <Text style={{ color: '#374151', textAlign: 'center', fontWeight: '600', }}> Quay lại </Text>
                             </Pressable>
-                            <Pressable style={{ width: '49%', backgroundColor: address.trim() ? '#2baf90' : '#ccc', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, }} onPress={handleConfirm} disabled={loadingGeocode} >
+                            <Pressable style={{ width: '49%', backgroundColor: address.trim() ? '#2baf90' : '#ccc', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, }} onPress={handleConfirm} disabled={loadingGeocode} >
                                 <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', }}> {loadingGeocode ? "Đang xử lý..." : "Xác nhận"} </Text>
                             </Pressable>
                         </View>
                     </View>
                 </View>
             </Modal>
+
         </View>
     );
 }

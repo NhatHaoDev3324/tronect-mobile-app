@@ -3,6 +3,7 @@ import { getAllPosts, savePost } from "@/api/postApi";
 import { getAllPostRoomSharing, savePostRoomSharing } from "@/api/postRoomShareApi";
 import { getAllPostsPropose } from "@/api/proposeApi";
 import Person from "@/assets/images/person.png";
+import AuthPressable from "@/components/customs/AuthPressable";
 import { DividerCustom } from "@/components/customs/DividerCustom";
 import { LoadingData } from "@/components/customs/LoadingData";
 import { Tag360 } from "@/components/customs/Tag360";
@@ -19,8 +20,8 @@ import { PostInfoType } from "@/types/postInfoType";
 import { ServiceType } from "@/types/serviceType";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -59,15 +60,12 @@ export default function RealEstateHeroScreen() {
         "district"
     );
 
-    // const [provinces, setProvinces] = useState<LocationItem[]>([]);
     const [districts, setDistricts] = useState<LocationItem[]>([]);
     const [wards, setWards] = useState<LocationItem[]>([]);
 
-    // const [provinceValue, setProvinceValue] = useState("79");
     const [districtValue, setDistrictValue] = useState("");
-    const [wardValue, setWardValue] = useState("");
+    // const [wardValue, setWardValue] = useState("");
 
-    const [provinceName, setProvinceName] = useState("TP.HCM");
     const [districtName, setDistrictName] = useState("");
     const [wardName, setWardName] = useState("");
     const [wardSlug, setWardSlug] = useState("");
@@ -93,6 +91,9 @@ export default function RealEstateHeroScreen() {
             setServices(responseServices);
             setPost(responsePost);
             setPostRoomShare(responsePostRoomShare);
+
+
+
         } catch {
             Toast.show({
                 type: "error",
@@ -106,11 +107,11 @@ export default function RealEstateHeroScreen() {
     };
 
 
-    useEffect(() => {
-        fetchPostProposes();
-    }, []);
-
-
+    useFocusEffect(
+        useCallback(() => {
+            fetchPostProposes();
+        }, [])
+    );
 
     useEffect(() => {
         setLoading(true);
@@ -143,7 +144,7 @@ export default function RealEstateHeroScreen() {
                         codename: w.codename,
                     }))
                 );
-                setWardValue("");
+                // setWardValue("");
                 setWardName("");
             })
             .catch((err) => console.error(err))
@@ -157,7 +158,7 @@ export default function RealEstateHeroScreen() {
     };
 
     const handleWardSelect = (item: LocationItem) => {
-        setWardValue(item.value);
+        // setWardValue(item.value);
         setWardName(item.label);
         setWardSlug(item.codename);
         setShowLocationModal(false);
@@ -169,11 +170,11 @@ export default function RealEstateHeroScreen() {
         const parts: string[] = [roomType];
 
         if (wardName) {
-            parts.push(`${wardName}, ${districtName}, ${provinceName}`);
+            parts.push(`${wardName}, ${districtName}, TP.HCM`);
         } else if (districtName) {
-            parts.push(`${districtName}, ${provinceName}`);
+            parts.push(`${districtName}, TP.HCM`);
         } else {
-            parts.push(provinceName);
+            parts.push("TP.HCM");
         }
 
         return parts.join(" - ");
@@ -371,7 +372,7 @@ export default function RealEstateHeroScreen() {
                                         },
                                     });
                                     setDistrictValue("");
-                                    setWardValue("");
+                                    // setWardValue("");
                                     setDistrictName("");
                                     setWardName("");
                                     setWardSlug("");
@@ -466,11 +467,11 @@ export default function RealEstateHeroScreen() {
                             <View className="px-4">
                                 <View className="flex-row items-center justify-between mt-4 mb-2">
                                     <Text className=" text-lg font-bold">Dịch vụ tiện ích</Text>
-                                    <Pressable
-                                        onPress={() => router.push("/tenant/all-service")}
+                                    <AuthPressable
+                                        onAuthorizedPress={() => router.push("/tenant/all-service")}
                                     >
                                         <Text className="text-xs text-muted-foreground">Xem thêm</Text>
-                                    </Pressable>
+                                    </AuthPressable>
 
                                 </View>
                                 <View>
@@ -482,7 +483,7 @@ export default function RealEstateHeroScreen() {
                                         keyExtractor={(item) => item.id}
                                         scrollEnabled={false}
                                         renderItem={({ item }) => (
-                                            <Pressable style={{ width: "31%" }} onPress={() => router.push({
+                                            <AuthPressable style={{ width: "31%" }} onAuthorizedPress={() => router.push({
                                                 pathname: `/tenant/all-service/service`,
                                                 params: {
                                                     title: item.title,
@@ -499,7 +500,7 @@ export default function RealEstateHeroScreen() {
                                                 <Text className="px-1 pt-1 text-xs font-semibold line-clamp-2 text-center">
                                                     {item.title}
                                                 </Text>
-                                            </Pressable>
+                                            </AuthPressable>
                                         )}
                                     />
                                 </View>
@@ -672,7 +673,28 @@ export default function RealEstateHeroScreen() {
                     )
                 }
             </ScrollView >
-
+            <AuthPressable
+                onAuthorizedPress={() => router.push("/tenant/chatbot")}
+                style={{
+                    position: "absolute",
+                    right: 20,
+                    bottom: insets.bottom - 20,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 28,
+                    borderBottomLeftRadius: 0,
+                    borderTopRightRadius: 0,
+                    backgroundColor: "#2baf90",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <Image
+                    source={require("@/assets/images/chatbot.png")}
+                    style={{ width: 52, height: 52, marginBottom: 8 }}
+                    contentFit="cover"
+                />
+            </AuthPressable>
             <Modal
                 visible={showLocationModal}
                 animationType="slide"
