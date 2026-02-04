@@ -78,8 +78,8 @@ export const tenantPostRoomSharing = async (
 
 export const updatePostRoomSharing = async (
     id: string,
-    oldImages: string[],   // bắt buộc
-    oldVideo: string,      // bắt buộc
+    oldImages: string[],
+    oldVideo: string,
 
     category?: string,
     province?: string,
@@ -99,12 +99,11 @@ export const updatePostRoomSharing = async (
     quantityRoom?: number,
     price?: number,
     nearbyAmenities?: NearbyAmenity[],
-    newImages?: File[],    // optional
-    newVideo?: File        // optional
+    newImages?: ImagePicker.ImagePickerAsset[],
+    newVideo?: ImagePicker.ImagePickerAsset | null
 ) => {
     const formData = new FormData();
 
-    // ====== FIELD TEXT ======
     if (category) formData.append("category", category);
     if (province) formData.append("province", province);
     if (district) formData.append("district", district);
@@ -133,20 +132,24 @@ export const updatePostRoomSharing = async (
     if (nearbyAmenities)
         formData.append("nearby_amenities", JSON.stringify(nearbyAmenities));
 
-    // ====== ẢNH CŨ GIỮ LẠI ======
-    oldImages.forEach((img) => formData.append("old_images", img));
+    oldImages?.forEach((img) => formData.append("old_images", img));
 
-    // ====== ẢNH MỚI ======
-    if (newImages && newImages.length > 0) {
-        newImages.forEach((file) => formData.append("images", file));
-    }
+    newImages?.forEach((img, index) => {
+        formData.append("images", {
+            uri: img.uri,
+            name: `image_${index}.jpg`,
+            type: img.mimeType || "image/jpeg",
+        } as any);
+    });
 
-    // ====== VIDEO CŨ ======
     formData.append("old_video", oldVideo || "");
 
-    // ====== VIDEO MỚI ======
     if (newVideo) {
-        formData.append("video", newVideo);
+        formData.append("video", {
+            uri: newVideo.uri,
+            name: "video.mp4",
+            type: newVideo.mimeType || "video/mp4",
+        } as any);
     }
 
     const response = await api.put(`/api/post/room_share/update/${id}`, formData, {

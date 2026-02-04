@@ -15,7 +15,7 @@ export interface PostInfoType {
     ward: string;
     slug_ward: string;
     street: string;
-    houseNumber: string;
+    house_number: string;
     address: string;
     lat: number;
     lng: number;

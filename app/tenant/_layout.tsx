@@ -178,6 +178,10 @@ export default function TenantLayout({
                     name="manage-posts/index"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="edit-post/index"
+                    options={{ headerShown: false }}
+                />
             </Stack>
         </GestureHandlerRootView>
     );

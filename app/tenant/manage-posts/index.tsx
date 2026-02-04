@@ -31,7 +31,6 @@ export default function SearchResultScreen({
         "background"
     );
 
-    // const { userID } = useAuthStore();
     const [dataRoom, setDataRoom] = useState<PostInfoType[]>([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -267,7 +266,7 @@ export default function SearchResultScreen({
 
                                     <View className="flex-col gap-1">
                                         <Text className="text-sm font-semibold text-foreground">Tùy chỉnh bài đăng:</Text>
-                                        <Pressable className=" w-full flex-row items-center justify-center py-2 rounded-md bg-amber-500">
+                                        <Pressable onPress={() => router.push({ pathname: "/tenant/edit-post", params: { id: item.id } })} className=" w-full flex-row items-center justify-center py-2 rounded-md bg-amber-500">
                                             <Text className="text-white font-semibold">Chỉnh sửa</Text>
                                         </Pressable>
                                         <Pressable onPress={() => handleOpenModalDeletePost(true, item.id)} className=" w-full flex-row items-center justify-center py-2 rounded-md bg-red-600">
@@ -313,7 +312,7 @@ export default function SearchResultScreen({
                                     onPress={() => handleOpenModalDeletePost(false, "")}
                                     disabled={loadingDelete}
                                 >
-                                    <Text>Hủy</Text>
+                                    <Text className="font-semibold">Hủy</Text>
                                 </Button>
                             </View>
 
