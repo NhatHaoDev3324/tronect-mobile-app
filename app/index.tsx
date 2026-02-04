@@ -13,11 +13,7 @@ import {
     View
 } from "react-native";
 const { width } = Dimensions.get("window");
-try {
-    SplashScreen.preventAutoHideAsync();
-} catch (e) {
-    console.log(e);
-}
+
 export default function Index() {
     const router = useRouter();
     const ref = useRef<FlatList>(null);
@@ -33,8 +29,12 @@ export default function Index() {
                 router.replace("/tenant/(tabs)");
             }
 
-            setLoading(false);
             await SplashScreen.hideAsync();
+
+
+            setTimeout(() => {
+                setLoading(false);
+            }, 1500);
         };
 
         checkOnboarding();
@@ -72,7 +72,18 @@ export default function Index() {
     };
 
 
-    if (loading) return null;
+    if (loading) return (
+        <View style={{ flex: 1, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" }}>
+            <Image
+                source={require('@/assets/logo/loading/light-Logo.png')}
+                style={{
+                    width: 160,
+                    height: 160,
+                    resizeMode: 'contain',
+                }}
+            />
+        </View>
+    );
 
 
     return (

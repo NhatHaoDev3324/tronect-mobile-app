@@ -8,6 +8,7 @@ import {
 } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme as useNWColorScheme } from "nativewind";
 import "react-native-reanimated";
@@ -19,7 +20,11 @@ import { useThemeStore } from "@/store/useThemeStore";
 export const unstable_settings = {
     anchor: "(tabs)",
 };
-
+try {
+    SplashScreen.preventAutoHideAsync();
+} catch (e) {
+    console.log(e);
+}
 export default function RootLayout() {
     const { mode, hydrate } = useThemeStore();
     const { setColorScheme } = useNWColorScheme();

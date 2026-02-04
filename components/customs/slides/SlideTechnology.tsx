@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function SlideTechnology() {
     const inset = useSafeAreaInsets();
     return (
-        <View className="flex-1 flex-col items-center" style={{ paddingTop: inset.top + 80, backgroundColor: "#fff" }}>
+        <View className="flex-1 flex-col items-center" style={{ paddingTop: inset.top + 100, backgroundColor: "#fff" }}>
             <Image
                 source={require("@/assets/images/slides/slide3.png")}
                 style={{ width: "100%", height: 300 }}
