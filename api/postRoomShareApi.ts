@@ -193,14 +193,14 @@ export const updateRoomSharingNumber = async (id: string, quantityRoom: number) 
 export const updateRoomSharingStatus = async (id: string, status: string) => {
     const res = await api.put(`/api/post/room_share/${id}/status`, {
         status: status,
-    });
+    }, { timeout: 3000 });
     return res.data;
 };
 
 export const updatePrivacy = async (id: string, privacy: string) => {
     const res = await api.put(`/api/post/room_share/${id}/privacy`, {
         privacy,
-    });
+    }, { timeout: 3000 });
     return res.data;
 };
 

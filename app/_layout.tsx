@@ -44,6 +44,10 @@ export default function RootLayout() {
         setColorScheme(mode);
     }, [mode, setColorScheme]);
 
+    useEffect(() => {
+        SplashScreen.hideAsync();
+    }, []);
+
     return (
         <ThemeProvider value={effectiveScheme === "dark" ? DarkTheme : DefaultTheme}>
 

@@ -2,7 +2,6 @@ import { onboardingSlides } from "@/constants/onboardingSlides";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import * as SplashScreen from 'expo-splash-screen';
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -28,9 +27,6 @@ export default function Index() {
             if (seen === "true") {
                 router.replace("/tenant/(tabs)");
             }
-
-            await SplashScreen.hideAsync();
-
 
             setTimeout(() => {
                 setLoading(false);
