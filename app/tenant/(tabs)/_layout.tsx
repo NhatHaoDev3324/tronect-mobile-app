@@ -96,7 +96,6 @@ export default function TabLayout() {
                     name="chat"
                     options={{
                         title: "Nhắn tin",
-                        headerShown: true,
                         tabBarIcon: ({ color }: { color: string }) => (
                             <Ionicons
                                 name="chatbubble-ellipses-outline"
@@ -104,6 +103,12 @@ export default function TabLayout() {
                                 color={color}
                             />
                         ),
+                        tabBarBadge: 100 > 0 ? 100 >= 10 ? "9+" : 100 : undefined,
+                        tabBarBadgeStyle: {
+                            backgroundColor: "#dc2626",
+                            color: "white",
+                            fontSize: 10,
+                        },
                     }}
                 />
 
