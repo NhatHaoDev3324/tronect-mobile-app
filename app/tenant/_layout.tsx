@@ -182,6 +182,10 @@ export default function TenantLayout({
                     name="edit-post/index"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="room-chat/index"
+                    options={{ headerShown: false }}
+                />
             </Stack>
         </GestureHandlerRootView>
     );

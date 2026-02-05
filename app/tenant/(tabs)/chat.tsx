@@ -1,28 +1,32 @@
 import { Ionicons } from "@expo/vector-icons";
 import {
-    RefreshControl,
+    ActivityIndicator,
+    Alert,
+    Modal,
+    Pressable,
     ScrollView,
     TextInput,
     View,
     type ViewProps
 } from "react-native";
 
-
+import { deleteConversationForMe } from "@/api/chatApi";
 import noAvatar from "@/assets/images/noAvata.png";
+import { Button } from "@/components/ui/button"; // Assumption
 import { Text } from "@/components/ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useChatRealtimeStore } from "@/store/useChatRealtimeStore";
+import { formatTime } from "@/utils/formatDateTime";
 import { Image } from "expo-image";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { router } from "expo-router";
+import { useMemo, useRef, useState } from "react";
+import { Swipeable } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-
 
 export type ThemedViewProps = ViewProps & {
     lightColor?: string;
     darkColor?: string;
 };
-
 
 export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
     const backgroundColor = useThemeColor(
@@ -30,35 +34,98 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
         "background"
     );
     const [keyword, setKeyword] = useState("");
+    const [filterType, setFilterType] = useState<"all" | "unread" | "read">("all");
     const insets = useSafeAreaInsets();
+    const chatList = useChatRealtimeStore((s) => s.chatList)
+    const removeConversationLocal = useChatRealtimeStore((s) => s.removeConversationLocal)
 
-    const [loading, setLoading] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-    const [chats, setChats] = useState<number[]>([]);
-    const fetchChats = async () => {
+    // Modal state
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    function normalizeText(text: string) {
+        return text
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+    }
+
+    const filteredChats = useMemo(() => {
+        const key = normalizeText(keyword);
+        let result = chatList;
+
+        // Filter by read status
+        if (filterType === "unread") {
+            result = result.filter((c) => c.unread > 0);
+        } else if (filterType === "read") {
+            result = result.filter((c) => c.unread === 0);
+        }
+
+        // Filter by keyword
+        if (key) {
+            result = result.filter((c) =>
+                normalizeText(c.peer_name).includes(key)
+            );
+        }
+
+        return result;
+    }, [chatList, keyword, filterType]);
+
+    // Track the currently open swipeable to close it on cancel
+    const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+
+    const closeSwipeable = (id: string) => {
+        const ref = swipeableRefs.current.get(id);
+        ref?.close();
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedChatId) return;
         try {
-            setLoading(true);
-
-
-            await new Promise((resolve) => setTimeout(resolve, 800));
-
-            setChats(Array.from({ length: 10 }, (_, i) => i));
-        } catch (err) {
-            console.log(err);
+            setIsDeleting(true);
+            await deleteConversationForMe(selectedChatId);
+            removeConversationLocal(selectedChatId);
+            setModalVisible(false);
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Lỗi", "Không thể xóa cuộc trò chuyện");
+            closeSwipeable(selectedChatId); // Close if error, or keep open? standard is close
         } finally {
-            setLoading(false);
-            setRefreshing(false);
+            setIsDeleting(false);
+            setSelectedChatId(null);
         }
     };
 
-    useFocusEffect(
-        useCallback(() => {
-            fetchChats();
-        }, [])
-    );
+    const onCancelDelete = () => {
+        if (selectedChatId) {
+            closeSwipeable(selectedChatId);
+        }
+        setModalVisible(false);
+        setSelectedChatId(null);
+    };
+
+    const renderRightActions = (conversationId: string) => {
+        return (
+            <View className="flex-row">
+                <Pressable
+                    onPress={() => {
+                        setSelectedChatId(conversationId);
+                        setModalVisible(true);
+                    }}
+                    className="bg-red-600 w-20 justify-center items-center h-full"
+                >
+                    <Ionicons name="trash-outline" size={24} color="white" />
+                    <Text className="text-white text-xs font-bold mt-1">Xóa</Text>
+                </Pressable>
+            </View>
+        );
+    };
 
     return (
         <View className="flex-1" style={{ backgroundColor }}>
+            {/* ... Header ... */}
             <View style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }} className="flex-row items-center border-b border-border px-4 py-3">
                 <View className="flex-row items-center bg-white rounded-full px-4 h-10 flex-1">
                     <Ionicons name="search-outline" size={20} color="#6b7280" />
@@ -73,43 +140,121 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
                 </View>
 
             </View>
-            <ScrollView
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={() => {
-                            setRefreshing(true);
-                            fetchChats();
-                        }}
-                        tintColor="#2baf90"
-                    />
-                }
-            >
-                <View className="flex-1 flex-col px-2">
-                    {chats.map((_, index) => (
-                        <View key={index} className="flex-row items-center px-4 py-3 border-b border-border/60">
-                            <Image
-                                source={noAvatar}
-                                style={{ width: 52, height: 52, borderRadius: 999 }}
-                                contentFit="cover"
-                            />
-                            <View className="flex-row items-start ml-4 flex-1 justify-between">
-                                <View className="flex-col">
-                                    <Text className="text-lg font-bold text-foreground">Người dùng {index + 1}</Text>
-                                    <Text className="text-muted-foreground">Tin nhắn {index + 1}</Text>
-                                </View>
-                                <View className="flex-col gap-1 justify-between items-end">
-                                    <Text className="text-muted-foreground">12:34</Text>
-                                    <View className="bg-red-600 rounded-full h-5 w-5 items-center justify-center">
-                                        <Text className="text-white text-xs">{index + 1 >= 10 ? "9+" : index + 1}</Text>
-                                    </View>
-                                </View>
+            <View className="flex-row items-center gap-2 px-4 py-2 border-b border-border">
+                <Pressable
+                    onPress={() => setFilterType("all")}
+                    className={`border border-border rounded-full px-3 py-1 ${filterType === "all" ? "bg-[#20ab90]" : "bg-muted"}`}
+                >
+                    <Text className={`text-xs font-semibold ${filterType === "all" ? "text-white" : "text-foreground"}`}>Tất cả</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => setFilterType("unread")}
+                    className={`border border-border rounded-full px-3 py-1 ${filterType === "unread" ? "bg-[#20ab90]" : "bg-muted"}`}
+                >
+                    <Text className={`text-xs font-semibold ${filterType === "unread" ? "text-white" : "text-foreground"}`}>Chưa đọc</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => setFilterType("read")}
+                    className={`border border-border rounded-full px-3 py-1 ${filterType === "read" ? "bg-[#20ab90]" : "bg-muted"}`}
+                >
+                    <Text className={`text-xs font-semibold ${filterType === "read" ? "text-white" : "text-foreground"}`}>Đã đọc</Text>
+                </Pressable>
+            </View>
+            <ScrollView className="flex-col bg-background" contentContainerClassName="flex-1">
 
+                {filteredChats.map((c) => (
+                    <Swipeable
+                        key={c.conversation_id}
+                        ref={(ref) => {
+                            if (ref) {
+                                swipeableRefs.current.set(c.conversation_id, ref);
+                            } else {
+                                swipeableRefs.current.delete(c.conversation_id);
+                            }
+                        }}
+                        renderRightActions={() => renderRightActions(c.conversation_id)}
+                    >
+                        <Pressable
+                            onPress={() => router.push({ pathname: "/tenant/room-chat", params: { conversation_id: c.conversation_id } })}
+                            className="flex-row items-center px-4 py-3 border-b border-border/60 bg-background"
+                        >
+                            <View className="flex-row items-start flex-1">
+                                <Image
+                                    source={c.peer_avatar ? { uri: c.peer_avatar } : noAvatar}
+                                    style={{ width: 52, height: 52, borderRadius: 999 }}
+                                    contentFit="cover"
+                                />
+                                <View className="flex-col ml-4 w-fit">
+                                    <Text className="text-lg font-bold text-foreground">{c.peer_name}</Text>
+                                    <Text className={` line-clamp-1 ${c.unread > 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{c.last_message}</Text>
+                                </View>
+                            </View>
+                            <View className="flex-col gap-1 justify-between items-end ml-16">
+                                <Text className="text-muted-foreground">{formatTime(c.last_time as string)}</Text>
+                                <View className={`rounded-full h-5 w-5 items-center justify-center ${c.unread > 0 ? "bg-red-600 opacity-100" : "bg-transparent opacity-0"}`}>
+                                    <Text className="text-white text-xs">{c.unread >= 10 ? "9+" : c.unread}</Text>
+                                </View>
+                            </View>
+                        </Pressable>
+                    </Swipeable>
+                ))}
+
+            </ScrollView>
+
+            <Modal
+                visible={modalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={onCancelDelete}
+            >
+                <Pressable
+                    className="flex-1 bg-black/50 justify-center px-6"
+                    onPress={onCancelDelete}
+                >
+                    <View
+                        className="rounded-2xl bg-card border border-border p-4"
+                        // Prevent clicking inside modal from closing it
+                        onStartShouldSetResponder={() => true}
+                        onTouchEnd={(e) => e.stopPropagation()}
+                    >
+                        <Text className="text-lg font-bold mb-2 text-foreground">Xóa cuộc trò chuyện</Text>
+
+                        <Text style={{ color: "gray", fontSize: 14, marginBottom: 16 }}>
+                            Bạn có chắc chắn muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.
+                        </Text>
+
+                        <View style={{ flexDirection: "row", gap: 12 }}>
+                            <View style={{ flex: 1 }}>
+                                <Button
+                                    variant="outline"
+                                    size={"sm"}
+                                    onPress={onCancelDelete}
+                                    disabled={isDeleting}
+                                >
+                                    <Text className="font-semibold">Hủy</Text>
+                                </Button>
+                            </View>
+
+                            <View style={{ flex: 1 }}>
+                                <Button
+                                    disabled={isDeleting}
+                                    size={"sm"}
+                                    variant={"destructive"}
+                                    onPress={confirmDelete}
+                                >
+                                    <View className="flex-row items-center justify-center min-h-[20px]">
+                                        {isDeleting ? (
+                                            <ActivityIndicator size="small" color="#fff" />
+                                        ) : (
+                                            <Text className="font-semibold text-white">Xóa</Text>
+                                        )}
+                                    </View>
+                                </Button>
                             </View>
                         </View>
-                    ))}
-                </View>
-            </ScrollView>
+                    </View>
+                </Pressable>
+            </Modal>
         </View>
     );
 }

@@ -1,6 +1,7 @@
 import { tenantMyProfile } from "@/api/authTenantApi";
 import { HapticTab } from "@/components/haptic-tab";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useChatRealtimeStore } from "@/store/useChatRealtimeStore";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -18,6 +19,8 @@ export default function TabLayout() {
     const setPhone = useAuthStore((s) => s.setPhone);
     const setProvider = useAuthStore((s) => s.setProvider);
     const setCreated = useAuthStore((s) => s.setCreated);
+
+    const unreadTotal = useChatRealtimeStore((s) => s.unreadTotal)
 
     useEffect(() => {
         const init = async () => {
@@ -103,7 +106,7 @@ export default function TabLayout() {
                                 color={color}
                             />
                         ),
-                        tabBarBadge: 100 > 0 ? 100 >= 10 ? "9+" : 100 : undefined,
+                        tabBarBadge: unreadTotal > 0 ? unreadTotal >= 10 ? "9+" : unreadTotal : undefined,
                         tabBarBadgeStyle: {
                             backgroundColor: "#dc2626",
                             color: "white",

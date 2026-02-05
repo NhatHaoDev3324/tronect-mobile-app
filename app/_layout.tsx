@@ -15,6 +15,7 @@ import "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import "../global.css";
 
+import ChatRealtimeProvider from "@/providers/ChatRealtimeProvider";
 import { useThemeStore } from "@/store/useThemeStore";
 
 export const unstable_settings = {
@@ -50,16 +51,16 @@ export default function RootLayout() {
 
     return (
         <ThemeProvider value={effectiveScheme === "dark" ? DarkTheme : DefaultTheme}>
+            <ChatRealtimeProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="tenant" />
+                </Stack>
 
-            <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="tenant" />
-            </Stack>
-
-            <PortalHost />
-            <Toast topOffset={60} />
-            <StatusBar style="auto" />
-            <PortalHost />
-
+                <PortalHost />
+                <Toast topOffset={60} />
+                <StatusBar style="auto" />
+                <PortalHost />
+            </ChatRealtimeProvider>
         </ThemeProvider>
     );
 }

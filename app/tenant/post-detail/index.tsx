@@ -1,3 +1,4 @@
+import { createConversation } from "@/api/chatApi";
 import { getPostBySlug, savePost } from "@/api/postApi";
 import {
     getPostRoomSharingBySlug,
@@ -190,6 +191,47 @@ export default function PostDetailScreen({
                 : [...saved, userID!],
         };
     };
+
+    const handleChat = async (
+        peer_id: string,
+        title: string,
+        image: string,
+        price: number,
+        peer_name: string,
+        peer_avatar: string
+    ) => {
+        try {
+            if (peer_id === userID) {
+                Toast.show({
+                    type: "error",
+                    text1: "Bạn không thể nhắn tin cho chính mình",
+                    text2: "Chủ nhân bài đăng không thể nhắn tin cho chính mình",
+                });
+                return;
+            }
+
+            const res = await createConversation(peer_id);
+
+            const conversationId = res.conversation.ID;
+
+            router.push({
+                pathname: "/tenant/room-chat",
+                params: {
+                    conversation_id: conversationId,
+                    title,
+                    image,
+                    price,
+                    peer_id,
+                    peer_name,
+                    peer_avatar,
+                },
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -416,7 +458,18 @@ export default function PostDetailScreen({
 
                     <Pressable
                         style={{ paddingRight: 16 }}
-                        onPress={() => bottomSheetRef.current?.expand()}
+                        onPress={() => {
+                            const ownerId = data?.landlord?.id ?? data?.tenant?.id;
+                            if (ownerId === userID) {
+                                Toast.show({
+                                    type: "error",
+                                    text1: "Bạn không thể phản ánh bài đăng của chính mình",
+                                    text2: "Chủ nhân bài đăng không thể phản ánh bài đăng của chính mình",
+                                });
+                                return;
+                            }
+                            bottomSheetRef.current?.expand();
+                        }}
                     >
                         <Ionicons
                             name="warning-outline"
@@ -591,7 +644,7 @@ export default function PostDetailScreen({
                                         </Pressable>
                                     </View>
                                     <View className="w-1/2 h-full items-center justify-center border-l border-border">
-                                        <Pressable className="items-center justify-center">
+                                        <Pressable onPress={() => { handleChat(data?.landlord?.id ?? data?.tenant?.id ?? "", data?.title ?? "", data?.images?.[0] ?? "", data?.price ?? 0, data?.landlord?.username ?? data?.tenant?.username ?? "Người dùng", data?.landlord?.picture ?? data?.tenant?.picture ?? "") }} className="items-center justify-center">
                                             <Ionicons
                                                 name="chatbubble-ellipses"
                                                 size={32}
@@ -602,7 +655,7 @@ export default function PostDetailScreen({
                                 </View>
                             ) : (
                                 <View className="w-1/2 h-full items-center justify-center">
-                                    <Pressable className="flex-row items-center justify-center gap-2">
+                                    <Pressable onPress={() => { handleChat(data?.landlord?.id ?? data?.tenant?.id ?? "", data?.title ?? "", data?.images?.[0] ?? "", data?.price ?? 0, data?.landlord?.username ?? data?.tenant?.username ?? "Người dùng", data?.landlord?.picture ?? data?.tenant?.picture ?? "") }} className="flex-row items-center justify-center gap-2">
                                         <Ionicons
                                             name="chatbubble-ellipses"
                                             size={28}
