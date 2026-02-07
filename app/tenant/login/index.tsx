@@ -34,13 +34,13 @@ export default function LoginScreen() {
   const [secure, setSecure] = useState(true);
   const [loading, setLoading] = useState(false);
   const colorScheme = useColorScheme();
-    const setUserID = useAuthStore((s) => s.setUserID);
-    const setRole = useAuthStore((s) => s.setRole);
-    const setUrlImg = useAuthStore((s) => s.setUrlImg);
-    const setUserName = useAuthStore((s) => s.setUserName);
-    const setProvider = useAuthStore((s) => s.setProvider);
-    const setPhone = useAuthStore((s) => s.setPhone);
-    const setCreated = useAuthStore((s) => s.setCreated);
+  const setUserID = useAuthStore((s) => s.setUserID);
+  const setRole = useAuthStore((s) => s.setRole);
+  const setUrlImg = useAuthStore((s) => s.setUrlImg);
+  const setUserName = useAuthStore((s) => s.setUserName);
+  const setProvider = useAuthStore((s) => s.setProvider);
+  const setPhone = useAuthStore((s) => s.setPhone);
+  const setCreated = useAuthStore((s) => s.setCreated);
 
   const logoSource =
     colorScheme === "dark"
@@ -93,13 +93,13 @@ export default function LoginScreen() {
       await AsyncStorage.setItem("accessToken", result.accessToken);
 
       const res = await tenantMyProfile();
-        setUserID(res.data.id);
-        setRole(res.data.role);
-        setUrlImg(res.data.picture);
-        setUserName(res.data.username);
-        setPhone(res.data.phone);
-        setProvider(res.data.provider);
-        setCreated(res.data.created_at);
+      setUserID(res.data.id);
+      setRole(res.data.role);
+      setUrlImg(res.data.picture);
+      setUserName(res.data.username);
+      setPhone(res.data.phone);
+      setProvider(res.data.provider);
+      setCreated(res.data.created_at);
 
       Toast.show({
         type: "success",
@@ -150,7 +150,7 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={{
             flexGrow: 1,
-            justifyContent: "center", 
+            justifyContent: "center",
             paddingHorizontal: 20,
             paddingVertical: 24,
           }}
@@ -170,7 +170,7 @@ export default function LoginScreen() {
 
           {/* Email */}
           <View className="mt-4 gap-1">
-            <Label nativeID="email" className="text-base font-bold">
+            <Label nativeID="email" className="text-base">
               Email{" "}
             </Label>
 
@@ -189,7 +189,7 @@ export default function LoginScreen() {
           </View>
 
           <View className="mt-4 gap-1">
-            <Label nativeID="password" className="text-base font-bold">
+            <Label nativeID="password" className="text-base">
               Mật khẩu
             </Label>
 
@@ -205,7 +205,7 @@ export default function LoginScreen() {
                 className="pr-12"
               />
 
-        
+
               <Pressable
                 onPress={() => setSecure((s) => !s)}
                 hitSlop={10}
@@ -220,7 +220,7 @@ export default function LoginScreen() {
             </View>
           </View>
 
-      
+
           <View className="mt-2 items-end">
             <Link href="/tenant/forgot-password" asChild>
               <Pressable hitSlop={10}>
@@ -229,7 +229,7 @@ export default function LoginScreen() {
             </Link>
           </View>
 
-   
+
           <View className="mt-4">
             <Button
               variant={"tronect"}
@@ -245,7 +245,7 @@ export default function LoginScreen() {
             </Button>
           </View>
 
-  
+
           <View className="my-4 flex-row items-center gap-2">
             <Separator className="flex-1" />
             <Text className="text-muted-foreground">hoặc</Text>
@@ -264,7 +264,7 @@ export default function LoginScreen() {
                 style={{ height: 20, width: 20 }}
                 contentFit="contain"
               />
-              <Text className="font-extrabold">Tiếp tục với Google</Text>
+              <Text className="font-bold">Tiếp tục với Google</Text>
             </View>
           </Button>
 
@@ -273,7 +273,7 @@ export default function LoginScreen() {
             <Text className="text-muted-foreground">Chưa có tài khoản?</Text>
             <Link href="/tenant/register" asChild>
               <Pressable hitSlop={10}>
-                <Text className="font-extrabold">Đăng ký </Text>
+                <Text className="font-bold">Đăng ký </Text>
               </Pressable>
             </Link>
           </View>

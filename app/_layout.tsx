@@ -54,6 +54,7 @@ export default function RootLayout() {
             <ChatRealtimeProvider>
                 <Stack screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="tenant" />
+                    <Stack.Screen name="landlord" />
                 </Stack>
 
                 <PortalHost />

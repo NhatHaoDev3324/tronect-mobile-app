@@ -208,8 +208,8 @@ export default function RegisterScreen() {
 
           {/* Họ và tên */}
           <View className="mt-4 gap-1">
-            <Label nativeID="fullName" className="text-base font-bold">
-              Họ và tên
+            <Label nativeID="fullName" className="text-base">
+              Họ và tên <Text className="text-red-500">*</Text>
             </Label>
             <Input
               aria-labelledby="fullName"
@@ -223,8 +223,8 @@ export default function RegisterScreen() {
 
           {/* Email */}
           <View className="mt-4 gap-1">
-            <Label nativeID="email" className="text-base font-bold">
-              Email
+            <Label nativeID="email" className="text-base">
+              Email <Text className="text-red-500">*</Text>
             </Label>
             <Input
               aria-labelledby="email"
@@ -239,8 +239,8 @@ export default function RegisterScreen() {
           </View>
 
           <View className="mt-4 gap-1">
-            <Label nativeID="phone" className="text-base font-bold">
-              Số điện thoại
+            <Label nativeID="phone" className="text-base">
+              Số điện thoại <Text className="text-red-500">*</Text>
             </Label>
             <Input
               aria-labelledby="phone"
@@ -256,8 +256,8 @@ export default function RegisterScreen() {
 
           {/* Mật khẩu */}
           <View className="mt-4 gap-1">
-            <Label nativeID="password" className="text-base font-bold">
-              Mật khẩu
+            <Label nativeID="password" className="text-base">
+              Mật khẩu <Text className="text-red-500">*</Text>
             </Label>
 
             <View className="relative">
@@ -287,8 +287,8 @@ export default function RegisterScreen() {
 
           {/* Xác nhận mật khẩu */}
           <View className="mt-4 gap-1">
-            <Label nativeID="confirmPassword" className="text-base font-bold">
-              Xác nhận mật khẩu
+            <Label nativeID="confirmPassword" className="text-base">
+              Xác nhận mật khẩu <Text className="text-red-500">*</Text>
             </Label>
 
             <View className="relative">
@@ -327,7 +327,7 @@ export default function RegisterScreen() {
               {loading ? (
                 <ActivityIndicator />
               ) : (
-                <Text className="font-extrabold">Đăng ký</Text>
+                <Text className="font-bold">Đăng ký</Text>
               )}
             </Button>
           </View>
@@ -337,7 +337,7 @@ export default function RegisterScreen() {
             <Text className="text-muted-foreground">Bạn đã có tài khoản?</Text>
             <Link href="/tenant/login" asChild>
               <Pressable hitSlop={10}>
-                <Text className="font-extrabold">Đăng nhập</Text>
+                <Text className="font-bold">Đăng nhập</Text>
               </Pressable>
             </Link>
           </View>

@@ -9,6 +9,7 @@ import { Text } from "@/components/ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatDateOnly } from "@/utils/formatDateTime";
+import { getNameRole } from "@/utils/getNameRole";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
@@ -82,7 +83,7 @@ export default function SearchScreen({
     lightColor,
     darkColor,
 }: ThemedViewProps) {
-    const { userName, urlImg, created, userID } = useAuthStore();
+    const { userName, urlImg, created, userID, role } = useAuthStore();
     const [logoutOpen, setLogoutOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(false);
@@ -347,9 +348,17 @@ export default function SearchScreen({
                             <ThemedText type="subtitle" style={{ marginBottom: 4 }}>
                                 {userID ? userName : "Không xác định"}
                             </ThemedText>
-                            <ThemedText style={{ color: "gray", fontSize: 14 }}>
-                                Tham gia ngày: {userID ? formatDateOnly(created) : "Không xác định"}
-                            </ThemedText>
+                            {userID && (
+                                <ThemedView className="flex flex-col items-center">
+                                    <ThemedText style={{ color: "gray", fontSize: 14 }}>
+                                        Vai trò: {role ? getNameRole(role) : "Không xác định"}
+                                    </ThemedText>
+                                    <ThemedText style={{ color: "gray", fontSize: 14 }}>
+                                        Tham gia ngày: {userID ? formatDateOnly(created) : "Không xác định"}
+                                    </ThemedText>
+                                </ThemedView>
+                            )}
+
                         </ThemedView>
 
                         <ThemedView>
@@ -446,7 +455,7 @@ export default function SearchScreen({
                                     <Pressable
                                         onPress={() => {
                                             if (userID) setLogoutOpen(true);
-                                            else router.push("/tenant/login");
+                                            else router.push("/tenant/role-authentication");
                                         }}
                                         android_ripple={{ color: "#EF444420" }}
                                         style={[

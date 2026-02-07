@@ -24,6 +24,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { TenantInfoType } from "@/types/authType";
 import { getGenderName } from "@/types/genderName";
 import { formatDateOnly } from "@/utils/formatDateTime";
+import { getNameRole } from "@/utils/getNameRole";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 
@@ -227,6 +228,7 @@ export default function Profile({
           <ThemedText type="subtitle">
             {userID ? info?.username : "Không xác định"}
           </ThemedText>
+
           <ThemedText style={{ color: "gray", fontSize: 14 }}>
             Tham gia ngày:{" "}
             {userID ? formatDateOnly(info?.created_at) : "Không xác định"}
@@ -266,6 +268,13 @@ export default function Profile({
             <Text className="w-28 text-muted-foreground">Giới tính:</Text>
             <Text className="flex-1 text-base font-medium">
               {getGenderName(info?.gender)}
+            </Text>
+          </ThemedView>
+
+          <ThemedView className="flex-row py-2 rounded-xl">
+            <Text className="w-28 text-muted-foreground">Vai trò:</Text>
+            <Text className="flex-1 text-base font-medium">
+              {getNameRole(info?.role)}
             </Text>
           </ThemedView>
 
