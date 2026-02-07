@@ -56,6 +56,23 @@ export type ThemedViewProps = ViewProps & {
     darkColor?: string;
 };
 
+const Row = ({
+    label,
+    children,
+    showDivider = true,
+}: {
+    label: string;
+    children: React.ReactNode;
+    showDivider?: boolean;
+}) => (
+    <ThemedView
+        className={`flex-row items-center py-3 ${showDivider ? "border-b border-border" : ""}`}
+    >
+        <Text className="w-24 text-muted-foreground">{label}</Text>
+        <ThemedView className="flex-1">{children}</ThemedView>
+    </ThemedView>
+);
+
 export default function EditProfile({
     lightColor,
     darkColor,
@@ -303,22 +320,7 @@ export default function EditProfile({
         }
     };
 
-    const Row = ({
-        label,
-        children,
-        showDivider = true,
-    }: {
-        label: string;
-        children: React.ReactNode;
-        showDivider?: boolean;
-    }) => (
-        <ThemedView
-            className={`flex-row items-center py-3 ${showDivider ? "border-b border-border" : ""}`}
-        >
-            <Text className="w-24 text-muted-foreground">{label}</Text>
-            <ThemedView className="flex-1">{children}</ThemedView>
-        </ThemedView>
-    );
+
 
     return (
         <ScrollView
@@ -566,7 +568,7 @@ export default function EditProfile({
                                             </View>
 
                                             <DateTimePicker
-                                                value={dobDate ?? new Date(2000, 0, 1)}
+                                                value={dobDate ?? new Date()}
                                                 mode="date"
                                                 display="spinner"
                                                 maximumDate={new Date()}

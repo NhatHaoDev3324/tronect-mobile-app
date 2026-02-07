@@ -1,20 +1,8 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { Stack } from "expo-router";
-import { type ViewProps } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-export type ThemedViewProps = ViewProps & {
-    lightColor?: string;
-    darkColor?: string;
-};
-export default function TenantLayout({
-    lightColor,
-    darkColor,
-}: ThemedViewProps) {
-    const textColor = useThemeColor(
-        { light: lightColor, dark: darkColor },
-        "text"
-    );
+
+export default function TenantLayout() {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -29,6 +17,14 @@ export default function TenantLayout({
                 />
                 <Stack.Screen
                     name="register/index"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="pricing/index"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="payments/index"
                     options={{ headerShown: false }}
                 />
             </Stack>

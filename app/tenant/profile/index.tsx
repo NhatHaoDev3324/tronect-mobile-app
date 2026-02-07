@@ -14,6 +14,7 @@ import {
 
 import Toast from "react-native-toast-message";
 
+import { landlordUpdateAvatar } from "@/api/authLandlordApi";
 import { tenantMyProfile, tenantUpdateAvatar } from "@/api/authTenantApi";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -38,7 +39,7 @@ export default function Profile({
   darkColor,
 }: ThemedViewProps) {
   const [refreshing, setRefreshing] = useState(false);
-  const { userID, urlImg } = useAuthStore();
+  const { userID, urlImg, role } = useAuthStore();
   const [uploading, setUploading] = useState(false);
   const [info, setInfo] = useState<TenantInfoType>({} as TenantInfoType);
   const setUrlImg = useAuthStore((s) => s.setUrlImg);
@@ -117,7 +118,12 @@ export default function Profile({
 
       setUploading(true);
 
-      const res = await tenantUpdateAvatar(formData);
+      let res;
+      if (role === "tenant") {
+        res = await tenantUpdateAvatar(formData);
+      } else if (role === "landlord") {
+        res = await landlordUpdateAvatar(formData);
+      }
 
       const tenant = res?.data ?? res;
 
@@ -288,7 +294,7 @@ export default function Profile({
           <ThemedView className="flex-row py-2 rounded-xl">
             <Text className="w-28 text-muted-foreground">Số Zalo:</Text>
             <Text className="flex-1 text-base font-medium">
-              {info?.zalo !== null ? info?.zalo : "Chưa cung cấp"}
+              {info?.zalo !== null && info?.zalo !== undefined && info?.zalo !== "" ? info?.zalo : "Chưa cung cấp"}
             </Text>
           </ThemedView>
         </ThemedView>

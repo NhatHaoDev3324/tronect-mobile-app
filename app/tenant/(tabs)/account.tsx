@@ -1,3 +1,4 @@
+import { landlordUpdateAvatar } from "@/api/authLandlordApi";
 import { tenantMyProfile, tenantUpdateAvatar } from "@/api/authTenantApi";
 import noAvatar from "@/assets/images/noAvata.png";
 import { DividerCustom } from "@/components/customs/DividerCustom";
@@ -207,7 +208,12 @@ export default function SearchScreen({
 
             setUploading(true);
 
-            const res = await tenantUpdateAvatar(formData);
+            let res;
+            if (role === "tenant") {
+                res = await tenantUpdateAvatar(formData);
+            } else if (role === "landlord") {
+                res = await landlordUpdateAvatar(formData);
+            }
 
             const tenant = res?.data ?? res;
 
@@ -406,28 +412,27 @@ export default function SearchScreen({
                                 ))}
                             </ThemedView>
 
-                            <DividerCustom />
-
-                            <ThemedView>
-                                <ThemedText
-                                    className="mt-4 px-4"
-                                    style={{ color: "gray", fontSize: 14, fontWeight: "bold" }}
-                                >
-                                    Hướng dẫn
-                                </ThemedText>
-                                <ThemedView
-                                    style={[
-                                        { backgroundColor },
-                                        {
-                                            borderRadius: 16,
-                                            paddingVertical: 4,
-                                        },
-                                    ]}
-                                >
-                                    {otherMenus.map((item) => (
+                            {role === "landlord" &&
+                                <ThemedView>
+                                    <DividerCustom />
+                                    <ThemedText
+                                        className="mt-4 px-4"
+                                        style={{ color: "gray", fontSize: 14, fontWeight: "bold" }}
+                                    >
+                                        Bảng giá
+                                    </ThemedText>
+                                    <ThemedView
+                                        style={[
+                                            { backgroundColor },
+                                            {
+                                                borderRadius: 16,
+                                                paddingVertical: 4,
+                                            },
+                                        ]}
+                                    >
                                         <Pressable
-                                            key={item.key}
-                                            onPress={item.onPress}
+
+                                            onPress={() => { router.push("/landlord/pricing") }}
                                             style={[
                                                 { backgroundColor },
                                                 {
@@ -438,20 +443,104 @@ export default function SearchScreen({
                                                 },
                                             ]}
                                         >
-                                            <Feather name={item.icon} size={20} color="#8E8E93" />
+                                            <Feather name="tag" size={20} color="#8E8E93" />
 
                                             <ThemedText style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>
-                                                {item.label}
+                                                Bảng giá dịch vụ
                                             </ThemedText>
 
                                             <Feather name="chevron-right" size={20} color="#C7C7CC" />
                                         </Pressable>
-                                    ))}
+                                    </ThemedView>
+
+                                    <DividerCustom />
+                                    <ThemedText
+                                        className="mt-4 px-4"
+                                        style={{ color: "gray", fontSize: 14, fontWeight: "bold" }}
+                                    >
+                                        Thanh toán
+                                    </ThemedText>
+                                    <ThemedView
+                                        style={[
+                                            { backgroundColor },
+                                            {
+                                                borderRadius: 16,
+                                                paddingVertical: 4,
+                                            },
+                                        ]}
+                                    >
+                                        <Pressable
+
+                                            onPress={() => { router.push("/landlord/payments") }}
+                                            style={[
+                                                { backgroundColor },
+                                                {
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    paddingVertical: 14,
+                                                    paddingHorizontal: 16,
+                                                },
+                                            ]}
+                                        >
+                                            <Feather name="credit-card" size={20} color="#8E8E93" />
+
+                                            <ThemedText style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>
+                                                Lịch sử thanh toán
+                                            </ThemedText>
+
+                                            <Feather name="chevron-right" size={20} color="#C7C7CC" />
+                                        </Pressable>
+                                    </ThemedView>
+                                </ThemedView>
+                            }
+                            <ThemedView>
+                                <DividerCustom />
+
+                                <ThemedView>
+                                    <ThemedText
+                                        className="mt-4 px-4"
+                                        style={{ color: "gray", fontSize: 14, fontWeight: "bold" }}
+                                    >
+                                        Hướng dẫn
+                                    </ThemedText>
+                                    <ThemedView
+                                        style={[
+                                            { backgroundColor },
+                                            {
+                                                borderRadius: 16,
+                                                paddingVertical: 4,
+                                            },
+                                        ]}
+                                    >
+                                        {otherMenus.map((item) => (
+                                            <Pressable
+                                                key={item.key}
+                                                onPress={item.onPress}
+                                                style={[
+                                                    { backgroundColor },
+                                                    {
+                                                        flexDirection: "row",
+                                                        alignItems: "center",
+                                                        paddingVertical: 14,
+                                                        paddingHorizontal: 16,
+                                                    },
+                                                ]}
+                                            >
+                                                <Feather name={item.icon} size={20} color="#8E8E93" />
+
+                                                <ThemedText style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>
+                                                    {item.label}
+                                                </ThemedText>
+
+                                                <Feather name="chevron-right" size={20} color="#C7C7CC" />
+                                            </Pressable>
+                                        ))}
+                                    </ThemedView>
                                 </ThemedView>
 
                                 <DividerCustom />
 
-                                <ThemedView className="mt-2">
+                                <ThemedView className="my-2">
                                     <Pressable
                                         onPress={() => {
                                             if (userID) setLogoutOpen(true);
