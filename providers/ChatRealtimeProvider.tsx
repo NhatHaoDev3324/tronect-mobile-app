@@ -1,10 +1,11 @@
 "use client"
 
 import { getMyIb } from "@/api/chatApi"
-import { useAuthStore } from "@/store/useAuthStoreChat"
+import { useAuthStore } from "@/store/useAuthStore"
 import { ChatMessage, ConversationDTO, useChatRealtimeStore } from "@/store/useChatRealtimeStore"
+import NetInfo from "@react-native-community/netinfo"
 import React, { useEffect, useRef } from "react"
-import { Platform } from "react-native"
+import { AppState, type AppStateStatus, Platform } from "react-native"
 
 type WsIncoming = unknown
 
@@ -91,7 +92,7 @@ function normalizeRecall(raw: WsIncoming): { conversationId: string; messageId: 
 }
 
 export default function ChatRealtimeProvider({ children }: { children: React.ReactNode }) {
-    const user = useAuthStore((s) => s.user)
+    const userID = useAuthStore((s) => s.userID)
     const wsRef = useRef<WebSocket | null>(null)
     const seenRef = useRef<Set<string>>(new Set())
     const hydrated = useChatRealtimeStore((s) => s.hydrated)
@@ -114,68 +115,211 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
         return () => setSendWs(() => { })
     }, [setSendWs])
 
+    // Clear seenRef when userID changes (logout/login)
+    useEffect(() => {
+        seenRef.current.clear()
+    }, [userID])
+
     // hydrate unread ban đầu
     useEffect(() => {
-        if (!user || hydrated) return
+        if (!userID || hydrated) return
         getMyIb().then((res) => {
             const conversations = Array.isArray(res?.conversations)
                 ? (res.conversations as ConversationDTO[])
                 : []
-            hydrateFromIb(conversations, user.id)
+            hydrateFromIb(conversations, userID)
         })
-    }, [user, hydrated, hydrateFromIb])
+    }, [userID, hydrated, hydrateFromIb])
 
-    // ✅ 1 WS global
+    // ✅ 1 WS global with auto-reconnect
     useEffect(() => {
-        if (!user) return
+        if (!userID) return
 
-        wsRef.current?.close()
-        wsRef.current = null
+        let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+        let heartbeatTimer: ReturnType<typeof setInterval> | null = null
+        let reconnectAttempts = 0
+        const MAX_RECONNECT_DELAY = 30000 // 30 seconds max
+        const HEARTBEAT_INTERVAL = 30000 // 30 seconds
+        let isManualClose = false
 
-        const protocol = Platform.OS === "web" ?
-            (window.location.protocol === "https:" ? "wss" : "ws") :
-            "ws"
-        const host = process.env.EXPO_PUBLIC_WS_HOST ?? "[IP_ADDRESS]"
+        const getReconnectDelay = () => {
+            // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 30s, 30s...
+            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), MAX_RECONNECT_DELAY)
+            return delay
+        }
 
-        const ws = new WebSocket(`${protocol}://${host}/ws/chat/${user.id}`)
-        wsRef.current = ws
+        const startHeartbeat = () => {
+            if (heartbeatTimer) clearInterval(heartbeatTimer)
 
-        ws.onmessage = (e) => {
-            let parsed: unknown
-            try {
-                parsed = JSON.parse(e.data) as unknown
-            } catch {
-                return
-            }
+            heartbeatTimer = setInterval(() => {
+                const socket = wsRef.current
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    try {
+                        socket.send(JSON.stringify({ type: "ping" }))
+                    } catch (error) {
+                        console.error("Heartbeat ping failed:", error)
+                    }
+                }
+            }, HEARTBEAT_INTERVAL)
+        }
 
-            const msg = normalizeMessage(parsed)
-            if (msg) {
-                const key = `${msg.conversation_id}:${msg.id}`
-                if (seenRef.current.has(key)) return
-                seenRef.current.add(key)
-
-                applyIncomingMessage(msg, user.id)
-                appendMessageToConversation(msg)
-                return
-            }
-
-            if (seenRef.current.size > 5000) seenRef.current.clear()
-
-            const rc = normalizeRecall(parsed)
-            if (rc) {
-                recallMessageLocal(rc.conversationId, rc.messageId)
+        const stopHeartbeat = () => {
+            if (heartbeatTimer) {
+                clearInterval(heartbeatTimer)
+                heartbeatTimer = null
             }
         }
 
-        ws.onclose = () => {
-            wsRef.current = null
+        const connect = () => {
+            // Close existing connection if any
+            if (wsRef.current) {
+                isManualClose = true
+                wsRef.current.close()
+                wsRef.current = null
+            }
+
+            const protocol = Platform.OS === "web" ?
+                (window.location.protocol === "https:" ? "wss" : "ws") :
+                "ws"
+            const host = process.env.EXPO_PUBLIC_WS_HOST ?? "[IP_ADDRESS]"
+
+            console.log(`[WebSocket] Connecting... (attempt ${reconnectAttempts + 1})`)
+
+            const ws = new WebSocket(`${protocol}://${host}/ws/chat/${userID}`)
+            wsRef.current = ws
+            isManualClose = false
+
+            ws.onopen = () => {
+                console.log("[WebSocket] Connected successfully")
+                reconnectAttempts = 0 // Reset on successful connection
+                startHeartbeat()
+            }
+
+            ws.onmessage = (e) => {
+                let parsed: unknown
+                try {
+                    parsed = JSON.parse(e.data) as unknown
+                } catch {
+                    return
+                }
+
+                // Handle server ping and pong response
+                if (isObject(parsed)) {
+                    if (parsed["type"] === "ping") {
+                        // Respond to server ping
+                        try {
+                            ws.send(JSON.stringify({ type: "pong" }))
+                        } catch (error) {
+                            console.error("Failed to send pong:", error)
+                        }
+                        return
+                    }
+                    if (parsed["type"] === "pong") {
+                        return
+                    }
+                }
+
+                const msg = normalizeMessage(parsed)
+                if (msg) {
+                    const key = `${msg.conversation_id}:${msg.id}`
+                    if (seenRef.current.has(key)) return
+                    seenRef.current.add(key)
+
+                    applyIncomingMessage(msg, userID)
+                    appendMessageToConversation(msg)
+                    return
+                }
+
+                if (seenRef.current.size > 5000) seenRef.current.clear()
+
+                const rc = normalizeRecall(parsed)
+                if (rc) {
+                    recallMessageLocal(rc.conversationId, rc.messageId)
+                }
+            }
+
+            ws.onerror = (error) => {
+                console.error("[WebSocket] Error:", error)
+            }
+
+            ws.onclose = (event) => {
+                console.log(`[WebSocket] Closed (code: ${event.code}, reason: ${event.reason})`)
+                wsRef.current = null
+                stopHeartbeat()
+
+                // Don't reconnect if manually closed or user logged out
+                if (isManualClose) {
+                    console.log("[WebSocket] Manual close, not reconnecting")
+                    return
+                }
+
+                // Auto-reconnect with exponential backoff
+                const delay = getReconnectDelay()
+                console.log(`[WebSocket] Reconnecting in ${delay}ms...`)
+
+                reconnectAttempts++
+                reconnectTimer = setTimeout(() => {
+                    connect()
+                }, delay)
+            }
         }
+
+        // Initial connection
+        connect()
+
+        // Monitor app state (foreground/background)
+        const appStateSubscription = AppState.addEventListener("change", (nextAppState: AppStateStatus) => {
+            if (nextAppState === "active") {
+                // App came to foreground
+                console.log("[WebSocket] App became active, checking connection...")
+                const socket = wsRef.current
+                if (!socket || socket.readyState !== WebSocket.OPEN) {
+                    console.log("[WebSocket] Reconnecting due to app state change...")
+                    reconnectAttempts = 0 // Reset attempts when app comes to foreground
+                    connect()
+                }
+            } else if (nextAppState === "background") {
+                // App went to background
+                console.log("[WebSocket] App went to background")
+                stopHeartbeat()
+            }
+        })
+
+        // Monitor network state
+        const unsubscribeNetInfo = NetInfo.addEventListener(state => {
+            if (state.isConnected && state.isInternetReachable) {
+                console.log("[WebSocket] Network restored, checking connection...")
+                const socket = wsRef.current
+                if (!socket || socket.readyState !== WebSocket.OPEN) {
+                    console.log("[WebSocket] Reconnecting due to network restoration...")
+                    reconnectAttempts = 0 // Reset attempts when network is restored
+                    connect()
+                }
+            } else {
+                console.log("[WebSocket] Network lost")
+            }
+        })
 
         return () => {
+            console.log("[WebSocket] Cleaning up...")
+            isManualClose = true
 
-            wsRef.current = null
+            if (reconnectTimer) {
+                clearTimeout(reconnectTimer)
+                reconnectTimer = null
+            }
+
+            stopHeartbeat()
+
+            if (wsRef.current) {
+                wsRef.current.close()
+                wsRef.current = null
+            }
+
+            appStateSubscription.remove()
+            unsubscribeNetInfo()
         }
-    }, [user, applyIncomingMessage, appendMessageToConversation, recallMessageLocal])
+    }, [userID, applyIncomingMessage, appendMessageToConversation, recallMessageLocal])
 
     return <>{children}</>
 }

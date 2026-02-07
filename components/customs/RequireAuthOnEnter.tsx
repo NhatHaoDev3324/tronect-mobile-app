@@ -102,7 +102,7 @@ export default function RequireAuthOnEnter({ enabled = true }: Props) {
                     <View className="flex-row gap-3 w-full">
                         <Pressable
                             onPress={() => router.back()}
-                            className="flex-1 border border-gray-300 rounded-xl py-2"
+                            className="flex-1 border border-gray-300 rounded-xl h-10 justify-center"
                         >
                             <Text className="text-center font-semibold text-foreground">
                                 Quay lại
@@ -114,7 +114,7 @@ export default function RequireAuthOnEnter({ enabled = true }: Props) {
                                 setShowModal(false);
                                 router.push("/tenant/login");
                             }}
-                            className="flex-1 bg-[#2baf90] rounded-xl py-2"
+                            className="flex-1 bg-[#2baf90] rounded-xl h-10  justify-center"
                         >
                             <Text className="text-center font-semibold text-white">
                                 Đăng nhập ngay

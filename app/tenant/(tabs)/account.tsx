@@ -520,12 +520,12 @@ export default function SearchScreen({
                                         </View>
 
                                         <View style={{ flex: 1 }}>
-                                            <Button onPress={confirmLogout} disabled={loading}>
+                                            <Button onPress={confirmLogout} disabled={loading} className="bg-red-600" variant={"destructive"}>
                                                 <View className="flex-row items-center justify-center min-h-[20px]">
                                                     {loading ? (
                                                         <ActivityIndicator size="small" color="#fff" />
                                                     ) : (
-                                                        <Text className="font-semibold">Đăng xuất</Text>
+                                                        <Text className="font-semibold text-white">Đăng xuất</Text>
                                                     )}
                                                 </View>
                                             </Button>

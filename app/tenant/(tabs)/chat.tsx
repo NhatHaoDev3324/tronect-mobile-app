@@ -70,15 +70,22 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
             );
         }
 
-        return result;
+        // Always sort by time (newest first)
+        return [...result].sort((a, b) => {
+            const timeA = typeof a.last_time === "string" ? Date.parse(a.last_time) : a.last_time;
+            const timeB = typeof b.last_time === "string" ? Date.parse(b.last_time) : b.last_time;
+            return (timeB as number) - (timeA as number);
+        });
     }, [chatList, keyword, filterType]);
 
     // Track the currently open swipeable to close it on cancel
     const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
+    const [openSwipeableId, setOpenSwipeableId] = useState<string | null>(null);
 
     const closeSwipeable = (id: string) => {
         const ref = swipeableRefs.current.get(id);
         ref?.close();
+        setOpenSwipeableId(null);
     };
 
     const confirmDelete = async () => {
@@ -125,7 +132,6 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
 
     return (
         <View className="flex-1" style={{ backgroundColor }}>
-            {/* ... Header ... */}
             <View style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }} className="flex-row items-center border-b border-border px-4 py-3">
                 <View className="flex-row items-center bg-white rounded-full px-4 h-10 flex-1">
                     <Ionicons name="search-outline" size={20} color="#6b7280" />
@@ -160,45 +166,79 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
                     <Text className={`text-xs font-semibold ${filterType === "read" ? "text-white" : "text-foreground"}`}>Đã đọc</Text>
                 </Pressable>
             </View>
-            <ScrollView className="flex-col bg-background" contentContainerClassName="flex-1">
-
-                {filteredChats.map((c) => (
-                    <Swipeable
-                        key={c.conversation_id}
-                        ref={(ref) => {
-                            if (ref) {
-                                swipeableRefs.current.set(c.conversation_id, ref);
-                            } else {
-                                swipeableRefs.current.delete(c.conversation_id);
+            <ScrollView className="flex-col bg-background" contentContainerClassName={filteredChats.length === 0 ? "flex-1 justify-center" : "flex-grow"}>
+                {filteredChats.length === 0 ? (
+                    <View className="flex-1 items-center justify-center px-10 -mt-20">
+                        <View className="p-4">
+                            <Ionicons
+                                name={keyword ? "search-outline" : "chatbubbles-outline"}
+                                size={80}
+                                color="#2baf90"
+                                style={{ opacity: 0.8 }}
+                            />
+                        </View>
+                        <Text className="text-xl font-bold text-foreground text-center mb-2">
+                            {keyword ? "Không tìm thấy kết quả" : "Chưa có tin nhắn nào"}
+                        </Text>
+                        <Text className="text-muted-foreground text-center text-base leading-6">
+                            {keyword
+                                ? `Không tìm thấy cuộc trò chuyện nào phù hợp với từ khóa "${keyword}"`
+                                : "Khi bạn bắt đầu trò chuyện với người khác, các cuộc hội thoại sẽ xuất hiện tại đây."
                             }
-                        }}
-                        renderRightActions={() => renderRightActions(c.conversation_id)}
-                    >
-                        <Pressable
-                            onPress={() => router.push({ pathname: "/tenant/room-chat", params: { conversation_id: c.conversation_id } })}
-                            className="flex-row items-center px-4 py-3 border-b border-border/60 bg-background"
+                        </Text>
+                        {!keyword && (
+                            <Pressable
+                                className="mt-6 bg-[#2baf90] px-6 rounded-full h-10 items-center justify-center"
+                                onPress={() => router.push("/tenant/(tabs)")}
+                            >
+                                <Text className="text-white font-bold text-base">Khám phá ngay</Text>
+                            </Pressable>
+                        )}
+                    </View>
+                ) : (
+                    filteredChats.map((c) => (
+                        <Swipeable
+                            key={c.conversation_id}
+                            ref={(ref) => {
+                                if (ref) {
+                                    swipeableRefs.current.set(c.conversation_id, ref);
+                                } else {
+                                    swipeableRefs.current.delete(c.conversation_id);
+                                }
+                            }}
+                            renderRightActions={() => renderRightActions(c.conversation_id)}
+                            onSwipeableOpen={() => setOpenSwipeableId(c.conversation_id)}
+                            onSwipeableClose={() => setOpenSwipeableId(null)}
                         >
-                            <View className="flex-row items-start flex-1">
-                                <Image
-                                    source={c.peer_avatar ? { uri: c.peer_avatar } : noAvatar}
-                                    style={{ width: 52, height: 52, borderRadius: 999 }}
-                                    contentFit="cover"
-                                />
-                                <View className="flex-col ml-4 w-fit">
-                                    <Text className="text-lg font-bold text-foreground">{c.peer_name}</Text>
-                                    <Text className={` line-clamp-1 ${c.unread > 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{c.last_message}</Text>
+                            <Pressable
+                                onPress={() => {
+                                    if (openSwipeableId !== c.conversation_id) {
+                                        router.push({ pathname: "/tenant/room-chat", params: { conversation_id: c.conversation_id } });
+                                    }
+                                }}
+                                className="flex-row items-center px-4 py-3 border-b border-border/60 bg-background"
+                            >
+                                <View className="flex-row items-start flex-1">
+                                    <Image
+                                        source={c.peer_avatar ? { uri: c.peer_avatar } : noAvatar}
+                                        style={{ width: 52, height: 52, borderRadius: 999 }}
+                                        contentFit="cover"
+                                    />
+                                    <View className="flex-col ml-4 w-fit">
+                                        <Text className="text-lg font-bold text-foreground">{c.peer_name}</Text>
+                                        <Text className={` line-clamp-1 ${c.unread > 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{c.last_message}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                            <View className="flex-col gap-1 justify-between items-end ml-16">
-                                <Text className="text-muted-foreground">{formatTime(c.last_time as string)}</Text>
-                                <View className={`rounded-full h-5 w-5 items-center justify-center ${c.unread > 0 ? "bg-red-600 opacity-100" : "bg-transparent opacity-0"}`}>
-                                    <Text className="text-white text-xs">{c.unread >= 10 ? "9+" : c.unread}</Text>
+                                <View className="flex-col gap-1 justify-between items-end ml-16">
+                                    <Text className="text-muted-foreground">{formatTime(c.last_time as string)}</Text>
+                                    <View className={`rounded-full h-5 w-5 items-center justify-center ${c.unread > 0 ? "bg-red-600 opacity-100" : "bg-transparent opacity-0"}`}>
+                                        <Text className="text-white text-xs">{c.unread >= 10 ? "9+" : c.unread}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                        </Pressable>
-                    </Swipeable>
-                ))}
-
+                            </Pressable>
+                        </Swipeable>
+                    ))
+                )}
             </ScrollView>
 
             <Modal
@@ -213,7 +253,6 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
                 >
                     <View
                         className="rounded-2xl bg-card border border-border p-4"
-                        // Prevent clicking inside modal from closing it
                         onStartShouldSetResponder={() => true}
                         onTouchEnd={(e) => e.stopPropagation()}
                     >
@@ -240,6 +279,7 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
                                     disabled={isDeleting}
                                     size={"sm"}
                                     variant={"destructive"}
+                                    className="bg-red-600"
                                     onPress={confirmDelete}
                                 >
                                     <View className="flex-row items-center justify-center min-h-[20px]">

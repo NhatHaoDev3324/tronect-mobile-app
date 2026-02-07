@@ -363,7 +363,7 @@ export default function SearchScreen({
                 </ThemedView>
             </ScrollView>
 
-            <View className="absolute bottom-0 left-0 right-0 px-4 py-3 border-t border-border bg-background">
+            <View className="absolute bottom-0 left-0 right-0 px-4 py-3 border-t border-border bg-transparent">
                 <Button onPress={applySearch} variant={"tronect"} size={"sm"}>
                     <Text className="text-white">Áp dụng tìm kiếm</Text>
                 </Button>

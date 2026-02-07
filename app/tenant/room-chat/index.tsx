@@ -26,13 +26,14 @@ import {
     RecallMessage,
 } from "@/api/chatApi"
 
-import { useAuthStore } from "@/store/useAuthStoreChat"
+// import { useAuthStore } from "@/store/useAuthStoreChat"
 import {
     ChatMessage,
     useChatRealtimeStore,
 } from "@/store/useChatRealtimeStore"
 
 import { ThemedText } from "@/components/themed-text"
+import { useAuthStore } from "@/store/useAuthStore"
 import { formatDateHeader, formatTime } from "@/utils/formatDateTime"
 
 const EMPTY_MESSAGES: ChatMessage[] = []
@@ -58,7 +59,9 @@ export default function RoomChatScreen() {
     const insets = useSafeAreaInsets()
     const flatListRef = useRef<FlatList>(null)
     const isAtBottomRef = useRef(true)
-    const user = useAuthStore((s) => s.user)
+    const userID = useAuthStore((s) => s.userID)
+    const userName = useAuthStore((s) => s.userName)
+    const urlImg = useAuthStore((s) => s.urlImg)
     const [modalOpen, setModalOpen] = useState(false)
     const [loadingDelete, setLoadingDelete] = useState(false)
     const [reference, setReference] = useState<MessageReference | null>(null)
@@ -73,26 +76,28 @@ export default function RoomChatScreen() {
         markConversationReadLocal,
         recallMessageLocal,
         removeConversationLocal,
+        loadedConversations,
+        markConversationLoaded,
     } = useChatRealtimeStore()
 
     const messages =
         messagesByConversation[conversation_id] ?? EMPTY_MESSAGES
+    const isLoaded = !!loadedConversations[conversation_id]
 
-    const currentChat = chatList.find(
-        (c) => c.conversation_id === conversation_id
-    )
-
-    // Fallback if chat is new and not in list yet
-    const effectiveChat = currentChat ?? (peer_id ? {
-        conversation_id,
-        peer_id,
-        peer_name: peer_name ?? "Người dùng",
-        peer_avatar: peer_avatar ?? "",
-        last_message: "",
-        last_time: "",
-        unread: 0,
-        is_online: false
-    } : null)
+    const effectiveChat = useMemo(() => {
+        const chat = chatList.find((c) => c.conversation_id === conversation_id)
+        if (chat) return chat
+        if (!peer_id) return null
+        return {
+            conversation_id,
+            peer_id,
+            peer_name: peer_name ?? "Người dùng",
+            peer_avatar: peer_avatar ?? "",
+            last_message: "",
+            last_time: "",
+            unread: 0,
+        }
+    }, [chatList, conversation_id, peer_id, peer_name, peer_avatar])
 
     const [text, setText] = useState("")
     const [replying, setReplying] = useState<ChatMessage | null>(null)
@@ -112,7 +117,7 @@ export default function RoomChatScreen() {
 
     useEffect(() => {
         if (!conversation_id) return
-        if (messages.length > 0) return
+        if (isLoaded) return // Sử dụng isLoaded thay vì messages.length > 0
 
         let cancelled = false
 
@@ -120,6 +125,7 @@ export default function RoomChatScreen() {
             .then((res) => {
                 if (cancelled) return
                 setMessagesForConversation(conversation_id, res ?? [])
+                markConversationLoaded(conversation_id) // Đánh dấu đã load xong
             })
             .catch(() => { })
 
@@ -127,13 +133,20 @@ export default function RoomChatScreen() {
             cancelled = true
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [conversation_id])
+    }, [conversation_id, isLoaded])
 
 
 
     const groupedMessages = useMemo(() => {
         const result: (ChatMessage | { id: string; type: "header"; date: string | number })[] = []
-        const reversed = [...messages].reverse()
+        // Ensure messages are sorted by time (oldest to newest)
+        const sorted = [...messages].sort((a, b) => {
+            const timeA = typeof a.created_at === "string" ? Date.parse(a.created_at) : a.created_at
+            const timeB = typeof b.created_at === "string" ? Date.parse(b.created_at) : b.created_at
+            return (timeA as number) - (timeB as number)
+        })
+
+        const reversed = [...sorted].reverse()
 
         reversed.forEach((msg, index) => {
             result.push(msg)
@@ -187,19 +200,19 @@ export default function RoomChatScreen() {
 
 
     const handleSend = () => {
-        if (!text.trim() || !user || !effectiveChat) return
+        if (!text.trim() || !userID || !effectiveChat) return
 
         const peerId = effectiveChat.peer_id
 
         const tempMsg: ChatMessage = {
             id: -Date.now(),
             conversation_id,
-            from_id: user.id,
-            from_username: user.userName ?? "Bạn",
-            from_avatar: user.img ?? "",
+            from_id: userID,
+            from_username: userName ?? "Bạn",
+            from_avatar: urlImg ?? "https://res.cloudinary.com/dldrozhrw/image/upload/v1770456173/taik3i0buyvfjghra9mv.png",
             to_id: peerId,
             to_username: effectiveChat.peer_name,
-            to_avatar: effectiveChat.peer_avatar ?? "",
+            to_avatar: effectiveChat.peer_avatar ?? "https://res.cloudinary.com/dldrozhrw/image/upload/v1770456173/taik3i0buyvfjghra9mv.png",
             content: text.trim(),
             created_at: Date.now(),
             reply_to_message_id: replying?.id ?? null,
@@ -226,7 +239,7 @@ export default function RoomChatScreen() {
     }
 
     const onLongPressMessage = (m: ChatMessage) => {
-        const isMe = m.from_id === user?.id
+        const isMe = m.from_id === userID
 
         Alert.alert(
             "Tùy chọn",
@@ -288,7 +301,7 @@ export default function RoomChatScreen() {
         }
 
         const msg = item as ChatMessage
-        const isMe = msg.from_id === user?.id
+        const isMe = msg.from_id === userID
 
         return (
             <Pressable
@@ -374,7 +387,7 @@ export default function RoomChatScreen() {
         )
     }
 
-    if (!user) return null
+    if (!userID) return null
 
     return (
         <View style={{ flex: 1 }}>

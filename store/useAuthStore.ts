@@ -1,6 +1,7 @@
 import { RoleType } from "@/types/authType";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { useChatRealtimeStore } from "./useChatRealtimeStore";
 
 type AuthState = {
   userID?: string;
@@ -42,6 +43,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   reset: async () => {
     await AsyncStorage.removeItem("accessToken");
     await AsyncStorage.removeItem("user_location_v1");
+
+    // Clear chat store
+    try {
+      useChatRealtimeStore.getState().resetStore();
+    } catch (e) {
+      console.error("Failed to reset chat store:", e);
+    }
+
     set({
       userID: undefined,
       role: "user" as RoleType,

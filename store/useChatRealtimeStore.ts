@@ -74,6 +74,7 @@ type State = {
 
     mergeMessagesForConversation: (conversationId: string, messages: ChatMessage[]) => void
     removeConversationLocal: (conversationId: string) => void
+    resetStore: () => void
 }
 
 function calcUnreadTotal(list: ChatUserItem[]) {
@@ -82,10 +83,15 @@ function calcUnreadTotal(list: ChatUserItem[]) {
 
 function upsertMessage(list: ChatMessage[], msg: ChatMessage): ChatMessage[] {
     const idx = list.findIndex((m) => m.id === msg.id)
-    if (idx === -1) return [...list, msg]
-    const next = [...list]
-    next[idx] = { ...next[idx], ...msg }
-    return next
+    let next: ChatMessage[]
+    if (idx === -1) {
+        next = [...list, msg]
+    } else {
+        next = [...list]
+        next[idx] = { ...next[idx], ...msg }
+    }
+    // Always sort by time after upserting
+    return next.sort((a, b) => toMs2(a.created_at) - toMs2(b.created_at))
 }
 
 function toMs2(t: string | number): number {
@@ -126,7 +132,7 @@ function mergeById(prev: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] 
     }
 
     return Array.from(map.values()).sort(
-        (a, b) => Number(a.created_at) - Number(b.created_at)
+        (a, b) => toMs2(a.created_at) - toMs2(b.created_at)
     )
 }
 
@@ -147,7 +153,7 @@ export const useChatRealtimeStore = create<State>((set, get) => ({
             last_message: c.last_message,
             last_time: c.last_message_at,
             unread: c.unread_count ?? 0,
-        }))
+        })).sort((a, b) => toMs2(b.last_time) - toMs2(a.last_time))
 
         set({
             chatList: list,
@@ -180,7 +186,7 @@ export const useChatRealtimeStore = create<State>((set, get) => ({
                 }
 
                 list.splice(idx, 1)
-                const next = [updated, ...list]
+                const next = [updated, ...list].sort((a, b) => toMs2(b.last_time) - toMs2(a.last_time))
                 return { chatList: next, unreadTotal: calcUnreadTotal(next) }
             }
 
@@ -194,7 +200,7 @@ export const useChatRealtimeStore = create<State>((set, get) => ({
                 unread: msg.from_id !== myId ? 1 : 0,
             }
 
-            const next = [newItem, ...prev]
+            const next = [newItem, ...prev].sort((a, b) => toMs2(b.last_time) - toMs2(a.last_time))
             return { chatList: next, unreadTotal: calcUnreadTotal(next) }
         })
     },
@@ -286,6 +292,17 @@ export const useChatRealtimeStore = create<State>((set, get) => ({
                 (c) => c.conversation_id !== conversationId
             )
             return { chatList: next, unreadTotal: calcUnreadTotal(next) }
+        })
+    },
+
+    resetStore: () => {
+        set({
+            chatList: [],
+            unreadTotal: 0,
+            currentConversationId: null,
+            hydrated: false,
+            messagesByConversation: {},
+            loadedConversations: {},
         })
     },
 }))

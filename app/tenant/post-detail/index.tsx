@@ -622,7 +622,7 @@ export default function PostDetailScreen({
 
             <View
                 style={{
-                    height: 60 + insets.bottom,
+                    height: 52 + insets.bottom,
                     paddingBottom: insets.bottom,
                     borderTopWidth: 0.2,
                     borderTopColor: "#d1d5db",
@@ -633,7 +633,7 @@ export default function PostDetailScreen({
                         data?.landlord?.zalo || data?.tenant?.zalo ?
                             (
                                 <View className="w-1/2 h-full flex-row items-center justify-center">
-                                    <View className="w-1/2 h-full items-center justify-center border-r border-border">
+                                    <View className="w-1/2 h-12 items-center justify-center border-r border-border">
                                         <Pressable className="items-center justify-center" onPress={() => { Linking.openURL(`https://zalo.me/${data?.landlord?.phone || data?.tenant?.phone}`); }}>
                                             <Image
                                                 source={require("@/assets/icon/zalo.svg")}
@@ -643,7 +643,7 @@ export default function PostDetailScreen({
                                             />
                                         </Pressable>
                                     </View>
-                                    <View className="w-1/2 h-full items-center justify-center border-l border-border">
+                                    <View className="w-1/2 h-12 items-center justify-center border-l border-border">
                                         <Pressable onPress={() => { handleChat(data?.landlord?.id ?? data?.tenant?.id ?? "", data?.title ?? "", data?.images?.[0] ?? "", data?.price ?? 0, data?.landlord?.username ?? data?.tenant?.username ?? "Người dùng", data?.landlord?.picture ?? data?.tenant?.picture ?? "") }} className="items-center justify-center">
                                             <Ionicons
                                                 name="chatbubble-ellipses"
@@ -654,7 +654,7 @@ export default function PostDetailScreen({
                                     </View>
                                 </View>
                             ) : (
-                                <View className="w-1/2 h-full items-center justify-center">
+                                <View className="w-1/2 h-12 items-center justify-center">
                                     <Pressable onPress={() => { handleChat(data?.landlord?.id ?? data?.tenant?.id ?? "", data?.title ?? "", data?.images?.[0] ?? "", data?.price ?? 0, data?.landlord?.username ?? data?.tenant?.username ?? "Người dùng", data?.landlord?.picture ?? data?.tenant?.picture ?? "") }} className="flex-row items-center justify-center gap-2">
                                         <Ionicons
                                             name="chatbubble-ellipses"
@@ -670,7 +670,7 @@ export default function PostDetailScreen({
                     }
 
 
-                    <View className="w-2/4 h-full items-center justify-center bg-red-600">
+                    <View className="w-2/4 h-12 items-center justify-center bg-red-600">
                         <Pressable className="flex-row gap-2 items-center justify-center" onPress={() => { Linking.openURL(`tel:${data?.landlord?.phone || data?.tenant?.phone}`); }}>
                             <Ionicons name="call" size={20} color="white" />
                             <Text className="text-base font-bold text-white">
