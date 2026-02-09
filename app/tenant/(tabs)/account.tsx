@@ -144,6 +144,7 @@ export default function SearchScreen({
             setLoading(true);
             setLogoutOpen(false);
             await useAuthStore.getState().reset();
+
             router.replace("/tenant/(tabs)");
             Toast.show({ type: "success", text1: "Đã đăng xuất", text2: "Hẹn gặp lại bạn trong thời gian tới!", position: "top" });
         } catch (e: any) {
@@ -592,7 +593,6 @@ export default function SearchScreen({
                                 {/* Card */}
                                 <Pressable
                                     className="rounded-2xl bg-card border border-border p-4"
-                                    onPress={() => { }}
                                 >
                                     <ThemedText
                                         style={{ fontSize: 18, fontWeight: "700", marginBottom: 6 }}

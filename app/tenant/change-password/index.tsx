@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -10,12 +10,14 @@ import {
 
 import Toast from "react-native-toast-message";
 
+import { landlordUpdatePass } from "@/api/authLandlordApi";
 import { tenantUpdatePass } from "@/api/authTenantApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export type ThemedViewProps = ViewProps & {
   lightColor?: string;
@@ -35,6 +37,8 @@ export default function ChangePassword({
     { light: lightColor, dark: darkColor },
     "text"
   );
+
+  const { role } = useAuthStore();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -88,7 +92,12 @@ export default function ChangePassword({
     try {
       setLoading(true);
 
-      const res = await tenantUpdatePass(oldPassword, newPassword);
+      let res;
+      if (role === "tenant") {
+        res = await tenantUpdatePass(oldPassword, newPassword);
+      } else {
+        res = await landlordUpdatePass(oldPassword, newPassword);
+      }
 
       toastSuccess(res?.message ?? "Đổi mật khẩu thành công.");
 
@@ -112,7 +121,9 @@ export default function ChangePassword({
     <ScrollView className="flex-1 p-4" style={{ backgroundColor }}>
       <View className="mt-2 gap-4">
         <View className="gap-2">
-          <Label>Mật khẩu cũ</Label>
+          <Label>
+            Mật khẩu cũ <Text className="text-red-500">*</Text>
+          </Label>
           <View className="relative">
             <Input
               editable={!loading}
@@ -137,7 +148,9 @@ export default function ChangePassword({
         </View>
 
         <View className="gap-2">
-          <Label>Mật khẩu mới</Label>
+          <Label>
+            Mật khẩu mới <Text className="text-red-500">*</Text>
+          </Label>
           <View className="relative">
             <Input
               editable={!loading}
@@ -165,7 +178,9 @@ export default function ChangePassword({
         </View>
 
         <View className="gap-2">
-          <Label>Xác nhận mật khẩu mới</Label>
+          <Label>
+            Xác nhận mật khẩu mới <Text className="text-red-500">*</Text>
+          </Label>
           <View className="relative">
             <Input
               editable={!loading}
@@ -200,6 +215,7 @@ export default function ChangePassword({
           onPress={onSubmit}
           disabled={!canSubmit || loading}
           className="w-full"
+          variant={"tronect"}
         >
           <View className="flex-row items-center justify-center min-h-[20px]">
             {loading ? (

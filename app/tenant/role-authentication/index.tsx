@@ -133,7 +133,13 @@ export default function RoleAuthentication() {
                 </View>
 
                 <Pressable
-                    onPress={() => router.back()}
+                    onPress={() => {
+                        if (router.canGoBack()) {
+                            router.back();
+                        } else {
+                            router.replace("/tenant");
+                        }
+                    }}
                     className="mt-10 self-center flex-row items-center gap-1"
                 >
                     <Ionicons name="chevron-back" size={18} color="gray" />

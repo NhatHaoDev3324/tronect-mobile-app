@@ -24,7 +24,7 @@ export default function Index() {
         const checkOnboarding = async () => {
             const seen = await AsyncStorage.getItem("SeenOnboarding");
 
-            if (seen === "true") {
+            if (seen === "false") {
                 router.replace("/tenant/(tabs)");
             }
 
@@ -40,7 +40,7 @@ export default function Index() {
 
     const finishOnboarding = async () => {
         await AsyncStorage.setItem("SeenOnboarding", "true");
-        router.replace("/tenant/(tabs)");
+        router.replace("/tenant");
     };
 
     const goNext = () => {
@@ -69,15 +69,27 @@ export default function Index() {
 
 
     if (loading) return (
-        <View style={{ flex: 1, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" }}>
-            <Image
-                source={require('@/assets/logo/loading/light-Logo.png')}
-                style={{
-                    width: 160,
-                    height: 160,
-                    resizeMode: 'contain',
-                }}
-            />
+        <View style={{ flex: 1, backgroundColor: "#2baf90", alignItems: "center", justifyContent: "center" }}>
+            <View className="flex-col items-center">
+                <Image
+                    source={require('@/assets/logo/dark-Logo.png')}
+                    style={{
+
+                        width: 160,
+                        height: 160,
+                        resizeMode: 'contain',
+                    }}
+                />
+                <Image
+                    source={require('@/assets/logo/dark-word.png')}
+                    style={{
+                        width: 180,
+                        height: 48,
+                        marginBottom: 20,
+                        resizeMode: 'contain',
+                    }}
+                />
+            </View>
         </View>
     );
 
@@ -102,12 +114,12 @@ export default function Index() {
                 }}
             />
             <Image
-                source={require("@/assets/logo/light-LogoWithWord-v.png")}
+                source={require("@/assets/logo/dark-LogoWithWord-v.png")}
                 style={{ width: 140, height: 40, position: "absolute", top: 62, left: 20 }}
                 contentFit="contain"
             />
-            <Pressable onPress={skipOnboarding} style={{ position: "absolute", top: 72, right: 20, backgroundColor: "#000", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 50, opacity: 0.4, justifyContent: "center", alignItems: "center" }}>
-                <Text style={{ fontSize: 16, fontWeight: "600", color: "#fff" }}>
+            <Pressable onPress={skipOnboarding} style={{ position: "absolute", top: 72, right: 20, backgroundColor: "#fff", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 50, opacity: 0.8, justifyContent: "center", alignItems: "center" }}>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "black" }}>
                     Bỏ qua
                 </Text>
             </Pressable>
@@ -124,8 +136,8 @@ export default function Index() {
                 }}
             >
                 <Pressable onPress={goBack} disabled={currentIndex === 0} className={`flex-row items-center justify-center gap-2 ${currentIndex === 0 ? "opacity-0" : "opacity-100"}`}>
-                    <ArrowLeftIcon size={20} color="#2baf90" />
-                    <Text style={{ fontSize: 16, fontWeight: "600", color: "#2baf90" }}>
+                    <ArrowLeftIcon size={20} color="#fff" />
+                    <Text style={{ fontSize: 16, fontWeight: "600", color: "#fff" }}>
                         Quay lại
                     </Text>
                 </Pressable>
@@ -146,7 +158,7 @@ export default function Index() {
                                     alignItems: "center",
                                     justifyContent: "center",
                                     borderRadius: 99,
-                                    backgroundColor: isActive ? "#2baf90" : "#d1d5db",
+                                    backgroundColor: isActive ? "#fff" : "#ffffff80",
                                     marginHorizontal: 4,
                                 }}
                             />
@@ -155,10 +167,10 @@ export default function Index() {
                 </View>
 
                 <Pressable onPress={goNext} className="flex-row items-center justify-center gap-2">
-                    <Text style={{ fontSize: 16, fontWeight: "600", color: "#2baf90" }}>
+                    <Text style={{ fontSize: 16, fontWeight: "600", color: "#fff" }}>
                         {currentIndex === onboardingSlides.length - 1 ? "Bắt đầu" : "Tiếp tục"}
                     </Text>
-                    <ArrowRightIcon size={20} color={"#2baf90"} />
+                    <ArrowRightIcon size={20} color={"#fff"} />
                 </Pressable>
 
             </View>

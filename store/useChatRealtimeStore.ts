@@ -231,7 +231,7 @@ export const useChatRealtimeStore = create<State>((set, get) => ({
     appendMessageToConversation: (msg) => {
         set((state) => {
             const prev = state.messagesByConversation[msg.conversation_id] ?? []
-            const next = mergeOptimistic(prev, msg) // ✅ đổi chỗ này
+            const next = mergeOptimistic(prev, msg)
             return {
                 messagesByConversation: {
                     ...state.messagesByConversation,
@@ -291,7 +291,16 @@ export const useChatRealtimeStore = create<State>((set, get) => ({
             const next = state.chatList.filter(
                 (c) => c.conversation_id !== conversationId
             )
-            return { chatList: next, unreadTotal: calcUnreadTotal(next) }
+
+            const { [conversationId]: _removed, ...restMessages } = state.messagesByConversation
+            const { [conversationId]: _removedLoaded, ...restLoaded } = state.loadedConversations
+
+            return {
+                chatList: next,
+                unreadTotal: calcUnreadTotal(next),
+                messagesByConversation: restMessages,
+                loadedConversations: restLoaded,
+            }
         })
     },
 
