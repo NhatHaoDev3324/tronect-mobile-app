@@ -28,7 +28,6 @@ export const landlordPost = async (
 ) => {
     const formData = new FormData();
 
-    // TEXT FIELDS
     formData.append("category", category);
     formData.append("province", province);
     formData.append("district", district);
@@ -50,22 +49,17 @@ export const landlordPost = async (
     formData.append("expire_at", expire.toString());
     formData.append("landlord_id", landlordId);
 
-    // OUTSTANDING ARRAY
     outstanding.forEach((item) => {
         formData.append("outstanding", item);
     });
 
-    // IMAGES
     imageFiles.forEach((file) => {
         formData.append("images", file);
     });
-
-    // VIDEO
     if (videoFile) {
         formData.append("video", videoFile);
     }
 
-    // GỬI VỚI FormData → axios tự set multipart + boundary
     const request = await api.post("/api/post/create", formData, {
         headers: {
             "Content-Type": "multipart/form-data",
@@ -78,8 +72,8 @@ export const landlordPost = async (
 
 export const updatePost = async (
     id: string,
-    oldImages: string[],   // bắt buộc
-    oldVideo: string,      // bắt buộc
+    oldImages: string[],
+    oldVideo: string,
 
     category?: string,
     province?: string,
@@ -99,12 +93,10 @@ export const updatePost = async (
     quantityRoom?: number,
     price?: number,
     nearbyAmenities?: NearbyAmenity[],
-    newImages?: File[],    // optional
-    newVideo?: File        // optional
+    newImages?: File[],
+    newVideo?: File
 ) => {
     const formData = new FormData();
-
-    // ====== FIELD TEXT ======
     if (category) formData.append("category", category);
     if (province) formData.append("province", province);
     if (district) formData.append("district", district);
@@ -133,18 +125,14 @@ export const updatePost = async (
     if (nearbyAmenities)
         formData.append("nearby_amenities", JSON.stringify(nearbyAmenities));
 
-    // ====== ẢNH CŨ GIỮ LẠI ======
     oldImages.forEach((img) => formData.append("old_images", img));
 
-    // ====== ẢNH MỚI ======
     if (newImages && newImages.length > 0) {
         newImages.forEach((file) => formData.append("images", file));
     }
 
-    // ====== VIDEO CŨ ======
     formData.append("old_video", oldVideo || "");
 
-    // ====== VIDEO MỚI ======
     if (newVideo) {
         formData.append("video", newVideo);
     }

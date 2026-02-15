@@ -21,7 +21,6 @@ import { areaRanges, options, priceRanges } from "@/utils/dataitem";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-/* ---------- TYPES ---------- */
 type Option = {
     value: string;
     label: string;
@@ -51,7 +50,6 @@ export type ThemedViewProps = ViewProps & {
     darkColor?: string;
 };
 
-/* ---------- CONSTANT ---------- */
 const categories = [
     { id: "phong-tro-tphcm", label: "Phòng trọ", icon: "home-outline" },
     { id: "phong-o-ghep-tphcm", label: "Phòng ở ghép", icon: "home-outline" },
@@ -130,7 +128,6 @@ export default function SearchScreen({
             });
     }, [districtValue]);
 
-    /* ---------- HANDLERS ---------- */
     const toggleFeature = (value: string) => {
         setFeatures(prev =>
             prev.includes(value)
@@ -185,15 +182,15 @@ export default function SearchScreen({
     };
 
     const handleDistrictSelect = (item: Option) => {
-        setDistrictValue(item.value); // thay thế
-        setWardValue("");             // reset ward
+        setDistrictValue(item.value);
+        setWardValue("");
         setWards([]);
         setLocationStep("ward");
     };
 
 
     const handleWardSelect = (item: Option) => {
-        setWardValue(item.value); // chỉ 1
+        setWardValue(item.value);
         setShowLocationModal(false);
     };
 

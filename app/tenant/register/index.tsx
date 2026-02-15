@@ -43,7 +43,6 @@ export default function RegisterScreen() {
       : require("@/assets/logo/light-LogoWithWord-v.png");
 
   const validateEmail = (value: string) => {
-    // đủ dùng cho app (không quá strict)
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   };
 
@@ -99,7 +98,6 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      // Gọi API thứ nhất: gửi OTP xác thực email
       await tenantSendOtp(mail);
 
       Toast.show({
@@ -108,7 +106,6 @@ export default function RegisterScreen() {
         text2: "Vui lòng kiểm tra email của bạn.",
       });
 
-      // Mở modal nhập OTP
       setOtpOpen(true);
     } catch (err: unknown) {
       if (isAxiosError(err)) {
@@ -137,7 +134,6 @@ export default function RegisterScreen() {
 
     setOtpLoading(true);
     try {
-      // Gọi API thứ 2: xác nhận OTP và hoàn thành đăng ký
       const res = await tenantRegisterWithEmail(name, mail, phoneNum, password, otp);
 
       if (!res?.status) {
@@ -155,7 +151,6 @@ export default function RegisterScreen() {
         text2: "Bạn có thể đăng nhập ngay bây giờ.",
       });
 
-      // Đóng modal và điều hướng
       setOtpOpen(false);
       router.replace("/tenant/login");
     } catch (err: unknown) {
@@ -206,7 +201,6 @@ export default function RegisterScreen() {
             </Text>
           </View>
 
-          {/* Họ và tên */}
           <View className="mt-4 gap-1">
             <Label nativeID="fullName" className="text-base">
               Họ và tên <Text className="text-red-500">*</Text>
@@ -221,7 +215,6 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* Email */}
           <View className="mt-4 gap-1">
             <Label nativeID="email" className="text-base">
               Email <Text className="text-red-500">*</Text>
@@ -254,7 +247,6 @@ export default function RegisterScreen() {
             />
           </View>
 
-          {/* Mật khẩu */}
           <View className="mt-4 gap-1">
             <Label nativeID="password" className="text-base">
               Mật khẩu <Text className="text-red-500">*</Text>
@@ -285,7 +277,6 @@ export default function RegisterScreen() {
             </View>
           </View>
 
-          {/* Xác nhận mật khẩu */}
           <View className="mt-4 gap-1">
             <Label nativeID="confirmPassword" className="text-base">
               Xác nhận mật khẩu <Text className="text-red-500">*</Text>
@@ -316,7 +307,6 @@ export default function RegisterScreen() {
             </View>
           </View>
 
-          {/* Nút đăng ký */}
           <View className="mt-5">
             <Button
               variant={"tronect"}
@@ -332,7 +322,6 @@ export default function RegisterScreen() {
             </Button>
           </View>
 
-          {/* Link qua login */}
           <View className="mt-4 flex-row justify-center gap-2">
             <Text className="text-muted-foreground">Bạn đã có tài khoản?</Text>
             <Link href="/tenant/login" asChild>
@@ -352,7 +341,6 @@ export default function RegisterScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Modal xác thực OTP */}
       <OtpModal
         open={otpOpen}
         email={email}
@@ -360,13 +348,11 @@ export default function RegisterScreen() {
         onClose={() => setOtpOpen(false)}
         onSubmit={onVerifyOtp}
         onResend={async () => {
-          // Close modal first so toast appears above dimmed background
           setOtpOpen(false);
           try {
             setOtpLoading(true);
             await tenantSendOtp(email);
             Toast.show({ type: "success", text1: "Gửi lại OTP thành công", position: "top" });
-            // Re-open modal after short delay so toast is visible above backdrop
             setTimeout(() => setOtpOpen(true), 600);
           } catch (err: unknown) {
             if (isAxiosError(err)) {
@@ -375,7 +361,6 @@ export default function RegisterScreen() {
             } else {
               Toast.show({ type: "error", text1: "Gửi OTP thất bại", position: "top" });
             }
-            // keep modal closed on failure
           } finally {
             setOtpLoading(false);
           }

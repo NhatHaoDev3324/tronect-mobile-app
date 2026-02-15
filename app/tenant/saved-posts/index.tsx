@@ -77,7 +77,6 @@ export default function SavedPostsScreen({
             return;
         }
 
-        // 🔥 1. OPTIMISTIC REMOVE (BIẾN MẤT NGAY)
         const removedRoom = post.find(item => item.slug === slug);
         const removedRoomShare = postRoomShare.find(item => item.slug === slug);
 

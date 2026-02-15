@@ -1,4 +1,3 @@
-// src/store/useChatRealtimeStore.ts
 import { create } from "zustand"
 
 export type ChatMessage = {
@@ -13,7 +12,6 @@ export type ChatMessage = {
     content: string
     created_at: string | number
 
-    // optional fields
     is_recalled?: boolean
     reference?: { title: string; image: string; price: number } | null
     reply_to_message_id?: number | null
@@ -42,29 +40,24 @@ export type ChatUserItem = {
 type MessagesByConversation = Record<string, ChatMessage[]>
 
 type State = {
-    // sidebar
     chatList: ChatUserItem[]
     unreadTotal: number
     currentConversationId: string | null
     hydrated: boolean
 
-    // messages
     messagesByConversation: MessagesByConversation
 
-    // actions
     hydrateFromIb: (conversations: ConversationDTO[], myId: string) => void
     setCurrentConversation: (conversationId: string | null) => void
 
-    // sidebar realtime
     applyIncomingMessage: (msg: ChatMessage, myId: string) => void
     markConversationReadLocal: (conversationId: string) => void
 
-    // messages actions
     setMessagesForConversation: (conversationId: string, messages: ChatMessage[]) => void
     appendMessageToConversation: (msg: ChatMessage) => void
     recallMessageLocal: (conversationId: string, messageId: number) => void
 
-    // ws send
+
     sendWs: (payload: unknown) => void
     setSendWs: (fn: (payload: unknown) => void) => void
 
@@ -90,7 +83,6 @@ function upsertMessage(list: ChatMessage[], msg: ChatMessage): ChatMessage[] {
         next = [...list]
         next[idx] = { ...next[idx], ...msg }
     }
-    // Always sort by time after upserting
     return next.sort((a, b) => toMs2(a.created_at) - toMs2(b.created_at))
 }
 

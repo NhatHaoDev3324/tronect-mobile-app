@@ -27,7 +27,6 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 
-// --- Types & Interfaces ---
 interface LocationAPI {
     code: number;
     name: string;
@@ -38,8 +37,6 @@ interface LocationItem {
     value: string;
     label: string;
 }
-
-// --- Components ---
 
 const StepBar = ({ step }: { step: number }) => {
     const steps = ["Thông tin", "Địa chỉ", "Tài khoản", "OTP"];
@@ -52,7 +49,6 @@ const StepBar = ({ step }: { step: number }) => {
 
                 return (
                     <View key={label} className="items-center flex-1 relative">
-                        {/* Connector Line */}
                         {i < steps.length - 1 && (
                             <View
                                 className={`absolute top-[18px] left-[50%] right-[-50%] h-[2px] z-[-1] ${step > index ? "bg-green-500" : "bg-muted"
@@ -397,13 +393,10 @@ const Step3Account = ({
     );
 };
 
-// --- Main Screen ---
-
 export default function RegisterScreen() {
     const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
     const colorScheme = useColorScheme();
 
-    // State for Form
     const [form, setForm] = useState({
         fullName: "",
         cccd: "",
@@ -506,7 +499,6 @@ export default function RegisterScreen() {
                 handleChange("birthday", selectedDate.toISOString());
             }
         } else {
-            // iOS
             if (selectedDate) {
                 setDate(selectedDate);
             }
@@ -605,7 +597,7 @@ export default function RegisterScreen() {
             const payload = {
                 username: form.fullName,
                 cccd: form.cccd,
-                date_of_birth: form.birthday, // ISO string
+                date_of_birth: form.birthday,
                 gender: form.gender,
                 province: form.provinceName,
                 district: form.districtName,
@@ -684,7 +676,6 @@ export default function RegisterScreen() {
                                 districts={districts}
                                 wards={wards}
                                 onProvinceChange={(val) => {
-                                    // finding item to get label
                                     const item = provinces.find(p => p.value === val);
                                     handleChange("province", val);
                                     handleChange("provinceName", item ? item.label : "");
@@ -758,7 +749,6 @@ export default function RegisterScreen() {
                 </ScrollView>
             </KeyboardAvoidingView>
 
-            {/* Date Picker Modal for iOS */}
             {Platform.OS === "ios" && (
                 <Modal visible={showDatePicker} transparent animationType="fade">
                     <View className="flex-1 justify-end bg-black/50">
@@ -780,7 +770,6 @@ export default function RegisterScreen() {
                 </Modal>
             )}
 
-            {/* Date Picker for Android */}
             {Platform.OS === "android" && showDatePicker && (
                 <DateTimePicker
                     value={date}
@@ -791,7 +780,6 @@ export default function RegisterScreen() {
                 />
             )}
 
-            {/* OTP Modal */}
             <OtpModal
                 open={otpOpen}
                 email={form.email}

@@ -1,4 +1,3 @@
-// types/images.d.ts
 declare module "*.webp" {
   const src: number;
   export default src;

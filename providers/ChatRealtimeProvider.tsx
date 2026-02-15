@@ -104,7 +104,6 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
 
     const setSendWs = useChatRealtimeStore((s) => s.setSendWs)
 
-    // ✅ setSendWs 1 lần (ổn định, không stale)
     useEffect(() => {
         setSendWs((payload) => {
             const socket = wsRef.current
@@ -115,12 +114,9 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
         return () => setSendWs(() => { })
     }, [setSendWs])
 
-    // Clear seenRef when userID changes (logout/login)
     useEffect(() => {
         seenRef.current.clear()
     }, [userID])
-
-    // hydrate unread ban đầu
     useEffect(() => {
         if (!userID || hydrated) return
         getMyIb().then((res) => {
@@ -131,19 +127,17 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
         })
     }, [userID, hydrated, hydrateFromIb])
 
-    // ✅ 1 WS global with auto-reconnect
     useEffect(() => {
         if (!userID) return
 
         let reconnectTimer: ReturnType<typeof setTimeout> | null = null
         let heartbeatTimer: ReturnType<typeof setInterval> | null = null
         let reconnectAttempts = 0
-        const MAX_RECONNECT_DELAY = 30000 // 30 seconds max
-        const HEARTBEAT_INTERVAL = 30000 // 30 seconds
+        const MAX_RECONNECT_DELAY = 30000
+        const HEARTBEAT_INTERVAL = 30000
         let isManualClose = false
 
         const getReconnectDelay = () => {
-            // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 30s, 30s...
             const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), MAX_RECONNECT_DELAY)
             return delay
         }
@@ -171,7 +165,6 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
         }
 
         const connect = () => {
-            // Close existing connection if any
             if (wsRef.current) {
                 isManualClose = true
                 wsRef.current.close()
@@ -191,7 +184,7 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
 
             ws.onopen = () => {
                 console.log("[WebSocket] Connected successfully")
-                reconnectAttempts = 0 // Reset on successful connection
+                reconnectAttempts = 0
                 startHeartbeat()
             }
 
@@ -203,10 +196,8 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
                     return
                 }
 
-                // Handle server ping and pong response
                 if (isObject(parsed)) {
                     if (parsed["type"] === "ping") {
-                        // Respond to server ping
                         try {
                             ws.send(JSON.stringify({ type: "pong" }))
                         } catch (error) {
@@ -247,13 +238,10 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
                 wsRef.current = null
                 stopHeartbeat()
 
-                // Don't reconnect if manually closed or user logged out
                 if (isManualClose) {
                     console.log("[WebSocket] Manual close, not reconnecting")
                     return
                 }
-
-                // Auto-reconnect with exponential backoff
                 const delay = getReconnectDelay()
                 console.log(`[WebSocket] Reconnecting in ${delay}ms...`)
 
@@ -264,35 +252,30 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
             }
         }
 
-        // Initial connection
         connect()
 
-        // Monitor app state (foreground/background)
         const appStateSubscription = AppState.addEventListener("change", (nextAppState: AppStateStatus) => {
             if (nextAppState === "active") {
-                // App came to foreground
                 console.log("[WebSocket] App became active, checking connection...")
                 const socket = wsRef.current
                 if (!socket || socket.readyState !== WebSocket.OPEN) {
                     console.log("[WebSocket] Reconnecting due to app state change...")
-                    reconnectAttempts = 0 // Reset attempts when app comes to foreground
+                    reconnectAttempts = 0
                     connect()
                 }
             } else if (nextAppState === "background") {
-                // App went to background
                 console.log("[WebSocket] App went to background")
                 stopHeartbeat()
             }
         })
 
-        // Monitor network state
         const unsubscribeNetInfo = NetInfo.addEventListener(state => {
             if (state.isConnected && state.isInternetReachable) {
                 console.log("[WebSocket] Network restored, checking connection...")
                 const socket = wsRef.current
                 if (!socket || socket.readyState !== WebSocket.OPEN) {
                     console.log("[WebSocket] Reconnecting due to network restoration...")
-                    reconnectAttempts = 0 // Reset attempts when network is restored
+                    reconnectAttempts = 0
                     connect()
                 }
             } else {

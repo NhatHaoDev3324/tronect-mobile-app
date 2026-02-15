@@ -26,7 +26,6 @@ import {
     RecallMessage,
 } from "@/api/chatApi"
 
-// import { useAuthStore } from "@/store/useAuthStoreChat"
 import {
     ChatMessage,
     useChatRealtimeStore,
@@ -117,7 +116,7 @@ export default function RoomChatScreen() {
 
     useEffect(() => {
         if (!conversation_id) return
-        if (isLoaded) return // Sử dụng isLoaded thay vì messages.length > 0
+        if (isLoaded) return
 
         let cancelled = false
 
@@ -125,7 +124,7 @@ export default function RoomChatScreen() {
             .then((res) => {
                 if (cancelled) return
                 setMessagesForConversation(conversation_id, res ?? [])
-                markConversationLoaded(conversation_id) // Đánh dấu đã load xong
+                markConversationLoaded(conversation_id)
             })
             .catch(() => { })
 
@@ -139,7 +138,6 @@ export default function RoomChatScreen() {
 
     const groupedMessages = useMemo(() => {
         const result: (ChatMessage | { id: string; type: "header"; date: string | number })[] = []
-        // Ensure messages are sorted by time (oldest to newest)
         const sorted = [...messages].sort((a, b) => {
             const timeA = typeof a.created_at === "string" ? Date.parse(a.created_at) : a.created_at
             const timeB = typeof b.created_at === "string" ? Date.parse(b.created_at) : b.created_at

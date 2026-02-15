@@ -75,7 +75,6 @@ export default function ChangePassword({
     });
 
   const onSubmit = async () => {
-    // validate
     if (!oldPassword || !newPassword || !confirmNewPassword) {
       return toastError("Vui lòng nhập đầy đủ các trường.");
     }

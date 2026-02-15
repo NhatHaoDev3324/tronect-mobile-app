@@ -30,7 +30,7 @@ export function OtpModal({
 }: Props) {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
   const inputsRef = useRef<(TextInput | null)[]>([]);
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(300); // 5 minutes
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(300);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const code = useMemo(() => digits.join(""), [digits]);
@@ -75,7 +75,7 @@ export function OtpModal({
   }, [open]);
 
   const setDigit = (index: number, value: string) => {
-    const v = value.replace(/\D/g, "").slice(-1); // chỉ 1 số
+    const v = value.replace(/\D/g, "").slice(-1);
     setDigits((prev) => {
       const next = [...prev];
       next[index] = v;
@@ -89,7 +89,6 @@ export function OtpModal({
 
   const onKeyPress = (index: number, key: string) => {
     if (key === "Backspace") {
-      // nếu ô hiện tại rỗng thì lùi về ô trước
       if (!digits[index] && index > 0) {
         inputsRef.current[index - 1]?.focus();
         setDigits((prev) => {
@@ -145,7 +144,6 @@ export function OtpModal({
           onPress={() => { }}
           className="bg-background rounded-2xl p-5 relative"
         >
-          {/* Nút X đóng modal */}
           <Pressable
             onPress={onClose}
             hitSlop={10}
@@ -159,7 +157,6 @@ export function OtpModal({
             Nhập mã OTP gồm 6 chữ số đã gửi qua email của bạn.
           </Text>
 
-          {/* OTP boxes */}
           <View className="flex-row justify-between mt-4">
             {digits.map((d, i) => (
               <TextInput
@@ -167,7 +164,6 @@ export function OtpModal({
                 ref={(r) => { inputsRef.current[i] = r; }}
                 value={d}
                 onChangeText={(t) => {
-                  // nếu paste/auto-fill cả chuỗi
                   if (t.length > 1) {
                     handlePasteOrAutoFill(t);
                     return;
@@ -208,7 +204,6 @@ export function OtpModal({
               disabled={loading || !onResend}
               onPress={async () => {
                 if (!onResend) return;
-                // Delegate resend logic to parent (parent will close modal and show loading)
                 await onResend();
               }}
             >

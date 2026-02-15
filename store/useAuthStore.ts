@@ -44,7 +44,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     await AsyncStorage.removeItem("accessToken");
     await AsyncStorage.removeItem("user_location_v1");
 
-    // Clear chat store
     try {
       useChatRealtimeStore.getState().resetStore();
     } catch (e) {

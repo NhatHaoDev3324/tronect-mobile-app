@@ -12,7 +12,7 @@ import {
 
 import { deleteConversationForMe } from "@/api/chatApi";
 import noAvatar from "@/assets/images/noAvata.png";
-import { Button } from "@/components/ui/button"; // Assumption
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useChatRealtimeStore } from "@/store/useChatRealtimeStore";
@@ -39,7 +39,6 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
     const chatList = useChatRealtimeStore((s) => s.chatList)
     const removeConversationLocal = useChatRealtimeStore((s) => s.removeConversationLocal)
 
-    // Modal state
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -56,21 +55,18 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
         const key = normalizeText(keyword);
         let result = chatList;
 
-        // Filter by read status
         if (filterType === "unread") {
             result = result.filter((c) => c.unread > 0);
         } else if (filterType === "read") {
             result = result.filter((c) => c.unread === 0);
         }
 
-        // Filter by keyword
         if (key) {
             result = result.filter((c) =>
                 normalizeText(c.peer_name).includes(key)
             );
         }
 
-        // Always sort by time (newest first)
         return [...result].sort((a, b) => {
             const timeA = typeof a.last_time === "string" ? Date.parse(a.last_time) : a.last_time;
             const timeB = typeof b.last_time === "string" ? Date.parse(b.last_time) : b.last_time;
@@ -78,7 +74,6 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
         });
     }, [chatList, keyword, filterType]);
 
-    // Track the currently open swipeable to close it on cancel
     const swipeableRefs = useRef<Map<string, Swipeable>>(new Map());
     const [openSwipeableId, setOpenSwipeableId] = useState<string | null>(null);
 
@@ -98,7 +93,7 @@ export default function ChatScreen({ lightColor, darkColor }: ThemedViewProps) {
         } catch (error) {
             console.error(error);
             Alert.alert("Lỗi", "Không thể xóa cuộc trò chuyện");
-            closeSwipeable(selectedChatId); // Close if error, or keep open? standard is close
+            closeSwipeable(selectedChatId);
         } finally {
             setIsDeleting(false);
             setSelectedChatId(null);

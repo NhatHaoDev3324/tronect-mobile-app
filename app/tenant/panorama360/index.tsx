@@ -9,7 +9,6 @@ export default function Panorama360Screen() {
     const params = useLocalSearchParams<{ imageUrl?: string }>();
     const insets = useSafeAreaInsets();
 
-    // ✅ FIX: decode + remove quote
     const imageUrl = params.imageUrl
         ? decodeURIComponent(params.imageUrl).replace(/^"+|"+$/g, "")
         : null;
