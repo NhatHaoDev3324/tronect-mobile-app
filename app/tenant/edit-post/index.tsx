@@ -424,7 +424,12 @@ export default function EditPostScreen(props: ThemedViewProps) {
                 text2: "Tin đăng của bạn đã được hiển thị ở Tronect",
             });
             resetForm();
-            router.replace("/tenant/manage-posts");
+            router.replace({
+                pathname: "/tenant/manage-posts",
+                params: {
+                    pathnameBack: "/tenant/(tabs)",
+                },
+            });
 
         } catch (err) {
             console.log(err);

@@ -5,7 +5,7 @@ import { useAuthStore } from "@/store/useAuthStore"
 import { ChatMessage, ConversationDTO, useChatRealtimeStore } from "@/store/useChatRealtimeStore"
 import NetInfo from "@react-native-community/netinfo"
 import React, { useEffect, useRef } from "react"
-import { AppState, type AppStateStatus, Platform } from "react-native"
+import { AppState, type AppStateStatus } from "react-native"
 
 type WsIncoming = unknown
 
@@ -171,10 +171,9 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
                 wsRef.current = null
             }
 
-            const protocol = Platform.OS === "web" ?
-                (window.location.protocol === "https:" ? "wss" : "ws") :
-                "ws"
             const host = process.env.EXPO_PUBLIC_WS_HOST ?? "[IP_ADDRESS]"
+            const isLocal = host.includes("localhost") || /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(host)
+            const protocol = isLocal ? "ws" : "wss"
 
             console.log(`[WebSocket] Connecting... (attempt ${reconnectAttempts + 1})`)
 
@@ -230,7 +229,7 @@ export default function ChatRealtimeProvider({ children }: { children: React.Rea
             }
 
             ws.onerror = (error) => {
-                console.error("[WebSocket] Error:", error)
+                console.log("[WebSocket] Error:", error)
             }
 
             ws.onclose = (event) => {

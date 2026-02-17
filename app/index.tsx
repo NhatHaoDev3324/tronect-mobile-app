@@ -24,7 +24,7 @@ export default function Index() {
         const checkOnboarding = async () => {
             const seen = await AsyncStorage.getItem("SeenOnboarding");
 
-            if (seen === "false") {
+            if (seen === "true") {
                 router.replace("/tenant/(tabs)");
             }
 

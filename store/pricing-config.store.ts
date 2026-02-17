@@ -41,20 +41,20 @@ export const usePricingConfigStore = create<PricingConfigState>((set) => ({
     expireDays: "7",
     defaultPostType: "normal",
 
-    postPriceDay: "2000",
-    postPriceWeek: "1800",
-    postPriceMonth: "1500",
+    postPriceDay: "0",
+    postPriceWeek: "0",
+    postPriceMonth: "0",
 
-    postTypeVipPrice: "5000",
+    postTypeVipPrice: "0",
 
-    renewDay: "1500",
-    renewWeek: "1300",
-    renewMonth: "1000",
+    renewDay: "0",
+    renewWeek: "0",
+    renewMonth: "0",
 
-    renewVipPrice: "4000",
+    renewVipPrice: "0",
 
-    picPrice: "1000",
-    videoPrice: "5000",
+    picPrice: "0",
+    videoPrice: "0",
 
     setField: (key, value) =>
         set((state) => ({

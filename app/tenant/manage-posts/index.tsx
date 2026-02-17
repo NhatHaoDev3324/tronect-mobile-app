@@ -11,7 +11,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { PostInfoType } from "@/types/postInfoType";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View, type ViewProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,7 +30,7 @@ export default function SearchResultScreen({
         { light: lightColor, dark: darkColor },
         "background"
     );
-
+    const { pathnameBack } = useLocalSearchParams<{ pathnameBack: string }>();
     const [dataRoom, setDataRoom] = useState<PostInfoType[]>([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -61,14 +61,6 @@ export default function SearchResultScreen({
             fetchPosts();
         }, [fetchPosts])
     );
-
-    const handleBack = () => {
-        if (router.canGoBack()) {
-            router.back();
-        } else {
-            router.replace("/tenant/(tabs)");
-        }
-    };
 
     const saveEditRoomStatus = async (id: string, label: string, status: string) => {
         try {
@@ -138,13 +130,21 @@ export default function SearchResultScreen({
         }
     };
 
+    const handleBack = () => {
+        if (pathnameBack) {
+            router.replace(pathnameBack as any);
+        } else {
+            router.back();
+        }
+    };
+
 
     return (
         <View className="flex-1" style={{ backgroundColor }}>
             <View style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }} className="flex-row items-center justify-between border-b border-border px-4 py-3">
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                     <Pressable
-                        onPress={() => handleBack()}
+                        onPress={handleBack}
                         style={{ paddingHorizontal: 12 }}
                     >
                         <Ionicons name="arrow-back" size={24} color="white" />

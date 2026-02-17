@@ -6,7 +6,7 @@ import { PaymentType } from "@/types/paymentType";
 import { formatDateTimeCustom } from "@/utils/formatDateTime";
 import { getPaymentStatusInfo } from "@/utils/statusColor";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View, ViewProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,7 +22,7 @@ const PaymentScreen = (props: ThemedViewProps) => {
         "background"
     );
     const [payments, setPayments] = useState<PaymentType[]>([]);
-
+    const { pathnameBack } = useLocalSearchParams<{ pathnameBack?: string }>();
     const [search, setSearch] = useState("");
     const [filteredPayment, setFilteredPayment] = useState<PaymentType[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -62,12 +62,21 @@ const PaymentScreen = (props: ThemedViewProps) => {
 
         setFilteredPayment(result);
     }, [search, payments]);
+
+    const handleBack = () => {
+        if (pathnameBack) {
+            router.replace(pathnameBack as any);
+        } else {
+            router.back();
+        }
+    };
+
     return (
         <View className="flex-1" style={{ backgroundColor: backgroundColor }}>
             <View style={{ paddingTop: insets.top + 12, backgroundColor: "#2baf90" }} className="flex-row items-center justify-between border-b border-border px-4 py-3">
                 <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
                     <Pressable
-                        onPress={() => router.back()}
+                        onPress={handleBack}
                         style={{ paddingHorizontal: 12 }}
                     >
                         <Ionicons name="arrow-back" size={24} color="white" />

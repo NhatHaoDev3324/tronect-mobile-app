@@ -1,7 +1,11 @@
+import { landlordPost } from "@/api/postApi";
 import { tenantPostRoomSharing } from "@/api/postRoomShareApi";
+import { createTempPost } from "@/api/tempPostApi";
 import AuthPressable from "@/components/customs/AuthPressable";
 import DropdownComponent from "@/components/customs/DropdownComponent";
+import StatusDropdown from "@/components/customs/manage-post/StatusDropdown";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { usePricingConfigStore } from "@/store/pricing-config.store";
 import { useAuthStore } from "@/store/useAuthStore";
 import { NearbyAmenity } from "@/types/postInfoType";
 import { options } from "@/utils/dataitem";
@@ -55,9 +59,10 @@ interface FormErrors {
 
 
 export default function SearchScreen(props: ThemedViewProps) {
-    const { userID } = useAuthStore();
+    const { userID, role } = useAuthStore();
     const scrollRef = useRef<ScrollView>(null);
 
+    const [category, setCategory] = useState<string>("phong-tro-tphcm");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
@@ -107,6 +112,7 @@ export default function SearchScreen(props: ThemedViewProps) {
 
     const [loading, setLoading] = useState(false);
 
+    const { defaultPostType, expireDays, isPaymentEnabled, fetchPricing } = usePricingConfigStore()
 
     const pickImages = async () => {
         if (images.length >= MAX_IMAGES) {
@@ -420,36 +426,145 @@ export default function SearchScreen(props: ThemedViewProps) {
 
         try {
             setLoading(true);
-            await tenantPostRoomSharing(
-                "phong-o-ghep-tphcm",
-                provinceLabel!,
-                districtLabel!,
-                wardLabel!,
-                street,
-                houseNumber,
-                address,
-                lat!,
-                lng!,
-                title,
-                description,
-                Number(price),
-                unit,
-                area,
-                1,
-                selected,
-                images,
-                video,
-                "",
-                amenities,
-                userID!
-            );
-            Toast.show({
-                type: "success",
-                text1: "Đăng tin thành công",
-                text2: "Tin đăng của bạn đã được hiển thị ở Tronect",
-            });
+
+            if (role === "tenant") {
+                await tenantPostRoomSharing(
+                    "phong-o-ghep-tphcm",
+                    provinceLabel!,
+                    districtLabel!,
+                    wardLabel!,
+                    street,
+                    houseNumber,
+                    address,
+                    lat!,
+                    lng!,
+                    title,
+                    description,
+                    Number(price),
+                    unit,
+                    area,
+                    1,
+                    selected,
+                    images,
+                    video,
+                    "",
+                    amenities,
+                    userID!
+                );
+            }
+
+            if (role === "landlord") {
+                const formData = new FormData();
+
+                formData.append("category", category);
+                formData.append("province", provinceLabel!);
+                formData.append("district", districtLabel!);
+                formData.append("ward", wardLabel!);
+                formData.append("street", street);
+                formData.append("house_number", houseNumber);
+                formData.append("address", address);
+                formData.append("lat", String(lat));
+                formData.append("lng", String(lng));
+                formData.append("title", title);
+                formData.append("slug", title);
+                formData.append("description", description);
+                formData.append("price", String(price));
+                formData.append("unit", unit);
+                formData.append("acreage", area);
+                formData.append("quantity_room", String(1));
+                formData.append("privacy", "public");
+                formData.append("video_link", "");
+                formData.append("nearby_amenities", JSON.stringify(amenities));
+                formData.append("outstanding", JSON.stringify(selected));
+                formData.append("landlord_id", userID!);
+
+                images.forEach((img, index) => {
+                    formData.append("images", {
+                        uri: img.uri,
+                        name: `image_${index}.jpg`,
+                        type: img.mimeType || "image/jpeg",
+                    } as any);
+                });
+
+
+                if (video) {
+                    formData.append("video", {
+                        uri: video.uri,
+                        name: "video.mp4",
+                        type: video.mimeType || "video/mp4",
+                    } as any);
+                }
+                if (isPaymentEnabled) {
+                    try {
+                        const tempPostId = await createTempPost(formData);
+                        router.push({
+                            pathname: "/landlord/choose-package",
+                            params: {
+                                id: tempPostId,
+                            },
+                        });
+                    } catch (error) {
+                        console.log("error", error);
+                        Toast.show({
+                            type: "error",
+                            text1: "Đã xảy ra lỗi",
+                            text2: "Vui lòng thử lại sau",
+                        });
+                    }
+                } else {
+
+                    try {
+                        await landlordPost(
+                            category!,
+                            provinceLabel!,
+                            districtLabel!,
+                            wardLabel!,
+                            street,
+                            houseNumber,
+                            address,
+                            lat!,
+                            lng!,
+                            title,
+                            description,
+                            Number(price),
+                            unit,
+                            area,
+                            1,
+                            selected,
+                            images,
+                            video,
+                            "",
+                            amenities,
+                            defaultPostType,
+                            Number(expireDays),
+                            userID!
+                        );
+
+                    } catch (error) {
+                        console.log("error", error);
+                        Toast.show({
+                            type: "error",
+                            text1: "Đã xảy ra lỗi",
+                            text2: "Vui lòng thử lại sau",
+                        });
+                    } finally {
+                        Toast.show({
+                            type: "success",
+                            text1: "Đăng tin thành công",
+                            text2: "Tin đăng của bạn đã được hiển thị ở Tronect",
+                        });
+                    }
+                }
+            }
+
+
             resetForm();
-            router.replace("/tenant/manage-posts");
+            router.replace({
+                pathname: "/tenant/manage-posts",
+                params: {
+                    pathnameBack: "/tenant/(tabs)",
+                },
+            });
 
         } catch (err) {
             console.log(err);
@@ -473,8 +588,10 @@ export default function SearchScreen(props: ThemedViewProps) {
         }, [])
     );
 
-
-
+    useEffect(() => {
+        fetchPricing();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [category]);
 
     return (
         <View className="flex-1" style={{ backgroundColor }}>
@@ -491,6 +608,33 @@ export default function SearchScreen(props: ThemedViewProps) {
                 </View>
             </View>
             <ScrollView ref={scrollRef} className="flex-1 p-4" contentContainerStyle={{ paddingBottom: insets.bottom }}>
+
+                {role === "landlord" &&
+                    <View className="flex-col gap-2 border border-border rounded-xl p-4 mb-2">
+                        <Text className="font-bold text-lg text-foreground">Chuyên mục</Text>
+
+                        <View className="flex-col">
+                            <Text className="font-semibold text-foreground mb-1">Loại chuyên mục</Text>
+                            <StatusDropdown
+                                data={[
+                                    { label: "Phòng trọ", value: "phong-tro-tphcm" },
+                                    { label: "Chung cư mini", value: "chung-cu-mini-tphcm" },
+                                    { label: "Căn hộ", value: "can-ho-tphcm" },
+                                    { label: "Ký túc xá", value: "ky-tuc-xa-tphcm" },
+
+                                ]}
+                                value={category}
+                                onChange={
+                                    (_, value) => {
+                                        setCategory(value);
+                                    }
+                                }
+                            />
+                        </View>
+                    </View>
+                }
+
+
                 <View className="flex-col gap-2 border border-border rounded-xl p-4 mb-2">
                     <Text className="font-bold text-lg text-foreground">Thông tin mô tả</Text>
 
@@ -970,7 +1114,7 @@ export default function SearchScreen(props: ThemedViewProps) {
 
 
                 <AuthPressable onAuthorizedPress={handleSubmit} style={{
-                    paddingVertical: 12,
+                    paddingVertical: 14,
                     backgroundColor: "#2baf90",
                     alignItems: "center",
                     justifyContent: "center",

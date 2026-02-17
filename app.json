@@ -43,7 +43,14 @@
         }
       ],
       "expo-web-browser",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Cho phép Tronect lưu mã QR thanh toán vào thư viện ảnh.",
+          "savePhotosPermission": "Cho phép Tronect lưu ảnh vào thiết bị của bạn."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
