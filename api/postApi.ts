@@ -191,14 +191,14 @@ export const updateRoomNumber = async (id: string, quantityRoom: number) => {
     return res.data;
 };
 
-export const updateStatus = async (id: string, status: string) => {
+export const updateStatusPost = async (id: string, status: string) => {
     const res = await api.put(`/api/post/${id}/status`, {
         status: status,
     });
     return res.data;
 };
 
-export const updatePrivacy = async (id: string, privacy: string) => {
+export const updatePrivacyPost = async (id: string, privacy: string) => {
     const res = await api.put(`/api/post/${id}/privacy`, {
         privacy,
     });

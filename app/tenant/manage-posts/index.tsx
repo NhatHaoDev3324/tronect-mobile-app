@@ -1,4 +1,5 @@
-import { deletePostRoomSharingById, getPostsRoomSharingByTenantId, updatePrivacy, updateRoomSharingStatus } from "@/api/postRoomShareApi";
+import { deletePostById, getPostsByLandlordId, updatePrivacyPost, updateStatusPost } from "@/api/postApi";
+import { deletePostRoomSharingById, getPostsRoomSharingByTenantId, updatePrivacyPostRoomSharing, updateRoomSharingStatus } from "@/api/postRoomShareApi";
 import { LoadingData } from "@/components/customs/LoadingData";
 import StatusDropdown from "@/components/customs/manage-post/StatusDropdown";
 import { Tag360 } from "@/components/customs/Tag360";
@@ -8,6 +9,7 @@ import { ThemedText } from "@/components/themed-text";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAuthStore } from "@/store/useAuthStore";
 import { PostInfoType } from "@/types/postInfoType";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -30,6 +32,7 @@ export default function SearchResultScreen({
         { light: lightColor, dark: darkColor },
         "background"
     );
+    const { role } = useAuthStore();
     const { pathnameBack } = useLocalSearchParams<{ pathnameBack: string }>();
     const [dataRoom, setDataRoom] = useState<PostInfoType[]>([]);
     const [modalOpen, setModalOpen] = useState(false);
@@ -44,15 +47,20 @@ export default function SearchResultScreen({
     const fetchPosts = useCallback(async () => {
         try {
             setLoading(true);
-            const res = await getPostsRoomSharingByTenantId();
-            setDataRoom(res || []);
+            if (role === "tenant") {
+                const res = await getPostsRoomSharingByTenantId();
+                setDataRoom(res || []);
+            } else {
+                const res = await getPostsByLandlordId();
+                setDataRoom(res || []);
+            }
         } catch (error) {
             console.log(error);
             router.replace("/tenant/(tabs)");
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [role]);
 
 
 
@@ -64,7 +72,11 @@ export default function SearchResultScreen({
 
     const saveEditRoomStatus = async (id: string, label: string, status: string) => {
         try {
-            await updateRoomSharingStatus(id, status);
+            if (role === "tenant") {
+                await updateRoomSharingStatus(id, status);
+            } else {
+                await updateStatusPost(id, status);
+            }
             Toast.show({
                 type: "success",
                 text1: "Cập nhật trạng thái thành công",
@@ -83,7 +95,11 @@ export default function SearchResultScreen({
 
     const saveEditPrivacy = async (id: string, label: string, privacy: string) => {
         try {
-            await updatePrivacy(id, privacy);
+            if (role === "tenant") {
+                await updatePrivacyPostRoomSharing(id, privacy);
+            } else {
+                await updatePrivacyPost(id, privacy);
+            }
             Toast.show({
                 type: "success",
                 text1: "Cập nhật quyền riêng tư thành công",
@@ -108,7 +124,11 @@ export default function SearchResultScreen({
     const handleDeletePost = async () => {
         try {
             setLoadingDelete(true);
-            await deletePostRoomSharingById(deletePostId);
+            if (role === "tenant") {
+                await deletePostRoomSharingById(deletePostId);
+            } else {
+                await deletePostById(deletePostId);
+            }
             Toast.show({
                 type: "success",
                 text1: "Xóa bài viết thành công",

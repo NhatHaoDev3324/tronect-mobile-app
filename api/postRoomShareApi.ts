@@ -200,7 +200,7 @@ export const updateRoomSharingStatus = async (id: string, status: string) => {
     return res.data;
 };
 
-export const updatePrivacy = async (id: string, privacy: string) => {
+export const updatePrivacyPostRoomSharing = async (id: string, privacy: string) => {
     const res = await api.put(`/api/post/room_share/${id}/privacy`, {
         privacy,
     }, { timeout: 3000 });
