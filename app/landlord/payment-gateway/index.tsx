@@ -46,7 +46,6 @@ export default function PaymentScreen() {
 
     const handleNavChange = (navState: any) => {
         const url = navState.url;
-
         // Thành công
         if (url.includes("/landlord/success")) {
 
@@ -72,27 +71,31 @@ export default function PaymentScreen() {
                     router.replace({
                         pathname: "/tenant/manage-posts",
                         params: {
-                            pathnameBack: "/tenant/(tabs)"
+                            pathnameBack: "/tenant/account"
                         }
                     });
                 });
+                return;
+            }
+            if (result.expiry && result.postType) {
+                updatePaymentStatusByOrderCode(Number(result.orderCode), "success", result.expiry || "0", result.postType || "normal")
+                    .then(() => {
+                        Toast.show({
+                            type: "success",
+                            text1: "Đăng tin thành công",
+                            text2: "Tin đăng của bạn đã được hiển thị ở Tronect",
+                        });
+                    }).finally(() => {
+                        router.replace({
+                            pathname: "/tenant/manage-posts",
+                            params: {
+                                pathnameBack: "/tenant/(tabs)"
+                            }
+                        });
+                    });
+                return;
             }
 
-            updatePaymentStatusByOrderCode(Number(result.orderCode), "success", result.expiry || "0", result.postType || "normal")
-                .then(() => {
-                    Toast.show({
-                        type: "success",
-                        text1: "Đăng tin thành công",
-                        text2: "Tin đăng của bạn đã được hiển thị ở Tronect",
-                    });
-                }).finally(() => {
-                    router.replace({
-                        pathname: "/tenant/manage-posts",
-                        params: {
-                            pathnameBack: "/tenant/(tabs)"
-                        }
-                    });
-                });
         }
 
         // Thất bại
@@ -165,6 +168,8 @@ export default function PaymentScreen() {
                 text1: "Không thể lưu mã QR",
                 text2: "Vui lòng thử lại",
             });
+        } finally {
+            setShowQRModal(false);
         }
     };
 

@@ -104,8 +104,8 @@ export const updatePost = async (
     quantityRoom?: number,
     price?: number,
     nearbyAmenities?: NearbyAmenity[],
-    newImages?: File[],
-    newVideo?: File
+    newImages?: ImagePicker.ImagePickerAsset[],
+    newVideo?: ImagePicker.ImagePickerAsset | null
 ) => {
     const formData = new FormData();
     if (category) formData.append("category", category);
@@ -138,14 +138,22 @@ export const updatePost = async (
 
     oldImages.forEach((img) => formData.append("old_images", img));
 
-    if (newImages && newImages.length > 0) {
-        newImages.forEach((file) => formData.append("images", file));
-    }
+    newImages?.forEach((img, index) => {
+        formData.append("images", {
+            uri: img.uri,
+            name: `image_${index}.jpg`,
+            type: img.mimeType || "image/jpeg",
+        } as any);
+    });
 
     formData.append("old_video", oldVideo || "");
 
     if (newVideo) {
-        formData.append("video", newVideo);
+        formData.append("video", {
+            uri: newVideo.uri,
+            name: "video.mp4",
+            type: newVideo.mimeType || "video/mp4",
+        } as any);
     }
 
     const response = await api.put(`/api/post/update/${id}`, formData, {

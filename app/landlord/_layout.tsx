@@ -39,6 +39,14 @@ export default function TenantLayout() {
                     name="payments-befor-gateway/index"
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="edit-post/index"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="choose-package-extend/index"
+                    options={{ headerShown: false }}
+                />
             </Stack>
         </GestureHandlerRootView>
     );
