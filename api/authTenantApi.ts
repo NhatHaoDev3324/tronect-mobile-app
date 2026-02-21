@@ -36,3 +36,16 @@ export const tenantUpdate = async (username: string, email: string, phone: strin
     const request = await api.put("/api/tenant/update", { username, email, phone, gender, date_of_birth, bio, zalo });
     return request.data;
 }
+
+export const SendTenantOTPResetPass = async (email: string) => {
+    const request = await api.post("/api/tenant/send-otp-resetPass", { email });
+    return request.data;
+}
+export const VerifyOTP = async (email: string, otp: string) => {
+    const request = await api.post("/api/tenant/verifyOTP", { email, otp });
+    return request.data;
+}
+export const ResetPassTenant = async (id: string, newPassword: string) => {
+    const request = await api.post("/api/tenant/resetPass", { id, newPassword });
+    return request.data;
+}

@@ -28,10 +28,6 @@ export default function TenantLayout({
                 <Stack.Screen name="login/index" options={{ headerShown: false }} />
                 <Stack.Screen name="register/index" options={{ headerShown: false }} />
                 <Stack.Screen
-                    name="forgot-password/index"
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
                     name="role-authentication/index"
                     options={{ headerShown: false }}
                 />
@@ -184,6 +180,14 @@ export default function TenantLayout({
                 />
                 <Stack.Screen
                     name="room-chat/index"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="forgot-password/index"
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="reset-password/index"
                     options={{ headerShown: false }}
                 />
             </Stack>

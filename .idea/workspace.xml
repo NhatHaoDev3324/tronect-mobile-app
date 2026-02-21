@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="99e39c0f-ec7f-452c-ae39-69f697ff51c5" name="Changes" comment="" />
+    <list default="true" id="bea98b22-aac2-4015-8407-34b3046a184f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/authLandlordApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/authLandlordApi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/authTenantApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/authTenantApi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/landlord/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/landlord/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/landlord/forgot-password/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/landlord/forgot-password/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/tenant/forgot-password/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/tenant/forgot-password/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,9 +31,10 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 3
 }</component>
-  <component name="ProjectId" id="381oxclFwt5RY0PASh1Zm2WFEV5" />
+  <component name="ProjectId" id="39wH2XBYVEglZr5LBJk6QwJAtWb" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -28,26 +43,22 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;ToolWindow.Running Devices.ShowToolbar&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/KhoaLuanTotNghiep/mobile-app/tronect-mobile-app&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
   }
 }</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="99e39c0f-ec7f-452c-ae39-69f697ff51c5" name="Changes" comment="" />
-      <created>1767976687440</created>
+      <changelist id="bea98b22-aac2-4015-8407-34b3046a184f" name="Changes" comment="" />
+      <created>1771600007302</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1767976687440</updated>
+      <updated>1771600007302</updated>
     </task>
     <servers />
   </component>
