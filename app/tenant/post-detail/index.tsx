@@ -298,6 +298,7 @@ export default function PostDetailScreen({
                                         style={{ width: '100%', height: '100%' }}
                                         resizeMode={ResizeMode.COVER}
                                         shouldPlay={activeIndex === 0}
+                                        isMuted={true}
                                         isLooping
                                     />
                                 </Pressable>
@@ -808,30 +809,41 @@ export default function PostDetailScreen({
 
             <Modal
                 visible={previewVisible}
-                transparent
+                transparent={true}
                 animationType="fade"
+                statusBarTranslucent
                 onRequestClose={() => setPreviewVisible(false)}
             >
-                <View style={{ flex: 1, backgroundColor: 'black' }}>
-
+                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.95)' }}>
                     <Pressable
                         onPress={() => setPreviewVisible(false)}
-                        style={{ position: 'absolute', top: 40, right: 20, zIndex: 10 }}
+                        style={{
+                            position: 'absolute',
+                            top: insets.top + 10,
+                            right: 20,
+                            zIndex: 10,
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            width: 36,
+                            height: 36,
+                            borderRadius: 18,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
                     >
-                        <Text style={{ color: 'white', fontSize: 18 }}>✕</Text>
+                        <Ionicons name="close" size={24} color="white" />
                     </Pressable>
 
                     {previewData?.type === 'image' && (
                         <ImageZoom
-                            cropWidth={Dimensions.get('window').width}
+                            cropWidth={width}
                             cropHeight={Dimensions.get('window').height}
-                            imageWidth={Dimensions.get('window').width}
+                            imageWidth={width}
                             imageHeight={Dimensions.get('window').height}
                         >
                             <Image
                                 source={{ uri: previewData.uri }}
                                 style={{
-                                    width: Dimensions.get('window').width,
+                                    width: width,
                                     height: Dimensions.get('window').height,
                                 }}
                                 contentFit="contain"
@@ -840,13 +852,17 @@ export default function PostDetailScreen({
                     )}
 
                     {previewData?.type === 'video' && (
-                        <Video
-                            source={{ uri: previewData.uri }}
-                            style={{ width: '100%', height: '100%' }}
-                            resizeMode={ResizeMode.CONTAIN}
-                            shouldPlay={previewVisible}
-                            useNativeControls
-                        />
+                        <View style={{ flex: 1, justifyContent: 'center' }}>
+                            <Video
+                                source={{ uri: previewData.uri }}
+                                style={{ width: '100%', height: '80%' }}
+                                resizeMode={ResizeMode.CONTAIN}
+                                shouldPlay={previewVisible}
+                                isMuted={false}
+                                useNativeControls={true}
+                                isLooping={false}
+                            />
+                        </View>
                     )}
                 </View>
             </Modal>
