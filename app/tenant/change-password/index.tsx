@@ -224,6 +224,7 @@ export default function ChangePassword({
             )}
           </View>
         </Button>
+
       </View>
     </ScrollView>
   );

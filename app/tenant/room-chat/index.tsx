@@ -26,13 +26,13 @@ import {
     RecallMessage,
 } from "@/api/chatApi"
 
+import noAvatar from "@/assets/images/noAvata.png"
+import { ThemedText } from "@/components/themed-text"
+import { useAuthStore } from "@/store/useAuthStore"
 import {
     ChatMessage,
     useChatRealtimeStore,
 } from "@/store/useChatRealtimeStore"
-
-import { ThemedText } from "@/components/themed-text"
-import { useAuthStore } from "@/store/useAuthStore"
 import { formatDateHeader, formatTime } from "@/utils/formatDateTime"
 
 const EMPTY_MESSAGES: ChatMessage[] = []
@@ -309,9 +309,9 @@ export default function RoomChatScreen() {
             >
                 {!isMe && (
                     <Image
-                        source={{
-                            uri: msg.from_avatar || undefined,
-                        }}
+                        source={msg.from_avatar ? {
+                            uri: msg.from_avatar,
+                        } : noAvatar}
                         style={{
                             width: 36,
                             height: 36,
@@ -425,7 +425,7 @@ export default function RoomChatScreen() {
 
 
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
+                behavior={Platform.OS === "ios" ? "padding" : "padding"}
 
                 keyboardVerticalOffset={Platform.OS === "ios" ? -20 : 0}
             >

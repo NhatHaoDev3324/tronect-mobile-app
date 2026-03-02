@@ -105,7 +105,8 @@ const PricingScreen = (props: ThemedViewProps) => {
                         borderRadius: 10,
                         paddingHorizontal: 8,
                         paddingVertical: 16,
-                        elevation: 2
+                        elevation: 2,
+                        marginTop: 12
                     }}
                 >
                     <Text className="text-lg font-bold text-foreground" style={{ marginBottom: 12 }}>
@@ -171,7 +172,8 @@ const PricingScreen = (props: ThemedViewProps) => {
                         borderRadius: 10,
                         paddingHorizontal: 12,
                         paddingVertical: 16,
-                        elevation: 2
+                        elevation: 2,
+                        marginTop: 12
                     }}
                 >
                     <Text className="text-lg font-bold text-foreground" style={{ marginBottom: 12 }}>
@@ -253,10 +255,13 @@ const PricingScreen = (props: ThemedViewProps) => {
                         borderRadius: 10,
                         paddingHorizontal: 12,
                         paddingVertical: 16,
-                        elevation: 2
+                        elevation: 2,
+                        marginTop: 12
                     }}
                 >
-                    <Text className="text-lg font-bold text-foreground" style={{ marginBottom: 12 }}>
+                    <Text className="text-lg font-bold text-foreground" style={{
+                        marginBottom: 12,
+                    }}>
                         2.2. Giá gia hạn loại tin
                     </Text>
 

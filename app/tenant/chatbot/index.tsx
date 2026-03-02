@@ -238,57 +238,58 @@ export default function ChatbotScreen({
                     <Icon as={Trash2} size={20} className="text-destructive" />
                 </Pressable>
             </View>
-            <ThemedView style={{ flex: 1, backgroundColor: backgroundColor }}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? -20 : -12}
+                style={{ flex: 1 }}
+            >
+                <ThemedView style={{ flex: 1, backgroundColor: backgroundColor }}>
 
 
-                {loading ? (
-                    <View className="flex-1 items-center justify-center">
-                        <ActivityIndicator size="large" color="#2baf90" />
-                    </View>
-                ) : (
-                    messages.length === 0 ? (
-                        <View style={{ flex: 1 }}>
-                            <View className="flex-1 items-center justify-center px-6">
-                                <Image
-                                    source={require('@/assets/images/chatbot.png')}
-                                    style={{
-                                        width: 120,
-                                        height: 120,
-                                        marginBottom: 20,
-                                    }}
-                                    resizeMode="contain"
-                                />
-
-                                <Text className="text-xl font-bold text-foreground mb-2">
-                                    Tronect AI 🤖
-                                </Text>
-                                <Text className="text-center text-muted-foreground mb-6 leading-5">
-                                    Tôi là trợ lý ảo của bạn.
-                                    Hãy đặt câu hỏi, nhờ tư vấn hoặc trò chuyện bất cứ lúc nào.
-                                </Text>
-
-                                <View className="bg-muted px-4 py-2 rounded-full">
-                                    <Text className="text-sm text-muted-foreground">
-                                        💬 Nhập tin nhắn để bắt đầu
-                                    </Text>
-                                </View>
-                            </View>
+                    {loading ? (
+                        <View className="flex-1 items-center justify-center">
+                            <ActivityIndicator size="large" color="#2baf90" />
                         </View>
                     ) : (
-                        <FlatList
-                            ref={flatListRef}
-                            data={messages}
-                            renderItem={renderMessage}
-                            keyExtractor={(item) => item.id}
-                            inverted
-                            contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
-                        />)
-                )}
+                        messages.length === 0 ? (
+                            <View style={{ flex: 1 }}>
+                                <View className="flex-1 items-center justify-center px-6">
+                                    <Image
+                                        source={require('@/assets/images/chatbot.png')}
+                                        style={{
+                                            width: 120,
+                                            height: 120,
+                                            marginBottom: 20,
+                                        }}
+                                        resizeMode="contain"
+                                    />
 
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 76 : 0}
-                >
+                                    <Text className="text-xl font-bold text-foreground mb-2">
+                                        Tronect AI 🤖
+                                    </Text>
+                                    <Text className="text-center text-muted-foreground mb-6 leading-5">
+                                        Tôi là trợ lý ảo của bạn.
+                                        Hãy đặt câu hỏi, nhờ tư vấn hoặc trò chuyện bất cứ lúc nào.
+                                    </Text>
+
+                                    <View className="bg-muted px-4 py-2 rounded-full">
+                                        <Text className="text-sm text-muted-foreground">
+                                            💬 Nhập tin nhắn để bắt đầu
+                                        </Text>
+                                    </View>
+                                </View>
+                            </View>
+                        ) : (
+                            <FlatList
+                                ref={flatListRef}
+                                data={messages}
+                                renderItem={renderMessage}
+                                keyExtractor={(item) => item.id}
+                                inverted
+                                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                            />)
+                    )}
+
                     <View className="flex-row items-center border-t border-border p-3 bg-background" style={{ paddingBottom: insets.bottom }}>
                         <Input
                             className="flex-1 mr-3 rounded-full"
@@ -312,8 +313,8 @@ export default function ChatbotScreen({
                             )}
                         </Button>
                     </View>
-                </KeyboardAvoidingView>
-            </ThemedView>
+                </ThemedView>
+            </KeyboardAvoidingView>
         </View >
     );
 }
