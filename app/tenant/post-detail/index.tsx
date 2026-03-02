@@ -363,10 +363,17 @@ export default function PostDetailScreen({
                             right: 12,
                         }}
                     >
-                        <Button360 picture_360={data?.picture_360} onPress={() => router.push({
-                            pathname: "/tenant/panorama360",
-                            params: { imageUrl: data?.picture_360 },
-                        })} />
+                        <Button360
+                            view360={data?.picture_360 || data?.tour_360 || null}
+                            onPress={() =>
+                                router.push({
+                                    pathname: "/tenant/panorama360",
+                                    params: {
+                                        imageUrl: data?.picture_360 || data?.tour_360,
+                                    },
+                                })
+                            }
+                        />
                     </View>
                 </View>
                 <View className="px-4 flex-row gap-2 justify-between mt-2" >
@@ -574,23 +581,39 @@ export default function PostDetailScreen({
                         </Text>
                     </View>
                     <View className="w-full rounded-xl overflow-hidden">
-                        <MapView
-                            style={{ width: "100%", height: 300 }}
-                            initialRegion={{
-                                latitude: Number(data?.lat),
-                                longitude: Number(data?.lng),
-                                latitudeDelta: 0.005,
-                                longitudeDelta: 0.005,
-                            }}
-                        >
-                            <Marker
-                                coordinate={{
-                                    latitude: Number(data?.lat),
-                                    longitude: Number(data?.lng),
+                        {data?.lat && data?.lng && isFinite(Number(data.lat)) && isFinite(Number(data.lng)) ? (
+                            <MapView
+                                key={`${data.lat}-${data.lng}`}
+                                style={{ width: "100%", height: 300 }}
+                                initialRegion={{
+                                    latitude: Number(data.lat),
+                                    longitude: Number(data.lng),
+                                    latitudeDelta: 0.005,
+                                    longitudeDelta: 0.005,
                                 }}
-                                title={data?.title}
-                            />
-                        </MapView>
+                            >
+                                <Marker
+                                    coordinate={{
+                                        latitude: Number(data.lat),
+                                        longitude: Number(data.lng),
+                                    }}
+                                    title={data?.title}
+                                />
+                            </MapView>
+                        ) : (
+                            <View
+                                style={{
+                                    width: "100%",
+                                    height: 300,
+                                    backgroundColor: "#f0f0f0",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    borderRadius: 8,
+                                }}
+                            >
+                                <ActivityIndicator size="small" color="#2baf90" />
+                            </View>
+                        )}
                     </View>
                     <View className="w-full h-11 items-center justify-center rounded-lg border border-border mt-1">
                         <Pressable className=" flex-row items-center justify-center gap-2 pb-1" onPress={() => { Linking.openURL(`https://www.google.com/maps?q=${data?.lat},${data?.lng}`) }}>

@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { PanResponder } from "react-native";
 import * as THREE from "three";
 
-export function Panorama360View({ imageUrl }: { imageUrl: string }) {
+export function Panorama360View({ imageUrl, onLoad }: { imageUrl: string, onLoad?: () => void }) {
     const meshRef = useRef<any>(null);
     const cameraRef = useRef<any>(null);
 
@@ -70,6 +70,7 @@ export function Panorama360View({ imageUrl }: { imageUrl: string }) {
         geometry.scale(-1, 1, 1);
 
         const texture = await loadAsync(imageUrl, renderer);
+        onLoad?.();
         const mesh = new THREE.Mesh(
             geometry,
             new THREE.MeshBasicMaterial({ map: texture })

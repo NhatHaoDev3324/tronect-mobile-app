@@ -246,7 +246,8 @@ export default function SearchResultScreen({
                                             }}
                                         >
                                             <TagVip postType={item.post_type} />
-                                            <Tag360 picture_360={item.picture_360} />
+                                            <Tag360 view360={item.picture_360 || item.tour_360 || null} />
+
                                         </View>
                                     </View>
 

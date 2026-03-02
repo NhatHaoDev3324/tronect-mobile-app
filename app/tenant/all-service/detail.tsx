@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Linking, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -197,23 +197,39 @@ const DetailServicePage = () => {
                                     </Text>
                                 </View>
                                 <View className="w-full rounded-xl overflow-hidden">
-                                    <MapView
-                                        style={{ width: "100%", height: 300 }}
-                                        initialRegion={{
-                                            latitude: Number(data?.lat),
-                                            longitude: Number(data?.lng),
-                                            latitudeDelta: 0.005,
-                                            longitudeDelta: 0.005,
-                                        }}
-                                    >
-                                        <Marker
-                                            coordinate={{
-                                                latitude: Number(data?.lat),
-                                                longitude: Number(data?.lng),
+                                    {data?.lat && data?.lng && isFinite(Number(data.lat)) && isFinite(Number(data.lng)) ? (
+                                        <MapView
+                                            key={`${data.lat}-${data.lng}`}
+                                            style={{ width: "100%", height: 300 }}
+                                            initialRegion={{
+                                                latitude: Number(data.lat),
+                                                longitude: Number(data.lng),
+                                                latitudeDelta: 0.005,
+                                                longitudeDelta: 0.005,
                                             }}
-                                            title={data?.title}
-                                        />
-                                    </MapView>
+                                        >
+                                            <Marker
+                                                coordinate={{
+                                                    latitude: Number(data.lat),
+                                                    longitude: Number(data.lng),
+                                                }}
+                                                title={data?.title}
+                                            />
+                                        </MapView>
+                                    ) : (
+                                        <View
+                                            style={{
+                                                width: "100%",
+                                                height: 300,
+                                                backgroundColor: "#f0f0f0",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                borderRadius: 8,
+                                            }}
+                                        >
+                                            <ActivityIndicator size="small" color="#2baf90" />
+                                        </View>
+                                    )}
                                 </View>
                             </View>
 

@@ -162,7 +162,8 @@ export default function SavedPostsScreen({
 
                                                 <View style={{ position: "absolute", bottom: 8, right: 8, flexDirection: "row", gap: 2 }}>
                                                     <TagVip postType={item.post_type} />
-                                                    <Tag360 picture_360={item.picture_360} />
+                                                    <Tag360 view360={item.picture_360 || item.tour_360 || null} />
+
                                                 </View>
                                             </View>
                                             <View className="p-2">

@@ -3,12 +3,18 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Pressable, StyleSheet, Text } from "react-native";
 
 interface Button360Props {
-    picture_360?: string | null;
+    view360?: string | null;
     onPress?: () => void;
 }
 
-export const Button360 = ({ picture_360, onPress }: Button360Props) => {
-    if (!picture_360) return null;
+export const Button360 = ({ view360, onPress }: Button360Props) => {
+    if (!view360) return null;
+
+    const isPanoeeUrl = (url: string) => {
+        return url?.startsWith("https://tour.panoee.net");
+    };
+
+    const canShow = !!view360 && isPanoeeUrl(view360);
 
     return (
         <Pressable
@@ -23,7 +29,7 @@ export const Button360 = ({ picture_360, onPress }: Button360Props) => {
                 style={styles.container}
             >
                 <MaterialCommunityIcons name="scan-helper" size={16} color="#fff" />
-                <Text style={styles.text}>Xem 360</Text>
+                <Text style={styles.text}>Xem 360{canShow && " Tour"}</Text>
             </LinearGradient>
         </Pressable>
     );

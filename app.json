@@ -9,18 +9,41 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "vn.tronect.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "icon": {
+        "light": "./assets/logo/icon/ios/ios-dark.png",
+        "dark": "./assets/logo/icon/ios/ios-light.png",
+        "tinted": "./assets/logo/icon/ios/ios-tinted.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png"
-        // "backgroundImage": "./assets/images/android-icon-background.png",
-        // "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "monochromeImage": "./assets/logo/icon/android/adaptive-icon.png",
+        "foregroundImage": "./assets/logo/icon/android/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDuO4zmPxOA7ZXRtGdMslvcy_9Gn0Nzpc4"
+        }
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.nhathao0303.tronectmobileapp"
+      "package": "vn.tronect.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -32,12 +55,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/logo/loading/light-Logo.png",
-          "imageWidth": 200,
+          "image": "./assets/logo/icon/splash/splash-icon-dark.png",
+          "imageWidth": 280,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
-            "image": "./assets/logo/loading/dark-Logo.png",
+            "image": "./assets/logo/icon/splash/splash-icon-light.png",
             "backgroundColor": "#000000"
           }
         }
@@ -50,11 +73,25 @@
           "photosPermission": "Cho phép Tronect lưu mã QR thanh toán vào thư viện ảnh.",
           "savePhotosPermission": "Cho phép Tronect lưu ảnh vào thiết bị của bạn."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enablePngCrunchInReleaseBuilds": false
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "861f16b4-44f7-45e5-9dde-4c723591d1c4"
+      }
     }
   }
 }

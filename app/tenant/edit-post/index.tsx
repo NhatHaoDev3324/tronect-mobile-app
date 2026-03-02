@@ -682,25 +682,45 @@ export default function EditPostScreen(props: ThemedViewProps) {
                             <Text className="text-red-500 text-sm mt-2">{errors.address}</Text>
                         ) : null}
                     </View>
-                    <View className="rounded-md">
-                        <MapView
-                            ref={mapRef}
-                            style={{ width: "100%", height: 300 }}
-                            initialRegion={{
-                                latitude: lat || 10.77551,
-                                longitude: lng || 106.702101,
-                                latitudeDelta: 0.05,
-                                longitudeDelta: 0.05,
-                            }}
-                        >
-                            <Marker
-                                coordinate={{
-                                    latitude: lat || 10.77551,
-                                    longitude: lng || 106.702101,
+                    <View className="rounded-md overflow-hidden">
+                        {lat !== null && lng !== null ? (
+                            <MapView
+                                key={`${lat}-${lng}`}
+                                ref={mapRef}
+                                style={{ width: "100%", height: 300 }}
+                                initialRegion={{
+                                    latitude: lat,
+                                    longitude: lng,
+                                    latitudeDelta: 0.005,
+                                    longitudeDelta: 0.005,
                                 }}
-                                title={nameMarker || ""}
-                            />
-                        </MapView>
+                            >
+                                <Marker
+                                    coordinate={{
+                                        latitude: lat,
+                                        longitude: lng,
+                                    }}
+                                    title={nameMarker || ""}
+                                />
+                            </MapView>
+                        ) : (
+                            <View
+                                style={{
+                                    width: "100%",
+                                    height: 300,
+                                    backgroundColor: "#f0f0f0",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    borderRadius: 8,
+                                    borderWidth: 1,
+                                    borderColor: "#e0e0e0",
+                                }}
+                            >
+                                <Text style={{ color: "#999", fontSize: 14 }}>
+                                    Nhập địa chỉ để hiển thị bản đồ
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
