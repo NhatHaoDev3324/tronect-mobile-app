@@ -183,115 +183,116 @@ export default function ServicePage() {
                     <LoadingData />
                 </View>
             ) : stored ? (stored?.address ? (
-                <View className="flex-1 px-4">
-                    <View className="bg-card rounded-xl px-4 py-3 mt-4 border border-border">
-                        <Text className="text-base font-semibold text-foreground">Vị trí đã lưu</Text>
-                        <View className="flex-row items-center gap-1">
-                            <Ionicons
-                                name="location-outline"
-                                size={16}
-                                color="#6b7280"
-                                style={{ marginTop: 2 }}
-                            />
-                            <Text className="text-muted-foreground flex-1" numberOfLines={1}
-                                ellipsizeMode="tail">{stored.address}</Text>
-                        </View>
-                    </View>
-                    <View className="flex-col mt-2 mb-3">
-                        <Text className="text-lg font-semibold text-foreground">
-                            Đối tác {title?.toLowerCase()} ở Tronect
-                        </Text>
-                        <Text className="text-sm text-muted-foreground">
-                            Các đối tác đã được Tronect xác thực thông tin.
-                        </Text>
-                        <View className="flex-row items-center mt-2">
-                            <View className="flex-row items-center border border-border rounded-xl px-4">
-                                <Ionicons name="search-outline" size={20} color="#6b7280" />
-                                <TextInput
-                                    value={search}
-                                    onChangeText={setSearch}
-                                    placeholder="Tìm theo tên đối tác..."
-                                    placeholderTextColor="#9ca3af"
-                                    className="ml-2 flex-1 p-2 text-foreground"
-                                    returnKeyType="search"
-                                    clearButtonMode="while-editing"
-                                />
+                <FlatList
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+                    data={filteredData}
+                    numColumns={2}
+                    columnWrapperStyle={{ gap: 12 }}
+                    keyExtractor={(item) => item.id}
+                    ListHeaderComponent={
+                        <>
+                            <View className="bg-card rounded-xl px-4 py-3 mt-4 border border-border">
+                                <Text className="text-base font-semibold text-foreground">Vị trí đã lưu</Text>
+                                <View className="flex-row items-center gap-1">
+                                    <Ionicons
+                                        name="location-outline"
+                                        size={16}
+                                        color="#6b7280"
+                                        style={{ marginTop: 2 }}
+                                    />
+                                    <Text className="text-muted-foreground flex-1" numberOfLines={1}
+                                        ellipsizeMode="tail">{stored.address}</Text>
+                                </View>
                             </View>
-                        </View>
-                    </View>
-                    <View>
-                        <FlatList
-                            data={filteredData}
-                            numColumns={2}
-                            columnWrapperStyle={{ gap: 8 }}
-                            contentContainerStyle={{ gap: 8 }}
-                            keyExtractor={(item) => item.id}
-                            scrollEnabled={false}
-                            ListEmptyComponent={
-                                search.trim() !== "" ? (
-                                    <View className="items-center justify-center py-10">
-                                        <Ionicons name="search-outline" size={52} color="#9ca3af" />
-                                        <Text className="mt-2 text-base font-semibold text-foreground">
-                                            Không tìm thấy kết quả phù hợp
-                                        </Text>
-                                        <Text className="mt-1 text-sm text-muted-foreground text-center px-6">
-                                            Không tìm thấy đối tác nào phù hợp với từ khóa
-                                        </Text>
+                            <View className="flex-col mt-2 mb-3">
+                                <Text className="text-lg font-semibold text-foreground">
+                                    Đối tác {title?.toLowerCase()} ở Tronect
+                                </Text>
+                                <Text className="text-sm text-muted-foreground">
+                                    Các đối tác đã được Tronect xác thực thông tin.
+                                </Text>
+                                <View className="flex-row items-center mt-2">
+                                    <View className="flex-row items-center border border-border rounded-xl px-4">
+                                        <Ionicons name="search-outline" size={20} color="#6b7280" />
+                                        <TextInput
+                                            value={search}
+                                            onChangeText={setSearch}
+                                            placeholder="Tìm theo tên đối tác..."
+                                            placeholderTextColor="#9ca3af"
+                                            className="ml-2 flex-1 p-2 text-foreground"
+                                            returnKeyType="search"
+                                            clearButtonMode="while-editing"
+                                        />
                                     </View>
-                                ) : (
-                                    <View className="items-center justify-center py-10">
-                                        <Text className="text-muted-foreground">
-                                            Hiện chưa có đối tác nào
-                                        </Text>
-                                    </View>
-                                )
+                                </View>
+                            </View>
+                        </>
+                    }
+                    ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                    ListEmptyComponent={
+                        search.trim() !== "" ? (
+                            <View className="items-center justify-center py-10">
+                                <Ionicons name="search-outline" size={52} color="#9ca3af" />
+                                <Text className="mt-2 text-base font-semibold text-foreground">
+                                    Không tìm thấy kết quả phù hợp
+                                </Text>
+                                <Text className="mt-1 text-sm text-muted-foreground text-center px-6">
+                                    Không tìm thấy đối tác nào phù hợp với từ khóa
+                                </Text>
+                            </View>
+                        ) : (
+                            <View className="items-center justify-center py-10">
+                                <Text className="text-muted-foreground">
+                                    Hiện chưa có đối tác nào
+                                </Text>
+                            </View>
+                        )
+                    }
+                    renderItem={({ item }) => (
+                        <Pressable style={{ width: "48.5%" }} onPress={() => router.push({
+                            pathname: `/tenant/all-service/detail`,
+                            params: {
+                                title: title,
+                                id: item.id,
                             }
-                            renderItem={({ item }) => (
-                                <Pressable style={{ width: "49%" }} onPress={() => router.push({
-                                    pathname: `/tenant/all-service/detail`,
-                                    params: {
-                                        title: title,
-                                        id: item.id,
-                                    }
-                                })}>
-                                    <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
-                                        <View style={{ position: "relative" }}>
-                                            <Image
-                                                source={{ uri: item.image }}
-                                                style={{ width: "100%", height: 120 }}
-                                                contentFit="cover"
-                                            />
-                                            <View style={{ position: "absolute", top: 8, left: 8 }} className="rounded-full bg-[#2baf90] px-3 py-1 shadow">
-                                                <Text className="text-xs font-semibold text-white">
-                                                    Mở cửa: {item.working_hours}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                        <View className="p-2">
-                                            <Text className="text-base font-semibold flex-1 text-ellipsis leading-5 text-foreground" numberOfLines={2} ellipsizeMode="tail">
-                                                {item.title}
-                                            </Text>
-                                            <Text className="text-red-500 font-bold text-sm mb-1">
-                                                Giá từ {Number(item.price_note).toLocaleString()} đ
-                                            </Text>
-                                            <View className="flex-row items-start gap-1">
-                                                <Ionicons
-                                                    name="location-outline"
-                                                    size={14}
-                                                    color="gray"
-                                                />
-                                                <Text className="text-xs text-muted-foreground flex-1" numberOfLines={1}
-                                                    ellipsizeMode="tail">
-                                                    {item.address}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </Card>
-                                </Pressable>
-                            )}
-                        />
-                    </View>
-                </View>
+                        })}>
+                            <Card className="overflow-hidden bg-background border-gray-200 dark:border-gray-900 p-0 gap-0">
+                                <View style={{ position: "relative" }}>
+                                    <Image
+                                        source={{ uri: item.image }}
+                                        style={{ width: "100%", height: 120 }}
+                                        contentFit="cover"
+                                    />
+                                    <View style={{ position: "absolute", top: 8, left: 8 }} className="rounded-full bg-[#2baf90] px-3 py-1 shadow">
+                                        <Text className="text-xs font-semibold text-white">
+                                            Mở cửa: {item.working_hours}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View className="p-2">
+                                    <Text className="text-base font-semibold flex-1 text-ellipsis leading-5 text-foreground" numberOfLines={2} ellipsizeMode="tail">
+                                        {item.title}
+                                    </Text>
+                                    <Text className="text-red-500 font-bold text-sm mb-1">
+                                        Giá từ {Number(item.price_note).toLocaleString()} đ
+                                    </Text>
+                                    <View className="flex-row items-start gap-1">
+                                        <Ionicons
+                                            name="location-outline"
+                                            size={14}
+                                            color="gray"
+                                        />
+                                        <Text className="text-xs text-muted-foreground flex-1" numberOfLines={1}
+                                            ellipsizeMode="tail">
+                                            {item.address}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </Card>
+                        </Pressable>
+                    )}
+                />
             ) : (
                 <View className="flex-1 items-center justify-center">
                     <Text className="text-muted-foreground">Vị trí không hợp lệ</Text>
