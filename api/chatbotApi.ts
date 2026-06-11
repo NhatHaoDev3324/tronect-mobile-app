@@ -10,7 +10,7 @@ export const sendChatbotMessage = async (
     message: string
 ): Promise<ChatbotResponse> => {
 
-    const res = await api.post<ChatbotResponse>("/api/chatbot/chat", {
+    const res = await api.post<ChatbotResponse>("/api/chatbot/chatgpt", {
         message,
     })
 
